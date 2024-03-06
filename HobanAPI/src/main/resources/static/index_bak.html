@@ -1,0 +1,76 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>검색 테스트</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	</head>
+	<body>
+		<h1 align="CENTER">검색 리스트</h1>
+		<div class="container">
+			<form>
+				<p>
+					<strong> 검색어 </strong> 
+					<input type="text" id="query" name="query">
+				</p>
+				<p>
+					<strong> 시작페이지 </strong> 
+					<input type="number" id="from" name="from">
+				</p>
+				<p>
+					<strong> 검색 출력건수 </strong> 
+					<input type="number" id="count" name="count">
+				</p>
+			</form>
+			<button onclick="ajaxTest()">검색</button>
+			<div id="item-list"></div>
+			<script>
+				function ajaxTest() {
+					var query = $("#query").val();
+					var from = $("#from").val();
+					var count = $("#count").val();
+				    var inputData = {
+										"query" : query,
+										"from" : from,
+										"count" : count
+									};
+				    $.ajax({
+					    url: "/search", // controller에서 요청받을 url
+					    method: "get", // 통신 타입 설정
+					    data: inputData,
+					    dataType: "json",
+					    contentType:"application/json;charset=UTF-8",
+					    async: false,
+					    success: function(response){
+					        if (response.data.length == 0) {
+					    	    alert('조회 결과가 없습니다.');
+					        }
+					        else {
+								var view = '';
+									response.data.forEach((arr, i) => {
+									console.log('code : ' + arr.code);
+				                    console.log('name :' + arr.name);
+					                    
+				                    view = view + '<li>';
+									view = view + '<p>';
+						    		view = view + '상품코드 : ' + arr.code;
+						    		view = view + '</p>';
+						    		view = view + '<p>';
+						    		view = view + '상품이름 : ' + arr.name;
+						    		view = view + '</p>';
+						    		view = view + '</li>';          
+				                    
+									});
+									
+						    	$("#item-list").html(view);
+					        }
+					    },
+					    error: function(data){
+					       alert('실패');
+					    }
+			    	});
+				};
+	
+				</script>
+		</div>
+	</body>
+</html>
