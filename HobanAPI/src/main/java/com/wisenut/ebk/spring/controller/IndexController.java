@@ -17,4 +17,9 @@ public class IndexController {
 
 		return "search";
 	}
+
+	@GetMapping("/")
+	public String indexRedirect(){
+		return "index";
+	}
 }
