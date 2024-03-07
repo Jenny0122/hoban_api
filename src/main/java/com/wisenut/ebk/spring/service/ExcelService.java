@@ -7,10 +7,18 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
+<<<<<<< HEAD
+=======
+import org.springframework.web.bind.annotation.RestController;
+>>>>>>> develop
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
+<<<<<<< HEAD
+=======
+@RestController
+>>>>>>> develop
 @Service
 @Slf4j
 public class ExcelService {
