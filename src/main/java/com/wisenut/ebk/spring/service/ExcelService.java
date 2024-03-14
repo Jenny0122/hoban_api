@@ -104,7 +104,7 @@ public class ExcelService {
         /**
          * download
          */
-        String fileName = "excel_example";
+        String fileName = "excel_personalData";
 
         res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xlsx");
@@ -162,7 +162,7 @@ public class ExcelService {
          * header data
          */
         int rowCount = 0; // 데이터가 저장될 행
-        String[] headerNames = new String[]{"첫번째 헤더", "두번째 헤더", "세번째 헤더"};
+        String[] headerNames = new String[]{"파일이름", "작성자", "최종 수정일"};
 
         Row headerRow = null;
         Cell headerCell = null;
@@ -200,7 +200,7 @@ public class ExcelService {
         /**
          * download
          */
-        String fileName = "excel_example";
+        String fileName = "excel_sensitiveData";
 
         res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xlsx");

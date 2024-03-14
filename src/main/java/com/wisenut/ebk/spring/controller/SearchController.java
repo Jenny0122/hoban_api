@@ -25,13 +25,12 @@ import java.util.Map;
 @Slf4j
 public class SearchController {
 
-
     @Autowired
     private SearchService service;
 
-    @RequestMapping(value = "/search/personal", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/search/personal", method = RequestMethod.POST, produces = "application/json")
     @Operation(summary = "개인정보 검색", description = "개인정보 추출검색")
-    public ResponseEntity<?> retrivePersonalDataSearchList(@RequestParam Map<String, String> params) {
+    public ResponseEntity<?> retrivePersonalDataSearchList(@RequestBody Map<String, String> params) {
 
         String collection = params.containsKey("searchTargetOID") ? params.get("searchTargetOID") : "";
         String query = params.containsKey("query") ? params.get("query") : "";
@@ -46,25 +45,25 @@ public class SearchController {
         return ResponseEntity.ok(dto);
     }
 
-    @RequestMapping(value = "/search/sensitive", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/search/sensitive", method = RequestMethod.POST, produces = "application/json")
     @Operation(summary = "민감정보검색", description = "입력받은 검색어로 민감정보 검색")
-    public ResponseEntity<?> retriveSensitiveDataSearchList(@RequestParam Map<String, String> params) {
+    public ResponseEntity<?> retriveSensitiveDataSearchList(@RequestBody Map<String, String> params) {
 
         String collection = params.containsKey("searchTargetOID") ? params.get("searchTargetOID") : "";
         String query = params.containsKey("query") ? params.get("query") : "";
 
         FileSearch file = FileSearch.builder()
                                     .build();
-        FolderSearch folder = FolderSearch.builder()
-                                          .build();
+        /*FolderSearch folder = FolderSearch.builder()
+                                          .build();*/
 
         try {
             if (collection.contentEquals("ALL") || collection.contentEquals("fileinfo")) {
                 file = service.searchSensitiveFileTotalListByCategory(params);
             }
-            if (collection.contentEquals("ALL") || collection.contentEquals("folderinfo")) {
+            /*if (collection.contentEquals("ALL") || collection.contentEquals("folderinfo")) {
                 folder = service.searchSensitiveFolderTotalListByCategory(params);
-            }
+            }*/
 
         } catch (MissingArgumentException mae) {
             return ResponseEntity.badRequest()
@@ -74,7 +73,7 @@ public class SearchController {
         TotalSearchDTOBuilder dtoBuilder = TotalSearchDTO.builder();
         List<Object> data = new ArrayList<>();
         data.add(file);
-        data.add(folder);
+        //data.add(folder);
         TotalSearchDTO dto = dtoBuilder.data(data)
                                        .query(query)
                                        .build();
@@ -82,9 +81,9 @@ public class SearchController {
         return ResponseEntity.ok(dto);
     }
 
-    @RequestMapping(value = "/search", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/search", method = RequestMethod.POST, produces = "application/json")
     @Operation(summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색")
-    public ResponseEntity<?> retriveSearchList(@RequestParam Map<String, String> params) {
+    public ResponseEntity<?> retriveSearchList(@RequestBody Map<String, String> params) {
 
         String collection = params.containsKey("searchTargetOID") ? params.get("searchTargetOID") : "";
         String query = params.containsKey("query") ? params.get("query") : "";
@@ -120,9 +119,9 @@ public class SearchController {
         return ResponseEntity.ok(dto);
     }
 
-    @RequestMapping(value = "/search/file", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/search/file", method = RequestMethod.POST, produces = "application/json")
     @Operation(summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색")
-    public ResponseEntity<?> retriveFileSearchList(@RequestParam Map<String, String> params) {
+    public ResponseEntity<?> retriveFileSearchList(@RequestBody Map<String, String> params) {
 
         String query = params.containsKey("query") ? params.get("query") : "";
 
@@ -146,9 +145,9 @@ public class SearchController {
         return ResponseEntity.ok(dto);
     }
 
-    @RequestMapping(value = "/search/folder", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/search/folder", method = RequestMethod.POST, produces = "application/json")
     @Operation(summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색")
-    public ResponseEntity<?> retriveFolderSearchList(@RequestParam Map<String, String> params) {
+    public ResponseEntity<?> retriveFolderSearchList(@RequestBody Map<String, String> params) {
 
         String query = params.containsKey("query") ? params.get("query") : "";
 

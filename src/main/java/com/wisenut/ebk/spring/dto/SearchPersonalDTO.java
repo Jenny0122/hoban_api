@@ -1,20 +1,22 @@
 package com.wisenut.ebk.spring.dto;
 
-import java.util.List;
-import java.util.Map;
-
+import com.wisenut.ebk.spring.vo.GroupVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.*;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class SearchPersonalDTO {
 	
-	String query;	
+	//String query;
 
-	List<Object> data;
-	
-	Map<String, Integer> customCategoryMap;	
+	@Builder.Default List<Object> data = Collections.emptyList();
+
+	@Builder.Default List<GroupVo> groups = Collections.emptyList();
+
+	@Builder.Default Map<String, Integer> customCategoryMap = Collections.emptyMap();
 }
