@@ -4,10 +4,13 @@ import com.wisenut.ebk.spring.MissingArgumentException;
 import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
 import com.wisenut.ebk.spring.dto.SearchPersonalDTO.SearchPersonalDTOBuilder;
 import com.wisenut.ebk.spring.vo.*;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,12 +18,13 @@ import java.util.Map;
 
 @Service
 @Slf4j
-
+@RequiredArgsConstructor
 public class SearchService {
 
     // 검색기 server 설정
     final String server_ip = "172.17.208.36";
     // final String server_ip = "127.0.0.1";
+    private final GroupNameService groupNameService;
 
     final int server_port = 7000;
     final int server_timeout = 10 * 1000;
@@ -692,7 +696,6 @@ public class SearchService {
 
     }
 
-
     /**
      * 개인정보 검색
      *
@@ -711,24 +714,31 @@ public class SearchService {
         log.info("**********************************");
 
         String query = "";
-        if (params.containsKey("query")) {
+        if (params.containsKey("query"))
             query = params.get("query");
-        } else {
+        /*} else {
             throw new MissingArgumentException("query는 '필수'값 입니다.");
-        }
+        }*/
 
         List<FileSearchVo> list = new ArrayList<>();
 
         // collection, 검색필드, 출력필드 정의
-        String COLLECTION = "";
-        if (params.containsKey("searchTargetOID")) {
+        String COLLECTION = "fileinfo";
+        if (params.containsKey("searchTargetOID"))
             COLLECTION = params.get("searchTargetOID");
-        } else {
+        /* } else {
             throw new MissingArgumentException("searchTargetOID는 '필수'값 입니다.");
-        }
+        }*/
 
         int QUERY_LOG = 1;
         int EXTEND_OR = 0;
+        String startDate = "1970/01/01";
+
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        String formattedDate = currentDate.format(formatter);
+        String endDate = formattedDate;
+
         int RESULT_COUNT = params.containsKey("count") ? Integer.parseInt(params.get("count")) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey("pageStart") ? Integer.parseInt(params.get("pageStart")) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SORT_FIELD = "DATE/DESC"; // 정렬필드
@@ -754,6 +764,9 @@ public class SearchService {
 
         // category 필드 설정(개인정보 추출 위함)
         int groupCount = search.w3GetCategoryCount(COLLECTION, "CUSTOM_CATEGORY", 1);
+        if (groupCount <= 0) return SearchPersonalDTO.builder()
+                                                     .groups(groupNameService.getGroupNames())
+                                                     .build();
         String categoryName = "";
         int categoryCount = 0;
         HashMap<String, Integer> tagCountMap = new HashMap<String, Integer>();
@@ -764,7 +777,9 @@ public class SearchService {
             tagCountMap.put(categoryName, categoryCount);
         }
 
-        String aclFilterInfos = "";
+        ret = search.w3SetDateRange(COLLECTION, startDate, endDate);
+
+       /* String aclFilterInfos = "";
         String aclfilterInfoOidType = "";
         // String aclfilterInfoAccessGrade = "";
 
@@ -784,18 +799,18 @@ public class SearchService {
                   .append(">");
                 sb.append("|");
 
-                /*
-                 * for(char c = aclfilterInfoAccessGrade.charAt(0); c <= 'z'; c++) {
-                 * sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append("|").
-                 * append(c).append(">"); sb.append("|"); }
-                 */
+
+                 for(char c = aclfilterInfoAccessGrade.charAt(0); c <= 'z'; c++) {
+                    sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append("|").
+                    append(c).append(">"); sb.append("|"); }
+
             }
             ret = search.w3SetFilterQuery(COLLECTION, sb
                     .substring(0, sb.toString()
                                     .length() - 1));
         } else {
             throw new MissingArgumentException("aclFilterInfos는 '필수'값 입니다.");
-        }
+        } */
 
         // request
         ret = search.w3ConnectServer(server_ip, server_port, server_timeout);
@@ -841,41 +856,35 @@ public class SearchService {
 
             // List<String> filterList = Arrays.asList(securityFilter.split("\\|"));
             List<SecurityVo> security = new ArrayList<>();
-            String[] aliasArr = alias.split("\\|");
-            for (String item : aliasArr) {
-                String securityInfo = item.split("/")[0];
-                String securityCount = "(" + item.split("/")[1] + ")";
+            if (!alias.trim()
+                      .contentEquals("")) {
+                String[] aliasArr = alias.split("\\|");
 
-                switch (securityInfo) {
-                    case "JUMIN":
-                        securityInfo = "주민등록번호";
-                        break;
-                    case "PHONE":
-                        securityInfo = "휴대폰번호";
-                        break;
-                    case "DRIVE":
-                        securityInfo = "운전면허번호";
-                        break;
-                    case "PASS_PORT":
-                        securityInfo = "여권번호";
-                        break;
-                    case "CREDIT":
-                        securityInfo = "카드번호";
-                        break;
-                    case "ACCOUNT":
-                        securityInfo = "계좌번호";
-                        break;
-                    case "HEALTH":
-                        securityInfo = "건강보험번호";
-                        break;
+                for (String item : aliasArr) {
+                    String securityInfo = item.split("/")[0];
+                    String securityCount = "(" + item.split("/")[1] + ")";
+
+                    switch (securityInfo) {
+                        case "JUMIN":
+                            securityInfo = "주민등록번호";
+                            break;
+                        case "FOREIGN":
+                            securityInfo = "외국인등록번호";
+                            break;
+                        case "DRIVE":
+                            securityInfo = "운전면허번호";
+                            break;
+                        case "PASS_PORT":
+                            securityInfo = "여권번호";
+                            break;
+                    }
+
+                    security.add(SecurityVo.builder()
+                                           .securityInfo(securityInfo)
+                                           .securityCount(securityCount)
+                                           .build());
                 }
-
-                security.add(SecurityVo.builder()
-                                       .securityInfo(securityInfo)
-                                       .securityCount(securityCount)
-                                       .build());
             }
-
 
             FileSearchVo vo = FileSearchVo.builder()
                                           .oid(oid)
@@ -919,13 +928,12 @@ public class SearchService {
         List<Object> data = new ArrayList<>();
         data.add(file);
         SearchPersonalDTO dto = dtoBuilder.data(data)
-                                          .query(query)
+                                          .groups(groupNameService.getGroupNames())
                                           .customCategoryMap(tagCountMap)
                                           .build();
 
         return dto;
     }
-
 
     public FileSearch searchSensitiveFileTotalListByCategory(Map<String, String> params) throws MissingArgumentException {
 
@@ -945,7 +953,7 @@ public class SearchService {
         List<FileSearchVo> list = new ArrayList<>();
 
         // collection, 검색필드, 출력필드 정의
-        String COLLECTION = "";
+        String COLLECTION = "fileinfo";
         if (params.containsKey("searchTargetOID")) {
             COLLECTION = params.get("searchTargetOID");
             if (COLLECTION.contentEquals("ALL"))
@@ -1086,15 +1094,10 @@ public class SearchService {
 
             log.info("list  : " + list);
 
-        }
+		return FileSearch.builder().Collection(COLLECTION).TotalCount(totalCount).Count(resultCount).Result(list)
+				.build();
 
-        return FileSearch.builder()
-                         .Collection(COLLECTION)
-                         .TotalCount(totalCount)
-                         .Count(resultCount)
-                         .Result(list)
-                         .build();
-    }
+	}
 
     public FolderSearch searchSensitiveFolderTotalListByCategory(Map<String, String> params) throws MissingArgumentException {
 
@@ -1114,7 +1117,7 @@ public class SearchService {
         List<FolderSearchVo> list = new ArrayList<>();
 
         // collection, 검색필드, 출력필드 정의
-        String COLLECTION = "";
+        String COLLECTION = "folderinfo";
         if (params.containsKey("searchTargetOID")) {
             COLLECTION = params.get("searchTargetOID");
             if (COLLECTION.contentEquals("ALL"))
