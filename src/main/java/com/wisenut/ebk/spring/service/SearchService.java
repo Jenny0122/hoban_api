@@ -754,7 +754,7 @@ public class SearchService {
         // category 필드 설정(개인정보 추출 위함)
         int groupCount = search.w3GetCategoryCount( COLLECTION , "CUSTOM_CATEGORY" , 1 );
         if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
-                                                       .groups( groupNameService.getGroupNames( ) )
+//                                                       .groups( groupNameService.getGroupNames( ) )
                                                        .build( );
         String categoryName = "";
         int categoryCount = 0;
