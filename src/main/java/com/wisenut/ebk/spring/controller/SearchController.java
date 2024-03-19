@@ -61,9 +61,6 @@ public class SearchController {
             if (collection.contentEquals("ALL") || collection.contentEquals("fileinfo")) {
                 file = service.searchSensitiveFileTotalListByCategory(params);
             }
-            /*if (collection.contentEquals("ALL") || collection.contentEquals("folderinfo")) {
-                folder = service.searchSensitiveFolderTotalListByCategory(params);
-            }*/
 
         } catch (MissingArgumentException mae) {
             return ResponseEntity.badRequest()
