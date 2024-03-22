@@ -16,7 +16,7 @@
         $("#sensitive-search").click(function () {
             var body = {};
             body.searchTargetOID = 'fileinfo'
-            body.query = '호반건설'
+            body.query = 'hoban'
 
             console.log(body)
             $.ajax({

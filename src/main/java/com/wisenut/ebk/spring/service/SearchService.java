@@ -750,17 +750,20 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+        ret = search.w3AddCategoryGroupBy( COLLECTION, "CUSTOM_CATEGORY", "1/SC");
 
         // category 필드 설정(개인정보 추출 위함)
         int groupCount = search.w3GetCategoryCount( COLLECTION , "CUSTOM_CATEGORY" , 1 );
-        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
+        System.out.println( "groupcount: " + groupCount );
+//        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
 //                                                       .groups( groupNameService.getGroupNames( ) )
-                                                       .build( );
+//                                                       .build( );
         String categoryName = "";
         int categoryCount = 0;
         HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
 
-        for ( int i = 0 ; i < groupCount ; i++ ) {
+//        for ( int i = 0 ; i < groupCount ; i++ ) {
+        for ( int i = 0 ; i < 10000 ; i++ ) {
             categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
             categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
             tagCountMap.put( categoryName , categoryCount );
@@ -841,6 +844,7 @@ public class SearchService {
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
             String content = search.w3GetField( COLLECTION , "CONTENT" , i );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
+            //String customcategory = search.w3GetField( COLLECTION, "CUSTOM_CATEGORY", i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
 
             // List<String> filterList = Arrays.asList(securityFilter.split("\\|"));
@@ -1079,7 +1083,6 @@ public class SearchService {
                                           .build( );
 
             list.add( vo );
-
 
 
         }

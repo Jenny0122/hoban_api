@@ -18,10 +18,8 @@ import javax.servlet.http.HttpSession;
 public class ExcelController {
 
     private final ExcelService service;
-
     @Value( "${key.sensitive}" )
     String sensitiveKey;
-
     @Value( "${key.personal}" )
     String personalKey;
 
