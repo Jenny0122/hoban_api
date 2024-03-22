@@ -51,6 +51,11 @@ public class SearchController {
             return ResponseEntity.badRequest( )
                                  .body( mae.toString( ) );
         }
+        
+        
+        HttpSession session = request.getSession( );
+        session.setAttribute( personalKey, dto);
+        
         return ResponseEntity.ok( dto );
     }
 

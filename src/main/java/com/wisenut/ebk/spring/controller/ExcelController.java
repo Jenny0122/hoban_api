@@ -1,16 +1,19 @@
 package com.wisenut.ebk.spring.controller;
 
-import com.wisenut.ebk.spring.dto.TotalSearchDTO;
-import com.wisenut.ebk.spring.service.ExcelService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
+import com.wisenut.ebk.spring.dto.TotalSearchDTO;
+import com.wisenut.ebk.spring.service.ExcelService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @RestController
@@ -18,6 +21,7 @@ import javax.servlet.http.HttpSession;
 public class ExcelController {
 
     private final ExcelService service;
+    
     @Value( "${key.sensitive}" )
     String sensitiveKey;
     @Value( "${key.personal}" )
@@ -27,8 +31,8 @@ public class ExcelController {
     public void getPersonalDataExcel( HttpServletRequest request , HttpServletResponse res ) throws Exception {
 
         HttpSession session = request.getSession( );
-        session.getAttribute( personalKey );
-        service.getPersonalDataExcel( res );
+        SearchPersonalDTO dto = (SearchPersonalDTO)session.getAttribute( personalKey );
+        service.getPersonalDataExcel( res , dto);
     }
 
     @GetMapping( "/sensitive/excel" )

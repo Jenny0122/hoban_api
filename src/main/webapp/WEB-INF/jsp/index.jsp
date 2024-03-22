@@ -20,7 +20,7 @@
 
             console.log(body)
             $.ajax({
-                url: '/search/sensitive',
+                url: '/search/personal',
                 data: JSON.stringify(body),
                 type: 'POST',
                 contentType: 'application/json'
@@ -31,7 +31,7 @@
 
         $("#download").click(function () {
             $.ajax({
-                url: '/sensitive/excel',
+                url: '/personal/excel',
                 type: 'GET',
                 cache: false,
                 xhrFields: {
