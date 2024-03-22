@@ -771,10 +771,10 @@ public class SearchService {
 //                                                       .build( );
         String categoryName = "";
         int categoryCount = 0;
-        Map< String, Integer > tagCountMap = new HashMap< String, Integer >( );
+        HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
 
-        for ( int i = 0 ; i < groupCount ; i++ ) {
-        //for ( int i = 0 ; i < 10000 ; i++ ) {
+//        for ( int i = 0 ; i < groupCount ; i++ ) {
+        for ( int i = 0 ; i < 10000 ; i++ ) {
             categoryName = search.w3GetCategoryName( COLLECTION , CATEGORY_FILED , 1 , i );
             categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , CATEGORY_FILED , 1 , i );
             tagCountMap.put( categoryName , categoryCount );
