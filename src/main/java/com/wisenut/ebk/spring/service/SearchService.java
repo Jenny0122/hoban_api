@@ -37,6 +37,7 @@ public class SearchService {
      * @param aclfilterInfo   보안 정보
      * @throws MissingArgumentException
      * @author 안선정
+     * 
      */
     public FileSearch searchFileTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
@@ -69,7 +70,7 @@ public class SearchService {
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
         else
-            SORT_FIELD = "DATE/DESC";
+            SORT_FIELD = "RANK/DESC";
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -91,6 +92,7 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+        ret = search.w3SetRanking( COLLECTION, "basic", "prkfmol", 1000 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -305,12 +307,13 @@ public class SearchService {
     /**
      * 문서 통합 검색
      *
+     * @param query           검색어
+     * @param searchTargetOID 검색 대상 컬렉션
+     * @param aclfilterInfo   보안 정보
      * @throws MissingArgumentException
      * @author 안선정
+     * 
      */
-
-    // public List<DocumentSearchVo> searchDocumentTotalListByCategory(String
-    // collection, String query, String userinfo, String aclfilterInfo) {
     public DocumentSearch searchDocumentTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
         log.info( "**********************************" );
@@ -459,8 +462,12 @@ public class SearchService {
     /**
      * 폴더 통합 검색
      *
+     * @param query           검색어
+     * @param searchTargetOID 검색 대상 컬렉션
+     * @param aclfilterInfo   보안 정보
      * @throws MissingArgumentException
      * @author 안선정
+     * 
      */
     public FolderSearch searchFolderTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
@@ -691,8 +698,10 @@ public class SearchService {
     /**
      * 개인정보 검색
      *
+     * @param searchTargetOID 검색 대상 컬렉션
      * @throws MissingArgumentException
      * @author 안선정
+     * 
      */
     public SearchPersonalDTO searchPersonalDataTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
@@ -924,6 +933,16 @@ public class SearchService {
         return dto;
     }
 
+    
+    /**
+     * 민감정보 검색
+     *
+     * @param query           검색어
+     * @param searchTargetOID 검색 대상 컬렉션
+     * @throws MissingArgumentException
+     * @author 안선정
+     * 
+     */
     public FileSearch searchSensitiveFileTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
         log.info( "**********************************" );
