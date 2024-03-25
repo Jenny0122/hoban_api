@@ -1,15 +1,9 @@
 package com.wisenut.ebk.spring.vo;
 
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.List;
 
 /**
  * 파일 통합 검색 필드 정보
@@ -97,8 +91,8 @@ public class FileSearchVo {
 	@Schema(description = "보안 정보")
 	private String aclkeycode;
 
-	@Schema(description = "개인 정보")
-	private String customcategory;
+	//@Schema(description = "개인 정보")
+	//private String customcategory;
 	
 	@Schema(description = "개인 정보")
 	private List<SecurityVo> security;

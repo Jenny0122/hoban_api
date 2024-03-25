@@ -4,12 +4,14 @@ import com.wisenut.ebk.spring.vo.GroupVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
 @Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class SearchPersonalDTO {
 	
 	//String query;
@@ -18,5 +20,5 @@ public class SearchPersonalDTO {
 
 	@Builder.Default List<GroupVo> groups = Collections.emptyList();
 
-	@Builder.Default Map<String, Integer> customCategoryMap = Collections.emptyMap();
+	@Builder.Default Map<String, Integer> customCategoryMap = Collections.EMPTY_MAP;
 }

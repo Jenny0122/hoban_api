@@ -6,6 +6,7 @@ import com.wisenut.ebk.spring.dto.SearchPersonalDTO.SearchPersonalDTOBuilder;
 import com.wisenut.ebk.spring.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,11 +23,15 @@ import java.util.Map;
 public class SearchService {
 
     // 검색기 server 설정
-    final String server_ip = "172.17.208.36";
+    //final String server_ip = "172.17.208.36";
     final int server_port = 7000;
     final int server_timeout = 10 * 1000;
-    // final String server_ip = "127.0.0.1";
+    final String server_ip = "127.0.0.1";
     private final GroupNameService groupNameService;
+
+    @Value( "${engine.server.ip}" )
+    String new_ip;
+
     RestTemplate restTemplate = new RestTemplate( );
 
     /**
@@ -69,7 +74,7 @@ public class SearchService {
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
         else
-            SORT_FIELD = "DATE/DESC";
+            SORT_FIELD = "RANK/DESC";
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -91,6 +96,8 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -342,7 +349,7 @@ public class SearchService {
         int EXTEND_OR = 0;
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SORT_FIELD = "DATE/DESC"; // 정렬필드
+        String SORT_FIELD = "RANK/DESC"; // 정렬필드
         String SEARCH_FIELD = "NAME,DESCRIPTION,TAGLIST,CREATOROID,CREATORNAME,DIRECTOR,AUTHOR,COAUTHOR,REVIEWER,APPROVER,RECEIVER,CREATEDATN,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPFULLPATHOID,DOCTYPEOID"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,DIRECTOR,AUTHOR,COAUTHOR,REVIEWER,APPROVER,RECEIVER,CREATEDAT,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,REVIEWEDAT,REVIEWEDATN,APPROVEDAT,APPROVEDATN,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
 
@@ -362,6 +369,8 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         String aclFilterInfos = "";
         String aclfilterInfoOidType = "";
@@ -490,7 +499,7 @@ public class SearchService {
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
         else
-            SORT_FIELD = "DATE/DESC";
+            SORT_FIELD = "RANK/DESC";
         String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDATN,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,CREATOROID,CREATORGROUPNAME,CREATEDAT,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,MANAGERGROUPOID,FULLPATHINDEX,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
 
@@ -514,6 +523,8 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -730,9 +741,10 @@ public class SearchService {
 
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SORT_FIELD = "DATE/DESC"; // 정렬필드
+        String SORT_FIELD = "RANK/DESC"; // 정렬필드
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
+        String CATEGORY_FILED = "CUSTOM_CATEGORY";
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -751,18 +763,24 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+
+        // category
+        ret = search.w3AddCategoryGroupBy( COLLECTION , CATEGORY_FILED , "1/SC/10" );
+
         // category 필드 설정(개인정보 추출 위함)
-        int groupCount = search.w3GetCategoryCount( COLLECTION , "CUSTOM_CATEGORY" , 1 );
-        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
-                                                       .groups( groupNameService.getGroupNames( ) )
-                                                       .build( );
+        int groupCount = search.w3GetCategoryCount( COLLECTION , CATEGORY_FILED , 1 );
+        System.out.println( "groupcount: " + groupCount );
+//        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
+//                                                       .groups( groupNameService.getGroupNames( ) )
+//                                                       .build( );
         String categoryName = "";
         int categoryCount = 0;
         HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
 
         for ( int i = 0 ; i < groupCount ; i++ ) {
-            categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
-            categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
+            categoryName = search.w3GetCategoryName( COLLECTION , CATEGORY_FILED , 1 , i );
+            categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , CATEGORY_FILED , 1 , i );
             tagCountMap.put( categoryName , categoryCount );
         }
 
@@ -841,6 +859,7 @@ public class SearchService {
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
             String content = search.w3GetField( COLLECTION , "CONTENT" , i );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
+            //String customcategory = search.w3GetField( COLLECTION, "CUSTOM_CATEGORY", i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
 
             // List<String> filterList = Arrays.asList(securityFilter.split("\\|"));
@@ -1006,7 +1025,7 @@ public class SearchService {
 
 
         // request
-        ret = search.w3ConnectServer( server_ip , server_port , server_timeout );
+        ret = search.w3ConnectServer( new_ip , server_port , server_timeout );
         ret = search.w3ReceiveSearchQueryResult( 3 );
 
         // check error
@@ -1079,7 +1098,6 @@ public class SearchService {
                                           .build( );
 
             list.add( vo );
-
 
 
         }

@@ -29,7 +29,5 @@ public class FileSearch {
     
 	@Builder.Default int Count = 0;
     
-	@Builder.Default List<FileSearchVo> Result = Collections.emptyList()
-			;
-	@Builder.Default List<GroupVo> groups = Collections.emptyList();
+	@Builder.Default List<FileSearchVo> Result = Collections.emptyList();
 }
