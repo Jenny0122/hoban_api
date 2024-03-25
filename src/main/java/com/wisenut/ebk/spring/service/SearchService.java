@@ -6,6 +6,7 @@ import com.wisenut.ebk.spring.dto.SearchPersonalDTO.SearchPersonalDTOBuilder;
 import com.wisenut.ebk.spring.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,11 +23,15 @@ import java.util.Map;
 public class SearchService {
 
     // 검색기 server 설정
-    final String server_ip = "172.17.208.36";
+    //final String server_ip = "172.17.208.36";
     final int server_port = 7000;
     final int server_timeout = 10 * 1000;
-    // final String server_ip = "127.0.0.1";
+    final String server_ip = "127.0.0.1";
     private final GroupNameService groupNameService;
+
+    @Value( "${engine.server.ip}" )
+    String new_ip;
+
     RestTemplate restTemplate = new RestTemplate( );
 
     /**
@@ -92,7 +97,7 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
-        ret = search.w3SetRanking( COLLECTION, "basic", "prkmfo",1000);
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -365,7 +370,7 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
-        ret = search.w3SetRanking( COLLECTION, "basic", "prkmfo",1000);
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         String aclFilterInfos = "";
         String aclfilterInfoOidType = "";
@@ -519,7 +524,7 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
-        ret = search.w3SetRanking( COLLECTION, "basic", "prkmfo",1000);
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -758,10 +763,10 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
-        ret = search.w3SetRanking( COLLECTION, "basic", "prkmfo",1000);
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         // category
-        ret = search.w3AddCategoryGroupBy( COLLECTION, CATEGORY_FILED, "1/SC/10");
+        ret = search.w3AddCategoryGroupBy( COLLECTION , CATEGORY_FILED , "1/SC/10" );
 
         // category 필드 설정(개인정보 추출 위함)
         int groupCount = search.w3GetCategoryCount( COLLECTION , CATEGORY_FILED , 1 );
@@ -1020,7 +1025,7 @@ public class SearchService {
 
 
         // request
-        ret = search.w3ConnectServer( server_ip , server_port , server_timeout );
+        ret = search.w3ConnectServer( new_ip , server_port , server_timeout );
         ret = search.w3ReceiveSearchQueryResult( 3 );
 
         // check error
