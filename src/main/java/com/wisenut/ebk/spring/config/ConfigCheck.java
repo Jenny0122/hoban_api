@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 public class ConfigCheck {
 
     private final ApplicationContext context;
+
     @Value( "${engine.server.ip}" )
     String new_ip;
 
