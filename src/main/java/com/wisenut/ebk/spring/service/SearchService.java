@@ -67,7 +67,7 @@ public class SearchService {
         int EXTEND_OR = 0;
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10;// 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CONTENT"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 
         String SORT_FIELD = ""; // 정렬필드
@@ -500,7 +500,7 @@ public class SearchService {
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
         else
             SORT_FIELD = "RANK/DESC";
-        String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDATN,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER"; // 검색필드
+        String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,FULLPATHINDEX,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,CREATOROID,CREATORGROUPNAME,CREATEDAT,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,MANAGERGROUPOID,FULLPATHINDEX,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
 
         // create object
@@ -742,9 +742,8 @@ public class SearchService {
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SORT_FIELD = "RANK/DESC"; // 정렬필드
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CONTENT"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
-        String CATEGORY_FIELD = "CUSTOM_CATEGORY";
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -764,16 +763,16 @@ public class SearchService {
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
         // category
-        ret = search.w3AddCategoryGroupBy( COLLECTION , CATEGORY_FIELD , "1/SC" );
-        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+        ret = search.w3AddCategoryGroupBy( COLLECTION , "CUSTOM_CATEGORY" , "1/SC" );
         ret = search.w3SetDateRange( COLLECTION , startDate , endDate );
+        ret = search.w3SetRanking( COLLECTION ,"basic","prkmfo",0 );
 
         // request
         ret = search.w3ConnectServer( server_ip , server_port , server_timeout );
         ret = search.w3ReceiveSearchQueryResult( 3 );
 
         // category 필드 설정(개인정보 추출 위함)
-        int groupCount = search.w3GetCategoryCount( COLLECTION , CATEGORY_FIELD , 1 );
+        int groupCount = search.w3GetCategoryCount( COLLECTION , "CUSTOM_CATEGORY" , 1 );
         if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
                                                        .groups( groupNameService.getGroupNames( ) )
                                                        .build( );
@@ -785,11 +784,13 @@ public class SearchService {
 
         for ( int i = 0 ; i < groupCount ; i++ ) {
             categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
-            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" ) ) continue;
+//            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" ) ) continue;
 
 
             categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
-            tagCountMap.put( categoryName , categoryCount );
+            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" )) {
+                tagCountMap.put( categoryName , categoryCount );
+            }
         }
 
 
@@ -804,9 +805,11 @@ public class SearchService {
         int totalCount = 0;
 //        int resultCount = search.w3GetResultCount( COLLECTION );
 
-        int i = 0;
-//        for ( int i = 0 ; i < 10 ; i++ ) {
-        while ( i < RESULT_COUNT ) {
+        int count = 0;
+        boolean check = true;
+        for ( int i = 0 ; check ; i++ ) {
+//        int i = 0;
+//        while ( check ) {
 
             // 기본 검색결과 객체 생성
             String oid = search.w3GetField( COLLECTION , "OID" , i );
@@ -832,11 +835,8 @@ public class SearchService {
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
             String customcategory = search.w3GetField( COLLECTION , "CUSTOM_CATEGORY" , i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
-            if ( oid == null || oid.contentEquals( "" )) break;
-            else
-                i++;
 
-            // List<String> filterList = Arrays.asList(securityFilter.split("\\|"));
+
             List< SecurityVo > security = new ArrayList<>( );
             if ( !alias.trim( )
                        .contentEquals( "" ) ) {
@@ -893,12 +893,16 @@ public class SearchService {
                                           .customcategory( customcategory )
                                           .security( security )
                                           .build( );
-            log.info( "{}: {}" , i , vo.toString( ) );
+            System.out.println(vo);
             if ( !customcategory.isEmpty( ) ) {
                 totalCount++;
-                list.add( vo );
-            }
 
+                if ( count < RESULT_COUNT ) {
+                    count++;
+                    list.add( vo );
+                }
+            }
+            check = !( oid == null || oid.contentEquals( "" ) );
         }
 
         log.info( "list  : " + list );
@@ -906,19 +910,18 @@ public class SearchService {
         FileSearch file = FileSearch.builder( )
                                     .Collection( COLLECTION )
                                     .TotalCount( totalCount )
-                                    .Count( i )
+                                    .Count( count )
                                     .Result( list )
                                     .build( );
 
         SearchPersonalDTOBuilder dtoBuilder = SearchPersonalDTO.builder( );
         List< Object > data = new ArrayList<>( );
         data.add( file );
-        SearchPersonalDTO dto = dtoBuilder.data( data )
-                                          .groups( groupNameService.getGroupNames( ) )
-                                          .customCategoryMap( tagCountMap )
-                                          .build( );
 
-        return dto;
+        return dtoBuilder.data( data )
+                         .groups( groupNameService.getGroupNames( ) )
+                         .customCategoryMap( tagCountMap )
+                         .build( );
     }
 
     public FileSearch searchSensitiveFileTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
@@ -953,7 +956,7 @@ public class SearchService {
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SORT_FIELD = "DATE/DESC"; // 정렬필드
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CONTENT"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 
         // create object
