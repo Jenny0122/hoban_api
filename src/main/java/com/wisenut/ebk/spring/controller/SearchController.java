@@ -5,7 +5,6 @@ import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
 import com.wisenut.ebk.spring.dto.TotalSearchDTO;
 import com.wisenut.ebk.spring.dto.TotalSearchDTO.TotalSearchDTOBuilder;
 import com.wisenut.ebk.spring.service.SearchService;
-import com.wisenut.ebk.spring.vo.DocumentSearch;
 import com.wisenut.ebk.spring.vo.FileSearch;
 import com.wisenut.ebk.spring.vo.FolderSearch;
 import io.swagger.v3.oas.annotations.Operation;
@@ -105,15 +104,15 @@ public class SearchController {
 
         FileSearch file = FileSearch.builder( )
                                     .build( );
-        DocumentSearch document = DocumentSearch.builder( )
-                                                .build( );
+//        DocumentSearch document = DocumentSearch.builder( )
+//                                                .build( );
         FolderSearch folder = FolderSearch.builder( )
                                           .build( );
         try {
             if ( collection.contentEquals( "ALL" ) || collection.contentEquals( "fileinfo" ) )
                 file = service.searchFileTotalListByCategory( params );
-            if ( collection.contentEquals( "ALL" ) || collection.contentEquals( "documentinfo" ) )
-                document = service.searchDocumentTotalListByCategory( params );
+//            if ( collection.contentEquals( "ALL" ) || collection.contentEquals( "documentinfo" ) )
+//                document = service.searchDocumentTotalListByCategory( params );
             if ( collection.contentEquals( "ALL" ) || collection.contentEquals( "folderinfo" ) )
                 folder = service.searchFolderTotalListByCategory( params );
         } catch ( MissingArgumentException mae ) {
@@ -123,7 +122,7 @@ public class SearchController {
 
         TotalSearchDTOBuilder dtoBuilder = TotalSearchDTO.builder( );
         List< Object > Data = new ArrayList<>( );
-        Data.add( document );
+        //Data.add( document );
         Data.add( folder );
         Data.add( file );
         TotalSearchDTO dto = dtoBuilder.data( Data )

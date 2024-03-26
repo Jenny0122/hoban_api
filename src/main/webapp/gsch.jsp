@@ -53,14 +53,14 @@
                 //console.log(resultData.data[0].collection); // documentinfo
                 //console.log(resultData.data[1].collection); // folderinfo
                 //console.log(resultData.data[2].collection); // fileinfo
-                pageFileTot = parseInt(resultData.data[2].totalCount) / 10;
+                pageFileTot = parseInt(resultData.data[1].totalCount) / 10;
                 //console.log("fileinfo totalCount => "+resultData.data[2].totalCount); // fileinfo totalCount
                 pageFile(); // 페이징 정의
 
-                schTotal += parseInt(resultData.data[1].totalCount); // 폴더
-                schTotal += parseInt(resultData.data[2].totalCount); // 파일
-                schFolderTotal += parseInt(resultData.data[1].totalCount); // 폴더 count
-                schFileTotal += parseInt(resultData.data[2].totalCount); // 파일 count
+                schTotal += parseInt(resultData.data[0].totalCount); // 폴더
+                schTotal += parseInt(resultData.data[1].totalCount); // 파일
+                schFolderTotal += parseInt(resultData.data[0].totalCount); // 폴더 count
+                schFileTotal += parseInt(resultData.data[1].totalCount); // 파일 count
 
                 $("#sch-total").html(schTotal);
                 //$("#sch-folder-total").html(schFolderTotal);
@@ -69,14 +69,14 @@
                 // 파일
                 var fileHtml = "";
                 var fileNo = (pageFileNum * 10) + 1;
-                for( i = 0; i < resultData.data[2].result.length; i++ )
+                for( i = 0; i < resultData.data[1].result.length; i++ )
                 {
                     if( fileNo < 10 ){
                         var fileNoTxt = "0"+fileNo;
                     }else{
                         var fileNoTxt = fileNo;
                     }
-                    var list_data = resultData.data[2].result[i];
+                    var list_data = resultData.data[1].result[i];
                     var regDate = "";
                     //if( list_data['createdat'] != "" ){
                     //    regDate = list_data['createdat'].substr(0,10);
@@ -186,14 +186,14 @@
                 //console.log(resultData.data[0].collection); // documentinfo
                 //console.log(resultData.data[1].collection); // folderinfo
                 //console.log(resultData.data[2].collection); // fileinfo
-                pageFolderTot = parseInt(resultData.data[1].totalCount) / 10;
+                pageFolderTot = parseInt(resultData.data[0].totalCount) / 10;
                 //console.log("folderinfo totalCount => "+resultData.data[1].totalCount); // folderinfo totalCount
                 pageFolder(); // 페이징 정의
 
-                schTotal += parseInt(resultData.data[1].totalCount); // 폴더
-                schTotal += parseInt(resultData.data[2].totalCount); // 파일
-                schFolderTotal += parseInt(resultData.data[1].totalCount); // 폴더 count
-                schFileTotal += parseInt(resultData.data[2].totalCount); // 파일 count
+                schTotal += parseInt(resultData.data[0].totalCount); // 폴더
+                schTotal += parseInt(resultData.data[1].totalCount); // 파일
+                schFolderTotal += parseInt(resultData.data[0].totalCount); // 폴더 count
+                schFileTotal += parseInt(resultData.data[1].totalCount); // 파일 count
 
                 //$("#sch-total").html(schTotal);
                 $("#sch-folder-total").html(schFolderTotal);
@@ -209,7 +209,7 @@
                     }else{
                         var fileNoTxt = fileNo;
                     }
-                    var list_data = resultData.data[1].result[i];
+                    var list_data = resultData.data[0].result[i];
                     var regDate = "";
                     if( list_data['createdat'] != "" ){
                         regDate = list_data['createdat'].substr(0,10);
@@ -304,8 +304,8 @@
         <div class="hobanS_search02">
             <nav>
                 <ul class="tabMenu01">
-                    <li><a href="javascript:;" class="active">파일</a></li>
-                    <li><a href="javascript:;">폴더</a></li>
+                    <li><a href="javascript:" class="active">파일</a></li>
+                    <li><a href="javascript:">폴더</a></li>
                 </ul>
                 <p>'<%=schKwd %>' 에 대한 검색결과는 <b>총<span id="sch-total">0</span>건</b> 입니다.</p>
                 <div class="detail">상세검색</div>

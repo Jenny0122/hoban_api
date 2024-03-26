@@ -1,16 +1,10 @@
 package com.wisenut.ebk.spring.vo;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 /**
  * 문서 통합 검색 필드 정보

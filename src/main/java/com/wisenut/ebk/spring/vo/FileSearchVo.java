@@ -91,8 +91,8 @@ public class FileSearchVo {
 	@Schema(description = "보안 정보")
 	private String aclkeycode;
 
-	//@Schema(description = "개인 정보")
-	//private String customcategory;
+	@Schema(description = "개인 정보")
+	private String customcategory;
 	
 	@Schema(description = "개인 정보")
 	private List<SecurityVo> security;

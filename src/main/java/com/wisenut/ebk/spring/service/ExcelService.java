@@ -1,21 +1,12 @@
 package com.wisenut.ebk.spring.service;
 
 
-import java.net.URLEncoder;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
+import com.wisenut.ebk.spring.dto.TotalSearchDTO;
+import com.wisenut.ebk.spring.vo.FileSearch;
+import com.wisenut.ebk.spring.vo.FileSearchVo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -23,12 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
-import com.wisenut.ebk.spring.dto.TotalSearchDTO;
-import com.wisenut.ebk.spring.vo.FileSearch;
-import com.wisenut.ebk.spring.vo.FileSearchVo;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RestController
 @Service

@@ -1,7 +1,6 @@
 package com.wisenut.ebk.spring;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -15,17 +14,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableJpaRepositories(basePackages = {"com.wisenut.ebk.spring.repository"})
 @SpringBootApplication
 //@EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
-@EnableAutoConfiguration
 public class HobanSearchApplication extends SpringBootServletInitializer {
+
+	public static void main(String[] args) {
+		SpringApplication.run(HobanSearchApplication.class, args);
+	}
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 
 		return application.sources(HobanSearchApplication.class);
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(HobanSearchApplication.class, args);
 	}
 
 	@Bean

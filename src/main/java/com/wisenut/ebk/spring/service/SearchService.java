@@ -23,10 +23,10 @@ import java.util.Map;
 public class SearchService {
 
     // 검색기 server 설정
-    //final String server_ip = "172.17.208.36";
+    final String server_ip = "172.17.208.36";
     final int server_port = 7000;
     final int server_timeout = 10 * 1000;
-    final String server_ip = "127.0.0.1";
+    //final String server_ip = "127.0.0.1";
     private final GroupNameService groupNameService;
 
     @Value( "${engine.server.ip}" )
@@ -162,13 +162,13 @@ public class SearchService {
             aclFilterInfos = params.get( "aclFilterInfos" );
 
             StringBuilder sb = new StringBuilder( );
+            sb.append( "(" );
             for ( String item : aclFilterInfos.split( "," ) ) {
 
                 String[] aclfilterInfoDetails = item.trim( )
                                                     .split( "\\|" );
                 aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
                 // aclfilterInfoAccessGrade = aclfilterInfoDetails[1];
-                sb.append( "(" );
                 sb.append( "<ACLKEYCODE:substring:" )
                   .append( aclfilterInfoOidType )
                   .append( ">" );
@@ -570,13 +570,13 @@ public class SearchService {
         if ( params.containsKey( "aclFilterInfos" ) ) {
             aclFilterInfos = params.get( "aclFilterInfos" );
             StringBuilder sb = new StringBuilder( );
+            sb.append( "(" );
             for ( String item : aclFilterInfos.split( "," ) ) {
 
                 String[] aclfilterInfoDetails = item.trim( )
                                                     .split( "\\|" );
                 aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
                 // aclfilterInfoAccessGrade = aclfilterInfoDetails[1];
-                sb.append( "(" );
                 sb.append( "<ACLKEYCODE:substring:" )
                   .append( aclfilterInfoOidType )
                   .append( ">" );
@@ -744,7 +744,7 @@ public class SearchService {
         String SORT_FIELD = "RANK/DESC"; // 정렬필드
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
-        String CATEGORY_FILED = "CUSTOM_CATEGORY";
+        String CATEGORY_FIELD = "CUSTOM_CATEGORY";
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -763,65 +763,35 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
-        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
-
         // category
-        ret = search.w3AddCategoryGroupBy( COLLECTION , CATEGORY_FILED , "1/SC/10" );
-
-        // category 필드 설정(개인정보 추출 위함)
-        int groupCount = search.w3GetCategoryCount( COLLECTION , CATEGORY_FILED , 1 );
-        System.out.println( "groupcount: " + groupCount );
-//        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
-//                                                       .groups( groupNameService.getGroupNames( ) )
-//                                                       .build( );
-        String categoryName = "";
-        int categoryCount = 0;
-        HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
-
-        for ( int i = 0 ; i < groupCount ; i++ ) {
-            categoryName = search.w3GetCategoryName( COLLECTION , CATEGORY_FILED , 1 , i );
-            categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , CATEGORY_FILED , 1 , i );
-            tagCountMap.put( categoryName , categoryCount );
-        }
-
+        ret = search.w3AddCategoryGroupBy( COLLECTION , CATEGORY_FIELD , "1/SC" );
+        ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
         ret = search.w3SetDateRange( COLLECTION , startDate , endDate );
-
-       /* String aclFilterInfos = "";
-        String aclfilterInfoOidType = "";
-        // String aclfilterInfoAccessGrade = "";
-
-        if (params.containsKey("aclFilterInfos")) {
-            aclFilterInfos = params.get("aclFilterInfos");
-            StringBuilder sb = new StringBuilder();
-
-            for (String item : aclFilterInfos.split(",")) {
-
-                String[] aclfilterInfoDetails = item.trim()
-                                                    .split("\\|");
-                aclfilterInfoOidType = aclfilterInfoDetails[0];
-                //aclfilterInfoAccessGrade = aclfilterInfoDetails[1];
-
-                sb.append("<ACLKEYCODE:substring:")
-                  .append(aclfilterInfoOidType)
-                  .append(">");
-                sb.append("|");
-
-
-                 for(char c = aclfilterInfoAccessGrade.charAt(0); c <= 'z'; c++) {
-                    sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append("|").
-                    append(c).append(">"); sb.append("|"); }
-
-            }
-            ret = search.w3SetFilterQuery(COLLECTION, sb
-                    .substring(0, sb.toString()
-                                    .length() - 1));
-        } else {
-            throw new MissingArgumentException("aclFilterInfos는 '필수'값 입니다.");
-        } */
 
         // request
         ret = search.w3ConnectServer( server_ip , server_port , server_timeout );
         ret = search.w3ReceiveSearchQueryResult( 3 );
+
+        // category 필드 설정(개인정보 추출 위함)
+        int groupCount = search.w3GetCategoryCount( COLLECTION , CATEGORY_FIELD , 1 );
+        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
+                                                       .groups( groupNameService.getGroupNames( ) )
+                                                       .build( );
+
+        String categoryName = "";
+        int categoryCount = 0;
+        HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
+
+
+        for ( int i = 0 ; i < groupCount ; i++ ) {
+            categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
+            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" ) ) continue;
+
+
+            categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
+            tagCountMap.put( categoryName , categoryCount );
+        }
+
 
         // check error
         if ( search.w3GetError( ) != 0 ) {
@@ -830,12 +800,13 @@ public class SearchService {
         }
 
         // 전체건수, 결과건수 출력
-        int totalCount = search.w3GetResultTotalCount( COLLECTION );
-        int resultCount = search.w3GetResultCount( COLLECTION );
+//        int totalCount = search.w3GetResultTotalCount( COLLECTION );
+        int totalCount = 0;
+//        int resultCount = search.w3GetResultCount( COLLECTION );
 
-        log.info( "검색 결과 : " + resultCount + "건 / 전체 건수 : " + totalCount + "건" );
-
-        for ( int i = 0 ; i < resultCount ; i++ ) {
+        int i = 0;
+//        for ( int i = 0 ; i < 10 ; i++ ) {
+        while ( i < RESULT_COUNT ) {
 
             // 기본 검색결과 객체 생성
             String oid = search.w3GetField( COLLECTION , "OID" , i );
@@ -859,8 +830,11 @@ public class SearchService {
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
             String content = search.w3GetField( COLLECTION , "CONTENT" , i );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
-            //String customcategory = search.w3GetField( COLLECTION, "CUSTOM_CATEGORY", i );
+            String customcategory = search.w3GetField( COLLECTION , "CUSTOM_CATEGORY" , i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
+            if ( oid == null || oid.contentEquals( "" )) break;
+            else
+                i++;
 
             // List<String> filterList = Arrays.asList(securityFilter.split("\\|"));
             List< SecurityVo > security = new ArrayList<>( );
@@ -916,10 +890,14 @@ public class SearchService {
                                           .checkout( checkout )
                                           .content( content )
                                           .aclkeycode( aclKeyCode )
+                                          .customcategory( customcategory )
                                           .security( security )
                                           .build( );
-
-            list.add( vo );
+            log.info( "{}: {}" , i , vo.toString( ) );
+            if ( !customcategory.isEmpty( ) ) {
+                totalCount++;
+                list.add( vo );
+            }
 
         }
 
@@ -928,7 +906,7 @@ public class SearchService {
         FileSearch file = FileSearch.builder( )
                                     .Collection( COLLECTION )
                                     .TotalCount( totalCount )
-                                    .Count( resultCount )
+                                    .Count( i )
                                     .Result( list )
                                     .build( );
 
@@ -1098,7 +1076,6 @@ public class SearchService {
                                           .build( );
 
             list.add( vo );
-
 
         }
 
