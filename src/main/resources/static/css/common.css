@@ -152,7 +152,7 @@ button{
 }
 .hobanS_search02{
   background-color: #fff;
-  width: 100%; height: 60px;
+  width: 100%; height: 60px; min-width: 1200px;
   border-bottom: 1px solid #ccc;
 }
 .hobanS_search02 nav{
@@ -226,13 +226,18 @@ button{
 } */
 .hobanS_search02 .listUp{
   background-color: #F5F5F5;
-  width: 220px; height: 32px;
+  width: auto; height: 32px;
   line-height: 32px;
   border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   text-align: center;
   color: #666;
+  padding: 0 8px 0 0;
+}
+.hobanS_search02 .listUp label{
+  cursor: pointer;
+  margin-left:7px;
 }
 .listUp input{
   margin: -2px 4px 0;
@@ -244,6 +249,7 @@ button{
   padding: 30px 0;
   margin-bottom: 50px;
   position: relative;
+  min-width: 1200px;
 }
 .hobanS_contents > div{
   display: none;
@@ -259,6 +265,7 @@ button{
   width: 1200px;
   margin: 0 auto 30px;
   padding: 5px 20px;
+  position: relative;
 }
 .detailSearch > div{
   display: flex;
@@ -271,25 +278,49 @@ button{
   border-bottom: none;
 }
 .detailSearch h3{
-  width: 120px; 
+  width: 120px;
   height: 26px;
   line-height: 26px;
 }
-.detailSearch a{
-  padding: 0 12px;
-  border-left: 1px solid #E5E5E5;
+.detailSearch ul{
+  display: flex;
+  justify-content: left;
+}
+.detailSearch li{
+  padding: 0 0 0 20px;
+  /* border-left: 1px solid #E5E5E5; */
   display: block;
   text-align: center;
   font-weight: 500;
-  min-width: 56px;
-  height: 26px; 
+  /*min-width: 56px;*/
+  height: 26px;
   line-height: 26px;
+}
+.detailSearch input[type='radio']{
+  /*margin-right: 8px;*/
+  display: none;
+  opacity: 0;
+}
+.detailSearch label{
+  cursor: pointer;
+}
+.detailSearch input[type="radio"] + label{
+  color: #111;
+}
+.detailSearch input[type="radio"]:checked + label{
+  color: #EE7500;
+}
+.detailSearch .btn{
+  position: absolute;
+  top: 50%; right: 20px;
+  transform: translate(0, -50%);
 }
 .period{
   background-color: #fff;
   padding: 2px 5px;
   border-radius: 4px;
   border: 1px solid #E5E5E5;
+  margin-left: 15px;
 }
 .period > input{
   font-family: 'Pretendard', 'dotum', sans-serif;
@@ -401,7 +432,8 @@ table td{
 .contents .title{
   font-size: 20px;
   letter-spacing: -1px;
-  width: 700px;
+  /*width: 700px;*/
+  width: auto;
   line-height: 24px;
   word-break: break-all;
   overflow: hidden;
@@ -422,7 +454,7 @@ table td{
   border-radius: 2px;
   padding: 2px 4px;
   color: #fff;
-  font-size: 12px; 
+  font-size: 12px;
   font-weight: 500;
   margin-right: 6px;
 }
@@ -445,12 +477,12 @@ table td{
 .contents .location{
   text-decoration: underline;
   color: #888;
-  font-size: 14px; 
+  font-size: 14px;
   font-weight: 500;
 }
 .location button{
   background: none;
-  margin-left: 3px;
+  margin-left: 7px;
   vertical-align: middle;
   opacity: 0.6;
 }
@@ -458,10 +490,9 @@ table td{
   background-color: #F5F5F5;
   padding: 8px 12px;
   color: #888;
-  font-size: 14px; 
+  font-size: 14px;
   font-weight: 500;
 }
-
 .bottomWrap{
   width: 1200px;
   margin: auto;
@@ -470,7 +501,6 @@ table td{
   justify-content: space-between;
   align-items: center;
 }
-
 .pagination{
   margin: 50px auto;
   display: flex;
@@ -510,16 +540,25 @@ table td{
 .btn > button{
   min-width: 120px;
   background-color: #575553;
+  border: 1px solid #4A4846;
   padding: 0 10px;
   margin-left: 4px;
   height: 40px; line-height: 40px;
   border-radius: 4px;
-  border: 1px solid #4A4846;
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
 }
 .btn > button:hover{
   background-color: #4A4846;
+}
+.btn.Orange > button{
+  min-width: 74px;
+  background-color: #EE7500;
+  border: 1px solid #DC5403;
+  height: 34px; line-height: 34px;
+}
+.btn.Orange > button:hover{
+  background-color: #DC5403;
 }
 
 .special{
@@ -603,4 +642,13 @@ table td{
 .treeWrap .label03 li{
   padding: 12px 0  3px 23px;
   border-bottom: none;
+}
+.no-data{
+  display:block;
+  margin:0;
+  padding:150px 0;
+  text-align:center;
+  font-size:3em;
+  font-weight:300;
+  color:#ccc;
 }

@@ -49,6 +49,9 @@ public class FileSearchVo {
 	@Schema(description = "등록자 부서 이름")
 	private String creatorgroupname;
 
+	@Schema(description = "등록일")
+	private String createdat;
+
 	@Schema(description = "최종 수정자")
 	private String lastmodifieroid;
 

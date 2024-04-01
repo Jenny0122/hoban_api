@@ -93,6 +93,7 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+        ret = search.w3SetHighlight( COLLECTION, 1, 1);
 
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
@@ -286,11 +287,14 @@ public class SearchService {
             String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
             String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
             String filename = search.w3GetField( COLLECTION , "FILENAME" , i );
+            filename = filename.replaceAll("<!HS>", "<b>");
+            filename = filename.replaceAll("<!HE>", "</b>");
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
             String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
+            String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
             String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
             String filetype = search.w3GetField( COLLECTION , "FILETYPE" , i );
@@ -298,12 +302,16 @@ public class SearchService {
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
             String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
+            folderfullpathname = folderfullpathname.replaceAll("<!HS>", "<b>");
+            folderfullpathname = folderfullpathname.replaceAll("<!HE>", "</b>");
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
             String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
             String content = search.w3GetField( COLLECTION , "CONTENT" , i );
+            content = content.replaceAll("<!HS>", "<b>");
+            content = content.replaceAll("<!HE>", "</b>");
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
 
             // String managergroupfullpathoid = search.w3GetField(COLLECTION,
@@ -320,6 +328,7 @@ public class SearchService {
                                           .creatoroid( creatoroid )
                                           .creatorname( creatorname )
                                           .creatorgroupname( creatorgroupname )
+                                          .createdat(createdat)
                                           .lastmodifieroid( lastmodifieroid )
                                           .lastmodifiedat( lastmodifiedat )
                                           .filetype( filetype )
@@ -565,6 +574,8 @@ public class SearchService {
         ret = search.w3SetSortField( COLLECTION , SORT_FIELD );
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
+        ret = search.w3SetHighlight( COLLECTION, 1, 1);
+
 
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
@@ -701,6 +712,8 @@ public class SearchService {
             // 기본 검색결과 객체 생성
             String oid = search.w3GetField( COLLECTION , "OID" , i );
             String foldername = search.w3GetField( COLLECTION , "NAME" , i );
+            foldername = foldername.replaceAll("<!HS>", "<b>");
+            foldername = foldername.replaceAll("<!HE>", "</b>");
             String description = search.w3GetField( COLLECTION , "DESCRIPTION" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
@@ -786,7 +799,7 @@ public class SearchService {
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SORT_FIELD = "DATE/DESC"; // 정렬필드
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
+        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -861,6 +874,7 @@ public class SearchService {
         int categoryCount = 0;
         HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
 
+
         for ( int i = 0 ; i < groupCount ; i++ ) {
             categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
             if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" ) ) continue;
@@ -868,6 +882,7 @@ public class SearchService {
             categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
             tagCountMap.put( categoryName , categoryCount );
         }
+
 
         // check error
         if ( search.w3GetError( ) != 0 ) {
@@ -896,6 +911,7 @@ public class SearchService {
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
             String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
+            String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
             String filetype = search.w3GetField( COLLECTION , "FILETYPE" , i );
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
@@ -910,6 +926,7 @@ public class SearchService {
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
             String customcategory = search.w3GetField( COLLECTION , "CUSTOM_CATEGORY" , i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
+
 
             List< SecurityVo > security = new ArrayList<>( );
             if ( !alias.trim( )
@@ -952,6 +969,7 @@ public class SearchService {
                                           .creatoroid( creatoroid )
                                           .creatorname( creatorname )
                                           .creatorgroupname( creatorgroupname )
+                                          .createdat(createdat)
                                           .lastmodifiedat( lastmodifiedat )
                                           .filetype( filetype )
                                           .filesize( filesize )
@@ -979,6 +997,7 @@ public class SearchService {
         }
 
         log.info( "list  : " + list );
+
         FileSearch file = FileSearch.builder( )
                                     .Collection( COLLECTION )
                                     .TotalCount( totalCount )
@@ -1028,7 +1047,7 @@ public class SearchService {
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SORT_FIELD = "DATE/DESC"; // 정렬필드
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
+        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -1111,6 +1130,7 @@ public class SearchService {
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
             String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
             String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
@@ -1137,6 +1157,7 @@ public class SearchService {
                                           .creatoroid( creatoroid )
                                           .creatorname( creatorname )
                                           .creatorgroupname( creatorgroupname )
+                                          .createdat(createdat)
                                           .lastmodifieroid( lastmodifieroid )
                                           .lastmodifiedat( lastmodifiedat )
                                           .filetype( filetype )
@@ -1166,6 +1187,4 @@ public class SearchService {
                          .Result( list )
                          .build( );
     }
-
-
 }
