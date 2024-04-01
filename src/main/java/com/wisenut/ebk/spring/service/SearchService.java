@@ -37,9 +37,6 @@ public class SearchService {
     /**
      * 파일 통합 검색
      *
-     * @param query           검색어
-     * @param searchTargetOID 검색 대상 컬렉션
-     * @param aclfilterInfo   보안 정보
      * @throws MissingArgumentException
      * @author 안선정
      */
@@ -68,7 +65,7 @@ public class SearchService {
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10;// 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색결과를 받아오는 시작 위치
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
+        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 
         String SORT_FIELD = ""; // 정렬필드
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -102,10 +99,17 @@ public class SearchService {
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
+        //dodtype
+        String doctype = "";
+        if ( params.containsKey( "doctype" ) ) {
+            doctype = params.get("doctype");
+            collectionQueryBuilder.append("<DOCTYPEOID:contains:" + doctype + ">");
+            collectionQueryBuilder.append(" ");
+        }
+
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
-//			ret = search.w3SetFilterQuery(COLLECTION, "<FILENAME:substring:" + name + ">"); 
             filterQueryBuilder.append( "<FILENAME:substring:" + name + ">" );
             filterQueryBuilder.append( " " );
         }
@@ -204,11 +208,49 @@ public class SearchService {
             filterQueryBuilder.append( " " );
         }
 
-        String folderOid = "";
+        String folderOids = "";
         if ( params.containsKey( "folderOid" ) ) {
-            folderOid = params.get( "folderOid" );
-//			ret = search.w3SetFilterQuery(COLLECTION, "<FOLDERFULLPATHOID:substring:"+ folderOid + ">");
-            filterQueryBuilder.append( "<FOLDERFULLPATHOID:substring:" + folderOid + ">" );
+            folderOids = params.get( "folderOid" );
+
+            StringBuilder sb = new StringBuilder( );
+            sb.append( "(" );
+
+            String[] folderOidArray = folderOids.split( "," );
+
+            for ( String folderOid : folderOidArray ) {
+                folderOid = folderOid.trim();
+                sb.append( "<FOLDERFULLPATHOID:substring:" )
+                  .append( folderOid )
+                  .append( ">" )
+                  .append( "|" );
+            }
+            filterQueryBuilder.append( sb.toString( )
+                                         .subSequence( 0 , sb.toString( )
+                                                             .length( ) - 1 ) );
+            filterQueryBuilder.append( ")" );
+            filterQueryBuilder.append( " " );
+        }
+
+        String lastmodifierOids = "";
+        if ( params.containsKey( "lastmodifieroid" ) ) {
+            lastmodifierOids = params.get( "lastmodifieroid" );
+
+            StringBuilder sb = new StringBuilder( );
+            sb.append( "(" );
+
+            String[] lastmodifieroidArray = lastmodifierOids.split( "," );
+
+            for ( String lastmodifieroid : lastmodifieroidArray ) {
+                lastmodifieroid = lastmodifieroid.trim();
+                sb.append( "<LASTMODIFIEROID:substring:" )
+                  .append( lastmodifieroid )
+                  .append( ">" )
+                  .append( "|" );
+            }
+            filterQueryBuilder.append( sb.toString( )
+                                         .subSequence( 0 , sb.toString( )
+                                                             .length( ) - 1 ) );
+            filterQueryBuilder.append( ")" );
             filterQueryBuilder.append( " " );
         }
 
@@ -529,6 +571,13 @@ public class SearchService {
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
+        String doctype = "";
+        if ( params.containsKey( "doctype" ) ) {
+            doctype = params.get("doctype");
+            collectionQueryBuilder.append("<DOCTYPEFOLDER:contains:" + doctype + ">");
+            collectionQueryBuilder.append(" ");
+        }
+
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
@@ -716,9 +765,6 @@ public class SearchService {
         String query = "";
         if ( params.containsKey( "query" ) )
             query = params.get( "query" );
-        /*} else {
-            throw new MissingArgumentException("query는 '필수'값 입니다.");
-        }*/
 
         List< FileSearchVo > list = new ArrayList<>( );
 
@@ -726,9 +772,6 @@ public class SearchService {
         String COLLECTION = "fileinfo";
         if ( params.containsKey( "searchTargetOID" ) )
             COLLECTION = params.get( "searchTargetOID" );
-        /* } else {
-            throw new MissingArgumentException("searchTargetOID는 '필수'값 입니다.");
-        }*/
 
         int QUERY_LOG = 1;
         int EXTEND_OR = 0;
@@ -741,7 +784,7 @@ public class SearchService {
 
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SORT_FIELD = "RANK/DESC"; // 정렬필드
+        String SORT_FIELD = "DATE/DESC"; // 정렬필드
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 
@@ -754,6 +797,7 @@ public class SearchService {
         ret = search.w3SetQueryLog( QUERY_LOG );
         ret = search.w3SetCommonQuery( query , EXTEND_OR );
         log.info( "query : " + query );
+        ret = search.w3SetTraceLog(300);
 
         // collection, 검색 필드, 출력 필드 설정
         ret = search.w3AddCollection( COLLECTION );
@@ -765,7 +809,43 @@ public class SearchService {
         // category
         ret = search.w3AddCategoryGroupBy( COLLECTION , "CUSTOM_CATEGORY" , "1/SC" );
         ret = search.w3SetDateRange( COLLECTION , startDate , endDate );
-        ret = search.w3SetRanking( COLLECTION ,"basic","prkmfo",0 );
+
+        StringBuilder collectionQueryBuilder = new StringBuilder( );
+
+        //dodtype
+        String doctype = "";
+        if ( params.containsKey( "doctype" ) ) {
+            doctype = params.get("doctype");
+
+            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" + doctype + ">" );
+            collectionQueryBuilder.append( " " );
+        }
+
+        //group
+        String groups = "";
+        if ( params.containsKey( "group" ) ) {
+            groups = params.get("group");
+
+            StringBuilder sb = new StringBuilder( );
+            sb.append( "(" );
+
+            String[] groupArray = groups.split( "," );
+
+            for ( String group : groupArray ) {
+                group = group.trim();
+                sb.append( "<CREATORGROUPNAME:contains:" )
+                  .append( group )
+                  .append( ">" )
+                  .append( "|" );
+            }
+            collectionQueryBuilder.append( sb.toString( )
+                                         .subSequence( 0 , sb.toString( )
+                                                             .length( ) - 1 ) );
+            collectionQueryBuilder.append( ")" );
+            collectionQueryBuilder.append( " " );
+        }
+        ret = search.w3SetCollectionQuery( COLLECTION , collectionQueryBuilder.toString( )
+                                                                              .trim( ) );
 
         // request
         ret = search.w3ConnectServer( server_ip , server_port , server_timeout );
@@ -773,26 +853,21 @@ public class SearchService {
 
         // category 필드 설정(개인정보 추출 위함)
         int groupCount = search.w3GetCategoryCount( COLLECTION , "CUSTOM_CATEGORY" , 1 );
-        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
-                                                       .groups( groupNameService.getGroupNames( ) )
-                                                       .build( );
+//        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
+//                                                       .groups( groupNameService.getGroupNames( ) )
+//                                                       .build( );
 
         String categoryName = "";
         int categoryCount = 0;
         HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
 
-
         for ( int i = 0 ; i < groupCount ; i++ ) {
             categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
-//            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" ) ) continue;
-
+            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" ) ) continue;
 
             categoryCount = search.w3GetDocumentCountInCategory( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
-            if ( categoryName.isEmpty( ) || categoryName.contentEquals( "null" )) {
-                tagCountMap.put( categoryName , categoryCount );
-            }
+            tagCountMap.put( categoryName , categoryCount );
         }
-
 
         // check error
         if ( search.w3GetError( ) != 0 ) {
@@ -835,7 +910,6 @@ public class SearchService {
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
             String customcategory = search.w3GetField( COLLECTION , "CUSTOM_CATEGORY" , i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
-
 
             List< SecurityVo > security = new ArrayList<>( );
             if ( !alias.trim( )
@@ -890,7 +964,6 @@ public class SearchService {
                                           .checkout( checkout )
                                           .content( content )
                                           .aclkeycode( aclKeyCode )
-                                          .customcategory( customcategory )
                                           .security( security )
                                           .build( );
             System.out.println(vo);
@@ -906,7 +979,6 @@ public class SearchService {
         }
 
         log.info( "list  : " + list );
-
         FileSearch file = FileSearch.builder( )
                                     .Collection( COLLECTION )
                                     .TotalCount( totalCount )
@@ -919,7 +991,6 @@ public class SearchService {
         data.add( file );
 
         return dtoBuilder.data( data )
-                         .groups( groupNameService.getGroupNames( ) )
                          .customCategoryMap( tagCountMap )
                          .build( );
     }
@@ -976,34 +1047,42 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
-		/*String aclFilterInfos = "";
-		String aclfilterInfoOidType = "";
-		// String aclfilterInfoAccessGrade = "";
+        StringBuilder collectionQueryBuilder = new StringBuilder( );
 
-		if (params.containsKey("aclFilterInfos")) {
-			aclFilterInfos = params.get("aclFilterInfos");
-			StringBuilder sb = new StringBuilder();
+        //dodtype
+        String doctype = "";
+        if ( params.containsKey( "doctype" ) ) {
+            doctype = params.get("doctype");
 
-			for (String item : aclFilterInfos.split(",")) {
+            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" + doctype + ">" );
+            collectionQueryBuilder.append( " " );
+        }
 
-				String[] aclfilterInfoDetails = item.trim().split("\\|");
-				aclfilterInfoOidType = aclfilterInfoDetails[0];
-				// aclfilterInfoAccessGrade = aclfilterInfoDetails[1];
+        //group
+        String groupNames = "";
+        if ( params.containsKey( "groupName" ) ) {
+            groupNames = params.get("groupName");
 
-				sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append(">");
-				sb.append("|");
+            StringBuilder sb = new StringBuilder( );
+            sb.append( "(" );
 
+            String[] groupNameArray = groupNames.split( "," );
 
-				 for(char c = aclfilterInfoAccessGrade.charAt(0); c <= 'z'; c++) {
-				  sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append("|").
-				 append(c).append(">"); sb.append("|"); }
-
-			}
-			ret = search.w3SetFilterQuery(COLLECTION, sb.toString().substring(0, sb.toString().length() - 1));
-		} else {
-			throw new MissingArgumentException("aclFilterInfos는 \'필수\'값 입니다.");
-		}*/
-
+            for ( String group : groupNameArray ) {
+                group = group.trim();
+                sb.append( "<CREATORGROUPNAME:contains:" )
+                  .append( group )
+                  .append( ">" )
+                  .append( "|" );
+            }
+            collectionQueryBuilder.append( sb.toString( )
+                                             .subSequence( 0 , sb.toString( )
+                                                                 .length( ) - 1 ) );
+            collectionQueryBuilder.append( ")" );
+            collectionQueryBuilder.append( " " );
+        }
+        ret = search.w3SetCollectionQuery( COLLECTION , collectionQueryBuilder.toString( )
+                                                                              .trim( ) );
 
         // request
         ret = search.w3ConnectServer( new_ip , server_port , server_timeout );
@@ -1048,10 +1127,6 @@ public class SearchService {
             String content = search.w3GetField( COLLECTION , "CONTENT" , i );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
 
-            // String managergroupfullpathoid = search.w3GetField(COLLECTION,
-            // "MANAGERGROUPFULLPATHOID", i);
-            // String doctypeoid = search.w3GetField(COLLECTION, "DOCTYPEOID", i);
-
             FileSearchVo vo = FileSearchVo.builder( )
                                           .oid( oid )
                                           .targetoid( targetoid )
@@ -1091,4 +1166,6 @@ public class SearchService {
                          .Result( list )
                          .build( );
     }
+
+
 }
