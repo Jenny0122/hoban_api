@@ -6,11 +6,15 @@
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
 
+    String aclFilterInfos = "";
     ObjectMapper mapper = new ObjectMapper();
     if(jsonString != null) {
         Map<String, String> jsonStringMap = mapper.readValue(jsonString, Map.class);
         schKwd = jsonStringMap.get("query");
+        aclFilterInfos = jsonStringMap.get("aclFilterInfos");
+
     }
+
 
 %>
 <!DOCTYPE html>
@@ -171,7 +175,9 @@
             paramData.searchTargetOID = "ALL";
             paramData.query = "<%=schKwd %>";
             paramData.searchTargetOID = "fileinfo"; // folderinfo, fileinfo
-            paramData.aclFilterInfos = "admin@UR|k, S000@PR|k";
+            paramData.aclFilterInfos = <%=aclFilterInfos %>;
+
+            console.log("aclFilterInfos :" + aclFilterInfos);
             // 상세검색으로 카운터 정의
             if( s_date != "" && e_date != "" ){ // 검색기간이 있으면(최종수정일자)
                 s_date = s_date.replaceAll("-","");
@@ -239,7 +245,6 @@
                     fileHtml += '<div class="contents">';
                     fileHtml += '<div class="tit">';
                     fileHtml += '<div class="title" onclick="fileOpen(\''+list_data['oid']+'\');" style="cursor:pointer">'+fileNoTxt+'. '+list_data['filename']+'</div>';
-                    fileHtml += '<button><img src="img/copy.png" alt="문서속성보기" onclick="documentOpen(\''+list_data['oid']+'\');"></button>';
                     fileHtml += '<div class="information">';
                     fileHtml += '<dl>';
                     fileHtml += '<dt class="hobanOrange">등록자</dt>';
@@ -347,7 +352,7 @@
             paramData.searchTargetOID = "ALL";
             paramData.query = "<%=schKwd %>";
             paramData.searchTargetOID = "folderinfo"; // folderinfo, fileinfo
-            paramData.aclFilterInfos = "admin@UR|k, S000@PR|k";
+            paramData.aclFilterInfos = "<%=aclFilterInfos %>";
             // 상세검색으로 카운터 정의
             if( s_date != "" && e_date != "" ){ // 검색기간이 있으면(최종수정일자)
                 s_date = s_date.replaceAll("-","");
