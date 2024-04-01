@@ -24,7 +24,7 @@ public class ConfigCheck {
     private final ApplicationContext context;
 
     @Value( "${engine.server.ip}" )
-    String new_ip;
+    String server_ip;
 
     @PostConstruct
     public void checkConnectionEngine( ) {
@@ -32,7 +32,7 @@ public class ConfigCheck {
         QueryAPI530.Search search = new QueryAPI530.Search( );
         int ret = 0;
 
-        ret = search.w3ConnectServer( new_ip , 7000 , 10 * 1000 );
+        ret = search.w3ConnectServer( server_ip , 7000 , 10 * 1000 );
 
         if ( ret != 0 ) {
             log.error( "연결 실패" );
