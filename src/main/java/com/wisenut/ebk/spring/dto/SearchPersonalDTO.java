@@ -20,7 +20,7 @@ public class SearchPersonalDTO {
 
 	@Builder.Default List<Object> data = Collections.emptyList();
 
-	@Builder.Default List<GroupVo> groups = Collections.emptyList();
+//	@Builder.Default List<GroupVo> groups = Collections.emptyList();
 
 	@Builder.Default Map<String, Integer> customCategoryMap = Collections.EMPTY_MAP;
 }
