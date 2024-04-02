@@ -12,10 +12,7 @@
         Map<String, String> jsonStringMap = mapper.readValue(jsonString, Map.class);
         schKwd = jsonStringMap.get("query");
         aclFilterInfos = jsonStringMap.get("aclFilterInfos");
-
     }
-
-
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -175,7 +172,9 @@
             paramData.searchTargetOID = "ALL";
             paramData.query = "<%=schKwd %>";
             paramData.searchTargetOID = "fileinfo"; // folderinfo, fileinfo
-            paramData.aclFilterInfos = <%=aclFilterInfos %>;
+            //paramData.aclFilterInfos = <%=aclFilterInfos %>;
+            paramData.aclFilterInfos = "admin@UR|k, S000@PR|k";
+
 
             console.log("aclFilterInfos :" + aclFilterInfos);
             // 상세검색으로 카운터 정의
@@ -352,7 +351,8 @@
             paramData.searchTargetOID = "ALL";
             paramData.query = "<%=schKwd %>";
             paramData.searchTargetOID = "folderinfo"; // folderinfo, fileinfo
-            paramData.aclFilterInfos = "<%=aclFilterInfos %>";
+            //paramData.aclFilterInfos = "<%=aclFilterInfos %>";
+            paramData.aclFilterInfos = "admin@UR|k, S000@PR|k"
             // 상세검색으로 카운터 정의
             if( s_date != "" && e_date != "" ){ // 검색기간이 있으면(최종수정일자)
                 s_date = s_date.replaceAll("-","");

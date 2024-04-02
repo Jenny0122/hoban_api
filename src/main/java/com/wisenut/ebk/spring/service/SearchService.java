@@ -649,7 +649,7 @@ public class SearchService {
         ret = search.w3SetQueryLog( QUERY_LOG );
         ret = search.w3SetCommonQuery( query , EXTEND_OR );
         log.debug( "query : " + query );
-        ret = search.w3SetTraceLog( 300 );
+        ret = search.w3SetTraceLog( 0 );
 
         // collection, 검색 필드, 출력 필드 설정
         ret = search.w3AddCollection( COLLECTION );
@@ -705,14 +705,11 @@ public class SearchService {
 
         // category 필드 설정(개인정보 추출 위함)
         int groupCount = search.w3GetCategoryCount( COLLECTION , "CUSTOM_CATEGORY" , 1 );
-//        if ( groupCount <= 0 ) return SearchPersonalDTO.builder( )
-//                                                       .groups( groupNameService.getGroupNames( ) )
-//                                                       .build( );
+        log.debug("groupCount: " + groupCount);
 
         String categoryName = "";
         int categoryCount = 0;
         HashMap< String, Integer > tagCountMap = new HashMap< String, Integer >( );
-
 
         for ( int i = 0 ; i < groupCount ; i++ ) {
             categoryName = search.w3GetCategoryName( COLLECTION , "CUSTOM_CATEGORY" , 1 , i );
@@ -722,7 +719,6 @@ public class SearchService {
             tagCountMap.put( categoryName , categoryCount );
         }
 
-
         // check error
         if ( search.w3GetError( ) != 0 ) {
             log.debug( "검색 오류 로그 : {}" , search.w3GetErrorInfo( ) );
@@ -730,127 +726,117 @@ public class SearchService {
         }
 
         // 전체건수, 결과건수 출력
-//        int totalCount = search.w3GetResultTotalCount( COLLECTION );
-        int totalCount = 0;
-//        int resultCount = search.w3GetResultCount( COLLECTION );
+        int totalCount = search.w3GetResultTotalCount( COLLECTION );
+        int resultCount = search.w3GetResultCount( COLLECTION );
 
-        int count = 0;
-        boolean check = true;
-        for ( int i = 0 ; check ; i++ ) {
-//        int i = 0;
-//        while ( check ) {
+        //int totalCount = 0;
+        //int count = 0;
+        //boolean check = true;
+        //for ( int i = 0 ; check ; i++ ) {
+        for ( int i = 0 ; i < resultCount ; i++ ) {
 
-            // 기본 검색결과 객체 생성
-            String oid = search.w3GetField( COLLECTION , "OID" , i );
-            String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
-            String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
-            String filename = search.w3GetField( COLLECTION , "FILENAME" , i );
-            String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
-            String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
-            String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
-            String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
-            String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
-            String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
-            String filetype = search.w3GetField( COLLECTION , "FILETYPE" , i );
-            String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
-            String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
-            String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
-            String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
-            String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
-            String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
-            String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
-            String content = search.w3GetField( COLLECTION , "CONTENT" , i );
-            String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
-            String customcategory = search.w3GetField( COLLECTION , "CUSTOM_CATEGORY" , i );
-            String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
+                    // 기본 검색결과 객체 생성
+                    String oid = search.w3GetField( COLLECTION , "OID" , i );
+                    String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
+                    String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
+                    String filename = search.w3GetField( COLLECTION , "FILENAME" , i );
+                    String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
+                    String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
+                    String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
+                    String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+                    String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
+                    String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
+                    String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
+                    String filetype = search.w3GetField( COLLECTION , "FILETYPE" , i );
+                    String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
+                    String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
+                    String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
+                    String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
+                    String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
+                    String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
+                    String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
+                    String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
+                    String content = search.w3GetField( COLLECTION , "CONTENT" , i );
+                    String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
+                    String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
 
+                    List< SecurityVo > security = new ArrayList<>( );
+                    if ( !alias.trim( )
+                               .contentEquals( "" ) ) {
+                        String[] aliasArr = alias.split( "\\|" );
 
-            List< SecurityVo > security = new ArrayList<>( );
-            if ( !alias.trim( )
-                       .contentEquals( "" ) ) {
-                String[] aliasArr = alias.split( "\\|" );
+                        for ( String item : aliasArr ) {
+                            String securityInfo = item.split( "/" )[ 0 ];
+                            String securityCount = "(" + item.split( "/" )[ 1 ] + ")";
 
-                for ( String item : aliasArr ) {
-                    String securityInfo = item.split( "/" )[ 0 ];
-                    String securityCount = "(" + item.split( "/" )[ 1 ] + ")";
+                            switch ( securityInfo ) {
+                                case "JUMIN":
+                                    securityInfo = "주민등록번호";
+                                    break;
+                                case "FOREIGN":
+                                    securityInfo = "외국인등록번호";
+                                    break;
+                                case "DRIVE":
+                                    securityInfo = "운전면허번호";
+                                    break;
+                                case "PASS_PORT":
+                                    securityInfo = "여권번호";
+                                    break;
+                            }
 
-                    switch ( securityInfo ) {
-                        case "JUMIN":
-                            securityInfo = "주민등록번호";
-                            break;
-                        case "FOREIGN":
-                            securityInfo = "외국인등록번호";
-                            break;
-                        case "DRIVE":
-                            securityInfo = "운전면허번호";
-                            break;
-                        case "PASS_PORT":
-                            securityInfo = "여권번호";
-                            break;
+                            security.add( SecurityVo.builder( )
+                                                    .securityInfo( securityInfo )
+                                                    .securityCount( securityCount )
+                                                    .build( ) );
+                        }
                     }
 
-                    security.add( SecurityVo.builder( )
-                                            .securityInfo( securityInfo )
-                                            .securityCount( securityCount )
-                                            .build( ) );
-                }
-            }
-
-            FileSearchVo vo = FileSearchVo.builder( )
-                                          .oid( oid )
-                                          .targetoid( targetoid )
-                                          .storagefileid( storagefileid )
-                                          .filename( filename )
-                                          .documentname( documentname )
-                                          .taglist( taglist )
-                                          .creatoroid( creatoroid )
-                                          .creatorname( creatorname )
-                                          .creatorgroupname( creatorgroupname )
-                                          .createdat( createdat )
-                                          .lastmodifiedat( lastmodifiedat )
-                                          .filetype( filetype )
-                                          .filesize( filesize )
-                                          .filesizem( filesizem )
-                                          .folderoid( folderoid )
-                                          .folderfullpathname( folderfullpathname )
-                                          .managergroupoid( managergroupoid )
-                                          .managergroupfullpathoid( managergroupfullpathoid )
-                                          .doctypeoid( doctypeoid )
-                                          .checkout( checkout )
-                                          .content( content )
-                                          .aclkeycode( aclKeyCode )
-                                          .security( security )
-                                          .build( );
-
-            if ( !customcategory.isEmpty( ) ) {
-                totalCount++;
-
-                if ( count < RESULT_COUNT ) {
-                    count++;
+                    FileSearchVo vo = FileSearchVo.builder( )
+                                                  .oid( oid )
+                                                  .targetoid( targetoid )
+                                                  .storagefileid( storagefileid )
+                                                  .filename( filename )
+                                                  .documentname( documentname )
+                                                  .taglist( taglist )
+                                                  .creatoroid( creatoroid )
+                                                  .creatorname( creatorname )
+                                                  .creatorgroupname( creatorgroupname )
+                                                  .createdat( createdat )
+                                                  .lastmodifiedat( lastmodifiedat )
+                                                  .filetype( filetype )
+                                                  .filesize( filesize )
+                                                  .filesizem( filesizem )
+                                                  .folderoid( folderoid )
+                                                  .folderfullpathname( folderfullpathname )
+                                                  .managergroupoid( managergroupoid )
+                                                  .managergroupfullpathoid( managergroupfullpathoid )
+                                                  .doctypeoid( doctypeoid )
+                                                  .checkout( checkout )
+                                                  .content( content )
+                                                  .aclkeycode( aclKeyCode )
+                                                  .security( security )
+                                                  .build( );
                     list.add( vo );
-                }
+
             }
-            check = !( oid == null || oid.contentEquals( "" ) );
-        }
+            // String oid = search.w3GetField( COLLECTION , "OID" , i );
 
-        log.debug( "list  : " + list );
+            //check = !( oid == null || oid.contentEquals( "" ) );
 
-        FileSearch file = FileSearch.builder( )
-                                    .Collection( COLLECTION )
-                                    .TotalCount( totalCount )
-                                    .Count( count )
-                                    .Result( list )
-                                    .build( );
+    FileSearch file = FileSearch.builder( )
+                                .Collection( COLLECTION )
+                                .TotalCount( totalCount )
+                                .Count( resultCount )
+                                .Result( list )
+                                .build( );
 
-        SearchPersonalDTOBuilder dtoBuilder = SearchPersonalDTO.builder( );
-        List< Object > data = new ArrayList<>( );
-        data.add( file );
+    SearchPersonalDTOBuilder dtoBuilder = SearchPersonalDTO.builder( );
+    List< Object > data = new ArrayList<>( );
+    data.add( file );
 
         return dtoBuilder.data( data )
-                         .customCategoryMap( tagCountMap )
-                         .build( );
+            .customCategoryMap( tagCountMap )
+            .build( );
     }
 
     public FileSearch searchSensitiveFileTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
