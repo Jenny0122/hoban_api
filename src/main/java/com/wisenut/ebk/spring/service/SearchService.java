@@ -65,7 +65,7 @@ public class SearchService {
         int RESULT_COUNT = Integer.parseInt( params.getOrDefault( "count" , String.valueOf( 10 ) ) ); // 한번에 출력되는 검색 건수
         int PAGE_START = Integer.parseInt( params.getOrDefault( "pageStart" , String.valueOf( 0 ) ) ); // 검색결과를 받아오는 시작 위치
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
+        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,CATEGORY_YN,ALIAS"; // 출력필드
 
         String SORT_FIELD = ""; // 정렬필드
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -638,7 +638,7 @@ public class SearchService {
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SORT_FIELD = "DATE/DESC"; // 정렬필드
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
+        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,CATEGORY_YN,ALIAS"; // 출력필드
 
         // create object
         QueryAPI530.Search search = new QueryAPI530.Search( );
@@ -661,6 +661,8 @@ public class SearchService {
         // category
         ret = search.w3AddCategoryGroupBy( COLLECTION , "CUSTOM_CATEGORY" , "1/SC" );
         ret = search.w3SetDateRange( COLLECTION , startDate , endDate );
+
+        ret = search.w3SetPrefixQuery( COLLECTION, "<CATEGORY_YN:contains:Y>", 1 );
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
@@ -746,18 +748,21 @@ public class SearchService {
                     String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
                     String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
                     String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
+                    String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
                     String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
                     String filetype = search.w3GetField( COLLECTION , "FILETYPE" , i );
                     String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
                     String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
                     String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
                     String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
+                    String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
                     String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
                     String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
                     String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
                     String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
                     String content = search.w3GetField( COLLECTION , "CONTENT" , i );
                     String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
+                    String customcategory = search.w3GetField( COLLECTION, "CUSTOM_CATEGORY", i );
                     String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
 
                     List< SecurityVo > security = new ArrayList<>( );
@@ -802,18 +807,21 @@ public class SearchService {
                                                   .creatorname( creatorname )
                                                   .creatorgroupname( creatorgroupname )
                                                   .createdat( createdat )
+                                                  .lastmodifieroid(lastmodifieroid)
                                                   .lastmodifiedat( lastmodifiedat )
                                                   .filetype( filetype )
                                                   .filesize( filesize )
                                                   .filesizem( filesizem )
                                                   .folderoid( folderoid )
                                                   .folderfullpathname( folderfullpathname )
+                                                  .folderfullpathoid(folderfullpathoid)
                                                   .managergroupoid( managergroupoid )
                                                   .managergroupfullpathoid( managergroupfullpathoid )
                                                   .doctypeoid( doctypeoid )
                                                   .checkout( checkout )
                                                   .content( content )
                                                   .aclkeycode( aclKeyCode )
+                                                  .customcategory( customcategory )
                                                   .security( security )
                                                   .build( );
                     list.add( vo );
