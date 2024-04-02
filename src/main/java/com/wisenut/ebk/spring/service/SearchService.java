@@ -666,6 +666,10 @@ public class SearchService {
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
+        if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
+			ret = search.w3SetFilterQuery( COLLECTION, "<DATE:gte:" + params.get("modifyFrom") +"> <DATE:lte:"+ params.get("modifyTo") + ">" );
+        }
+
         //dodtype
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
@@ -676,14 +680,14 @@ public class SearchService {
         }
 
         //group
-        String groups = "";
-        if ( params.containsKey( "group" ) ) {
-            groups = params.get( "group" );
+        String groupNames = "";
+        if ( params.containsKey( "groupName" ) ) {
+            groupNames = params.get( "groupName" );
 
             StringBuilder sb = new StringBuilder( );
             sb.append( "(" );
 
-            String[] groupArray = groups.split( "," );
+            String[] groupArray = groupNames.split( "," );
 
             for ( String group : groupArray ) {
                 group = group.trim( );
@@ -898,6 +902,10 @@ public class SearchService {
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
+
+        if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
+            ret = search.w3SetFilterQuery( COLLECTION, "<DATE:gte:" + params.get("modifyFrom") +"> <DATE:lte:"+ params.get("modifyTo") + ">" );
+        }
 
         //dodtype
         String doctype = "";
