@@ -84,7 +84,6 @@ button{
   position: relative;
   background-color: #F7F7F7;
 }
-
 .searchBar{
   background-color: #F2F2F2;
   width: 550px; height: 50px;
@@ -144,10 +143,18 @@ button{
   top: 50%; left: 20px;
   transform: translate(0, -50%);
 }
+.hobanS_search01 header > p{
+	margin: auto;
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color:#999;
+}
 .hobanS_search01 header .searchBar{
   margin: auto;
   position: absolute;
-  top: 50%; left: 50%;
+  top: 40%; left: 50%;
   transform: translate(-50%, -50%);
 }
 .hobanS_search02{
@@ -312,7 +319,7 @@ button{
 }
 .detailSearch .btn{
   position: absolute;
-  top: 50%; right: 20px;
+  top: 77%; right: 20px;
   transform: translate(0, -50%);
 }
 .period{

@@ -5,14 +5,18 @@
 <%
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
+	String aclFilterInfos = "";
+	// aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
 
-    //String aclFilterInfos = "";
+    // 그룹웨어에서 넘어오는 값
     ObjectMapper mapper = new ObjectMapper();
     if(jsonString != null) {
         Map<String, String> jsonStringMap = mapper.readValue(jsonString, Map.class);
         schKwd = jsonStringMap.get("query");
-        //aclFilterInfos = jsonStringMap.get("aclFilterInfos");
+        aclFilterInfos = jsonStringMap.get("aclFilterInfos");
     }
+    if( schKwd == null )			schKwd = "";
+    if( aclFilterInfos == null )	aclFilterInfos = "";
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -24,6 +28,9 @@
     <link rel="stylesheet" href="css/common.css">
     <script src="js/jquery-1.12.3.js"></script>
     <script src="js/common.js"></script>
+    <!--sweetalert-->
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
+    <script src="js/sweetalert2.all.min.js"></script>
     <script>
         var jsonString = <%=jsonString %>
         var pageFileTot = 0; // 파일 전체페이지
@@ -69,14 +76,40 @@
         })
 
         $(window).load(function(){ // 페이지 로딩 후
-            fileJson(); // 파일
-            folderJson(); // 폴더
+			// 문서유형 가져오기
+            $.ajax({
+                url : '/doctypes',
+                data : null,
+                type : 'GET',
+                dataType: 'JSON',
+                contentType: 'application/json; charset=utf-8'
+            }).done(function(resultData) {
+                //console.log(resultData);
+                //console.log(resultData.length); // 문서유형 갯수
+                var dovTypeRadinHtml = "";
+                var dovTypeRadinHtml2 = "";
+                for( i = 0; i < resultData.length; i++ )
+                {
+                	var active = "";
+                	if( i == 0 ) active = "selected";
+                	//dovTypeRadinHtml += '<li><input type="radio" name="doctype_dvs" id="doctype_'+(i+1)+'" value="'+resultData[i].oid+'" '+active+' /><label for="doctype_'+(i+1)+'">'+resultData[i].name+'</label></li>';
+                	//dovTypeRadinHtml2 += '<li><input type="radio" name="doctype_dvs2" id="doctype2_'+(i+1)+'" value="'+resultData[i].oid+'" '+active+' /><label for="doctype2_'+(i+1)+'">'+resultData[i].name+'</label></li>';
+                	dovTypeRadinHtml += '<option value="'+resultData[i].oid+'" '+active+'>'+resultData[i].name+'</option>';
+                }
+				$("#radio-doc-type-wrap").html(dovTypeRadinHtml); // 파일 상세검색
+				$("#radio-doc-type-wrap2").html(dovTypeRadinHtml); // 폴더 상세검색
+
+	            fileJson(); // 파일
+	            folderJson(); // 폴더
+
+            }).fail(function(xhr, status, errorThrown) {
+                console.log("API FILE DATA ERROR");
+            });
         })
 
         // 총 카운터 갯수 정의
         function getTotalCountSum()
         {
-            //console.log("Count => "+schTotal+" / "+schFileTotal+" / "+schFolderTotal);
             $("#sch-total").html(schFileTotal + schFolderTotal);
         }
 
@@ -99,15 +132,22 @@
             var content = document.getElementById('copy_txt');
             content.select();
             document.execCommand('copy');
-            alert("폴더경로가 클립보드에 복사되었습니다.");
+            //alert("폴더경로가 클립보드에 복사되었습니다.");
+			Swal.fire({
+				position: "top-end",
+				icon: "success",
+				title: "폴더경로가 클립보드에 복사",
+				text: "윈도우탐색기 주소창에 붙여넣기하시면, 해당경로로 바로 이동됩니다.",
+				showConfirmButton: false,
+				timer: 1050
+			});
             $("#copy_txt").val("");
         }
 
-        // 파일링크
-        function fileOpen(oid)
+        function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                // https://ecmdev.e-hoban.co.kr/url/?fileOID=1OryuCqoC2M&urlType=A
+                // https://ecmdev.e-hoban.co.kr/url/?documentOID={documentOID}&urlType={urlType}
                 var theURL = "https://ecmdev.e-hoban.co.kr/url/";
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
@@ -116,10 +156,10 @@
             }
         }
 
-        function documentOpen(oid)
+        function documentOpen(oid) // 파일 속성보기
         {
             if( oid != "" ){
-                // https://ecmdev.e-hoban.co.kr/url/?fileOID=1OryuCqoC2M&urlType=A
+                // https://ecmdev.e-hoban.co.kr/url/?documentOID={documentOID}&urlType={urlType}
                 var theURL = "https://ecmdev.e-hoban.co.kr/url/";
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=A";
@@ -133,6 +173,8 @@
         {
             // 상세검색 정의
             var term_dvs = $("input[name=term_dvs]:checked").val();
+            //var doctype_dvs = $("input[name=doctype_dvs]:checked").val();
+            var doctype_dvs = $("#radio-doc-type-wrap option:selected").val();
             var s_date = $("#s_date").val();
             var e_date = $("#e_date").val();
             if( term_dvs == "D" ){ // 1일(오늘)
@@ -153,11 +195,13 @@
                 s_date = getDateStr(d); // 시작일은 1개월전
             }else if( term_dvs == "C" ){ // 사용자 정의
                 if( s_date == "" ){
-                    alert("시작일을 선택해주세요!");
+                    //alert("시작일을 선택해주세요!");
+                    Swal.fire({text: "시작일을 선택해주세요!",icon: "warning"});
                     return false;
                 }
                 if( e_date == "" ){
-                    alert("종료일을 선택해주세요!");
+                    //alert("종료일을 선택해주세요!");
+                    Swal.fire({text: "종료일을 선택해주세요!",icon: "warning"});
                     return false;
                 }
             }
@@ -171,7 +215,7 @@
             paramData.searchTargetOID = "ALL";
             paramData.query = "<%=schKwd %>";
             paramData.searchTargetOID = "fileinfo"; // folderinfo, fileinfo
-            paramData.aclFilterInfos = "admin@UR|k, S000@PR|k";
+            paramData.aclFilterInfos = "<%= aclFilterInfos %>";
 
             // 상세검색으로 카운터 정의
             if( s_date != "" && e_date != "" ){ // 검색기간이 있으면(최종수정일자)
@@ -181,9 +225,9 @@
                 paramData.modifyTo = e_date;
             }
             paramData.pageStart = pageFileNum;
+            paramData.doctype = doctype_dvs; // 문서유형
             // 정렬 정의
             var list_sort = $("input[name=list_sort]:checked").val();
-            //console.log("list_sort => "+list_sort);
             if( list_sort == "R" ){ // 정확도순 DESC
                 paramData.sortColumnIndex = "RANK";
                 paramData.sortDirection = "DESC";
@@ -194,7 +238,6 @@
                 paramData.sortColumnIndex = "FILENAME";
                 paramData.sortDirection = "ASC";
             }
-
 
             $.ajax({
                 url : '/search',
@@ -239,7 +282,9 @@
                     }
                     fileHtml += '<div class="contents">';
                     fileHtml += '<div class="tit">';
-                    fileHtml += '<div class="title" onclick="fileOpen(\''+list_data['oid']+'\');" style="cursor:pointer">'+fileNoTxt+'. '+list_data['filename']+'</div>';
+                    fileHtml += '<div class="title" onclick="fileOpen(\''+list_data['oid']+'\');" style="cursor:pointer">'+fileNoTxt+'. '+list_data['filename']+'';
+                    fileHtml += '<button style="margin:0 0 0 10px;background-color:#fff"><img src="img/folder.png" alt="파일속성보기" onclick="documentOpen(\''+list_data['oid']+'\');"></button>';
+                    fileHtml += '</div>';
                     fileHtml += '<div class="information">';
                     fileHtml += '<dl>';
                     fileHtml += '<dt class="hobanOrange">등록자</dt>';
@@ -255,7 +300,7 @@
                     fileHtml += '<div class="location">';
                     fileHtml += list_data['folderfullpathname'];
                     //fileHtml += '<button><img src="img/folder.png" alt="폴더경로복사" onclick="copyToClipBoard(\''+list_data['folderfullpathname']+'\');"></button>';
-                    fileHtml += '<button><img src="img/copy.png" alt="폴더경로복사" onclick="copyToClipBoard(\''+list_data['folderfullpathname']+'\');"></button>';
+                    fileHtml += '<button><img src="img/copy.png" alt="파일경로복사" onclick="copyToClipBoard(\''+list_data['folderfullpathname']+'\');"></button>';
                     fileHtml += '</div>';
                     fileHtml += '</div>';
                     fileNo++;
@@ -308,6 +353,8 @@
         {
             // 상세검색 정의
             var term_dvs = $("input[name=term_dvs2]:checked").val();
+            //var doctype_dvs = $("input[name=doctype_dvs2]:checked").val();
+            var doctype_dvs = $("#radio-doc-type-wrap2 option:selected").val();
             var s_date = $("#s_date2").val();
             var e_date = $("#e_date2").val();
             if( term_dvs == "D" ){ // 1일(오늘)
@@ -328,11 +375,13 @@
                 s_date = getDateStr(d); // 시작일은 1개월전
             }else if( term_dvs == "C" ){ // 사용자 정의
                 if( s_date == "" ){
-                    alert("시작일을 선택해주세요!");
+                    //alert("시작일을 선택해주세요!");
+                    Swal.fire({text: "시작일을 선택해주세요!",icon: "warning"});
                     return false;
                 }
                 if( e_date == "" ){
-                    alert("종료일을 선택해주세요!");
+                    //alert("종료일을 선택해주세요!");
+                    Swal.fire({text: "종료일을 선택해주세요!",icon: "warning"});
                     return false;
                 }
             }
@@ -347,7 +396,7 @@
             paramData.searchTargetOID = "ALL";
             paramData.query = "<%=schKwd %>";
             paramData.searchTargetOID = "folderinfo"; // folderinfo, fileinfo
-            paramData.aclFilterInfos = "admin@UR|k, S000@PR|k"
+            paramData.aclFilterInfos = "<%= aclFilterInfos %>";
             // 상세검색으로 카운터 정의
             if( s_date != "" && e_date != "" ){ // 검색기간이 있으면(최종수정일자)
                 s_date = s_date.replaceAll("-","");
@@ -356,6 +405,7 @@
                 paramData.modifyTo = e_date;
             }
             paramData.pageStart = pageFolderNum;
+            paramData.doctype = doctype_dvs; // 문서유형
             // 정렬 정의
             var list_sort = $("input[name=list_sort]:checked").val();
             //console.log("list_sort => "+list_sort);
@@ -485,6 +535,7 @@
                     <input type="text" name="sch_kwd" required value="<%=schKwd %>" />
                     <button type="submit"><img src="img/search.png" alt="검색"></button>
                 </div>
+                <p>띄어쓰기는 and 검색, | 는 or 검색입니다.</p>
             </header>
         </form>
     </div>
@@ -530,13 +581,11 @@
                         <button type="button" onclick="fileJson();">검색하기</button>
                     </div>
                 </div>
-                <!-- <div class="range">
-                <h3>검색범위 설정</h3>
-                <a href="#">전체</a>
-                <a href="#">제목</a>
-                <a href="#">본문</a>
-                <a href="#">작성자</a>
-                </div> -->
+				<div class="range">
+					<h3>검색문서유형</h3>
+                    <%-- <ul id="radio-doc-type-wrap"></ul> --%>
+                    <select name="doctype_dvs" id="radio-doc-type-wrap" style="padding:4px;border:1px solid #ccc"></select>
+				</div>
             </div>
             <!-- 상세검색 E -->
 
@@ -553,24 +602,7 @@
             <!-- 검색결과 하단 S -->
             <div class="bottomWrap">
                 <!-- 페이지네이션 S -->
-                <div class="pagination" id="page-file-wrap">
-                    <%--
-                                            <a href="#" class="arrow"><img src="img/first.png" alt="처음페이지"></a>
-                                            <a href="#" class="arrow"><img src="img/prev.png" alt="이전페이지"></a>
-                                            <a href="#">1</a>
-                                            <a href="#" class="active">2</a>
-                                            <a href="#">3</a>
-                                            <a href="#">4</a>
-                                            <a href="#">5</a>
-                                            <a href="#">6</a>
-                                            <a href="#">7</a>
-                                            <a href="#">8</a>
-                                            <a href="#">9</a>
-                                            <a href="#">10</a>
-                                            <a href="#" class="arrow"><img src="img/next.png" alt="다음페이지"></a>
-                                            <a href="#" class="arrow"><img src="img/last.png" alt="마지막페이지"></a>
-                    --%>
-                </div>
+                <div class="pagination" id="page-file-wrap"></div>
                 <!-- 페이지네이션 E -->
             </div>
             <!-- 검색결과 하단 E -->
@@ -597,13 +629,12 @@
                     <div class="btn Orange">
                         <button type="button" onclick="folderJson();">검색하기</button>
                     </div>
-                    <%--                         <a href="#">전체</a>
-                                            <a href="#">1일</a>
-                                            <a href="#">1주</a>
-                                            <a href="#">1개월</a>
-                                            <a href="#">사용자 정의</a>
-                                            <div class="period"><input type="date" name="" id=""> ~ <input type="date" name="" id=""></div> --%>
                 </div>
+				<div class="range">
+					<h3>검색문서유형</h3>
+                    <%-- <ul id="radio-doc-type-wrap2"></ul> --%>
+                    <select name="doctype_dvs2" id="radio-doc-type-wrap2" style="padding:4px;border:1px solid #ccc"></select>
+				</div>
             </div>
             <!-- 상세검색 E -->
 
@@ -620,24 +651,7 @@
             <!-- 검색결과 하단 S -->
             <div class="bottomWrap">
                 <!-- 페이지네이션 S -->
-                <div class="pagination" id="page-folder-wrap">
-                    <%--
-                                            <a href="#" class="arrow"><img src="img/first.png" alt="처음페이지"></a>
-                                            <a href="#" class="arrow"><img src="img/prev.png" alt="이전페이지"></a>
-                                            <a href="#">1</a>
-                                            <a href="#" class="active">2</a>
-                                            <a href="#">3</a>
-                                            <a href="#">4</a>
-                                            <a href="#">5</a>
-                                            <a href="#">6</a>
-                                            <a href="#">7</a>
-                                            <a href="#">8</a>
-                                            <a href="#">9</a>
-                                            <a href="#">10</a>
-                                            <a href="#" class="arrow"><img src="img/next.png" alt="다음페이지"></a>
-                                            <a href="#" class="arrow"><img src="img/last.png" alt="마지막페이지"></a>
-                    --%>
-                </div>
+                <div class="pagination" id="page-folder-wrap"></div>
                 <!-- 페이지네이션 S -->
             </div>
             <!-- 검색결과 하단 E -->
