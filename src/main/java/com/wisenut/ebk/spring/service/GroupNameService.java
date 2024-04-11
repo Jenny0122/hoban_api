@@ -12,18 +12,14 @@ import java.util.List;
 @Slf4j
 public class GroupNameService {
 
-    //@Autowired
-    //private DatabaseConnector databaseConnector;
     @Autowired
     private GroupNameRepository groupNameRepository;
 
-    public List<GroupVo> getGroupNames() {
+    public List< GroupVo > getGroupNames( ) {
 
-        List<GroupVo> dataList = groupNameRepository.findAll();
-//        dataList.forEach(v -> log.info(v.toString()));
-//        System.out.println(dataList.size());
+        List< GroupVo > dataList = groupNameRepository.findAll( );
 
-//        return databaseConnector.getDataFromDB();
+        dataList.forEach( vo -> log.debug( vo.toString() ) );
 
         return dataList;
     }

@@ -21,53 +21,49 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class ConfigCheck {
 
+    final int SERVER_PORT = 7010;
+    final int TIMEOUT = 10 * 1000;
     private final ApplicationContext context;
-
-    @Value("${engine.server.ip}")
+    @Value( "${engine.server.ip}" )
     String server_ip;
 
-    final int SERVER_PORT = 7000;
-
-    final int TIMEOUT = 10 * 1000;
-
     @PostConstruct
-    public void checkConnectionEngine() {
+    public void checkConnectionEngine( ) {
 
-        QueryAPI530.Search search = new QueryAPI530.Search();
+        QueryAPI530.Search search = new QueryAPI530.Search( );
         int ret = 0;
 
-        StringBuilder logBuilder = new StringBuilder();
-        log.info("**********************************");
-        logBuilder.append("  SearchEngine Connection Test..." + "\n");
-        logBuilder.append("\tip: " + server_ip + "\n");
-        logBuilder.append("\tport: " + SERVER_PORT + "\n");
-        logBuilder.append("\ttimeout: " + TIMEOUT + "\n");
-        log.info(logBuilder.toString());
-        log.info("**********************************");
+        String logBuilder = "\n**********************************\n" +
+                "  SearchEngine Connection Test..." + "\n\n" +
+                "\tip: " + server_ip + "\n" +
+                "\tport: " + SERVER_PORT + "\n" +
+                "\ttimeout: " + TIMEOUT + "\n" +
+                "**********************************";
+        log.info( logBuilder );
 
-        ret = search.w3ConnectServer(server_ip, 7000, 10 * 1000);
+        ret = search.w3ConnectServer( server_ip , SERVER_PORT , TIMEOUT );
 
-        if (ret != 0) {
-            log.error("연결 실패");
+        if ( ret != 0 ) {
+            log.error( "[Error Message]: {}" , "검색엔진 연결 실패..." );
 //            System.exit( SpringApplication.exit( context , ( ) -> 0 ) );
         }
     }
 
     @Bean
-    public ConfigurableServletWebServerFactory configurableServletWebServerFactory() {
-        return new TomcatServletWebServerFactory() {
+    public ConfigurableServletWebServerFactory configurableServletWebServerFactory( ) {
+        return new TomcatServletWebServerFactory( ) {
             @Override
-            protected void postProcessContext(Context context) {
-                super.postProcessContext(context);
-                JspPropertyGroup jspPropertyGroup = new JspPropertyGroup();
-                jspPropertyGroup.addUrlPattern("*.jsp");
-                jspPropertyGroup.setPageEncoding("UTF-8");
-                jspPropertyGroup.setScriptingInvalid("false");
-                jspPropertyGroup.addIncludePrelude("/WEB-INF/jsp/common/common.jsp");
-                jspPropertyGroup.setTrimWhitespace("true");
-                jspPropertyGroup.setDefaultContentType("text/html");
-                JspPropertyGroupDescriptorImpl jspPropertyGroupDescriptor = new JspPropertyGroupDescriptorImpl(jspPropertyGroup);
-                context.setJspConfigDescriptor(new JspConfigDescriptorImpl(Collections.singletonList(jspPropertyGroupDescriptor), Collections.emptyList()));
+            protected void postProcessContext( Context context ) {
+                super.postProcessContext( context );
+                JspPropertyGroup jspPropertyGroup = new JspPropertyGroup( );
+                jspPropertyGroup.addUrlPattern( "*.jsp" );
+                jspPropertyGroup.setPageEncoding( "UTF-8" );
+                jspPropertyGroup.setScriptingInvalid( "false" );
+                jspPropertyGroup.addIncludePrelude( "/WEB-INF/jsp/common/common.jsp" );
+                jspPropertyGroup.setTrimWhitespace( "true" );
+                jspPropertyGroup.setDefaultContentType( "text/html" );
+                JspPropertyGroupDescriptorImpl jspPropertyGroupDescriptor = new JspPropertyGroupDescriptorImpl( jspPropertyGroup );
+                context.setJspConfigDescriptor( new JspConfigDescriptorImpl( Collections.singletonList( jspPropertyGroupDescriptor ) , Collections.emptyList( ) ) );
             }
         };
     }
