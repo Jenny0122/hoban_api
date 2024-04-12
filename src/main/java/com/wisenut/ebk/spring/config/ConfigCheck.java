@@ -21,7 +21,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class ConfigCheck {
 
-    final int SERVER_PORT = 7010;
+    final int SERVER_PORT = 7000;
     final int TIMEOUT = 10 * 1000;
     private final ApplicationContext context;
     @Value( "${engine.server.ip}" )

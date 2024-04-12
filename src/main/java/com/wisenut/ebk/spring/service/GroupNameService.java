@@ -17,7 +17,7 @@ public class GroupNameService {
 
     public List< GroupVo > getGroupNames( ) {
 
-        List< GroupVo > dataList = groupNameRepository.findAll( );
+        List<GroupVo> dataList = groupNameRepository.findAllByOrderByFullpathindexAsc( );
 
         dataList.forEach( vo -> log.debug( vo.toString() ) );
 
