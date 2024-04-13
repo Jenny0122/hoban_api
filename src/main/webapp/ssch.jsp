@@ -6,7 +6,7 @@
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
 	String aclFilterInfos = "";
-	// aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
+	//aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
 
     // 그룹웨어에서 넘어오는 값
     ObjectMapper mapper = new ObjectMapper();
@@ -75,6 +75,36 @@
             })
         })
 
+        function allChk()
+        {
+        	if( $("#dept_all_chk").prop("checked") == true ){
+        		$(".dept_nm").prop("checked", true);
+        	}else{
+        		$(".dept_nm").prop("checked", false);
+        	}
+        }
+
+        function deptChk(thisData)
+        {
+        	var dataItem = thisData.getAttribute('data-item');
+        	var chk = thisData.checked;
+        	//console.log("dataItem => "+dataItem+" / "+chk);
+        	if( thisData.checked == true ){
+        		$("."+dataItem).prop("checked", true);
+        	}else{
+        		$("."+dataItem).prop("checked", false);
+        	}
+        }
+
+        function allChk2()
+        {
+        	if( $("#dept2_all_chk").prop("checked") == true ){
+        		$(".dept2_nm").prop("checked", true);
+        	}else{
+        		$(".dept2_nm").prop("checked", false);
+        	}
+        }
+
 		$(window).load(function(){ // 페이지 로딩 후
 			// 부서정보 가져오기 API
 	        $.ajax({
@@ -86,29 +116,158 @@
 	        }).done(function(resultData) {
 	            //console.log(resultData.count);
 	            //console.log(resultData.data.length);
-	            console.log(resultData);
-	            var treeHtml = "";
+	            //console.log(resultData);
+	            var treeHtml = '<li><label><input type="checkbox" name="dept_all_chk" id="dept_all_chk" value="ALL" checked onclick="allChk();" />전체선택</label></li>';
 
-	            for( i = 0; i < resultData.data.length; i++ ) // 1차 부서
-	            {
-	            	var list1_data = resultData.data[i];
-	            	//if( list1_data['fullpathindex'].length == 4 ){
-	            		//console.log(list1_data['groupcode']+"___"+list1_data['name']+"___"+list1_data['oid']+"___"+list1_data['parentoid']+"___"+list1_data['fullpathindex']);
-	            		treeHtml += '<li><input type="checkbox" id="group'+i+'" name="group_name[]" value="'+list1_data['name']+'" checked /> <label for="group'+i+'" class="lastTree">'+list1_data['name']+'</label></li>';
+	            // 1차 부서
+	            for( i = 0; i < resultData.data.length; i++ ){
+	            	var dept1Index = resultData.data[i]['fullpathindex'];
+	            	var dept1Nm = resultData.data[i]['name'];
+	            	if( dept1Index.length == 4 ){
+	            		treeHtml += '<li><label><input type="checkbox" name="dept_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
+	            		treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+'" ';
+	            		treeHtml += 'data-item="dept_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label></li>';
 
-<%-- 	            		for( j = 0; j < resultData.data.length; j++ ) // 2차 부서
-	            		{
-							var list2_data = resultData.data[i];
-							if( list2_data['fullpathindex'].length == 6 ){
-								var str = list2_data['fullpathindex'].indexOf(list1_data['fullpathindex'], 0);
-								if( str != -1 ){
-									treeHtml += '<li><input type="checkbox" id="group'+i+'" name="group_name[]" value="'+list2_data['name']+'" checked /> <label for="group'+i+'" class="lastTree">'+list2_data['name']+'</label></li>';
-								}
-							}
-	            		} --%>
-	            	//}
+ 			            // 2차 부서
+			            for( j = 0; j < resultData.data.length; j++ ){
+			            	var dept2Index = resultData.data[j]['fullpathindex'];
+			            	var dept2Nm = resultData.data[j]['name'];
+			            	if( dept2Index.length == 6 ){
+			            		var chk = dept2Index.indexOf(dept1Index, 0);
+		            			if( chk != -1 ){
+		            				//console.log(dept2Index.length+" "+dept2Index+" "+dept2Nm+" / "+dept1Index+" "+dept1Nm);
+				            		treeHtml += '<li class="dept2"><label><input type="checkbox" name="dept_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
+				            		treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+'" ';
+				            		treeHtml += 'data-item="dept_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label></li>';
+
+			 			            // 3차 부서
+						            for( k = 0; k < resultData.data.length; k++ ){
+						            	var dept3Index = resultData.data[k]['fullpathindex'];
+						            	var dept3Nm = resultData.data[k]['name'];
+						            	if( dept3Index.length == 8 ){
+						            		var chk = dept3Index.indexOf(dept2Index, 0);
+					            			if( chk != -1 ){
+					            				//console.log(dept3Index.length+" "+dept3Index+" "+dept3Nm+" / "+dept2Index+" "+dept2Nm);
+						            			treeHtml += '<li class="dept3"><label><input type="checkbox" name="dept_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
+						            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+'" ';
+						            			treeHtml += 'data-item="dept_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label></li>';
+
+						 			            // 4차 부서
+									            for( m = 0; m < resultData.data.length; m++ ){
+									            	var dept4Index = resultData.data[m]['fullpathindex'];
+									            	var dept4Nm = resultData.data[m]['name'];
+									            	if( dept4Index.length == 10 ){
+									            		var chk = dept4Index.indexOf(dept3Index, 0);
+								            			if( chk != -1 ){
+								            				//console.log(dept4Index.length+" "+dept4Index+" "+dept4Nm+" / "+dept3Index+" "+dept3Nm);
+									            			treeHtml += '<li class="dept4"><label><input type="checkbox" name="dept_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
+									            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+' dept_'+(dept4Index.replace("#",""))+'" ';
+									            			treeHtml += 'data-item="dept_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label></li>';
+
+									 			            // 5차 부서
+												            for( n = 0; n < resultData.data.length; n++ ){
+												            	var dept5Index = resultData.data[n]['fullpathindex'];
+												            	var dept5Nm = resultData.data[n]['name'];
+												            	if( dept5Index.length == 12 ){
+												            		var chk = dept5Index.indexOf(dept4Index, 0);
+											            			if( chk != -1 ){
+											            				//console.log(dept5Index.length+" "+dept5Index+" "+dept5Nm+" / "+dept4Index+" "+dept4Nm);
+												            			treeHtml += '<li class="dept5"><label><input type="checkbox" name="dept_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
+												            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+' dept_'+(dept4Index.replace("#",""))+' dept_'+(dept5Index.replace("#",""))+'" ';
+												            			treeHtml += 'data-item="dept_'+(dept5Index.replace("#",""))+'" />'+dept5Nm+'</label></li>';
+											            			}
+												            	}
+												            }
+								            			}
+									            	}
+									            }
+					            			}
+						            	}
+						            }
+		            			}
+			            	}
+			            }
+	            	}
 	            }
 	            $("#tree1-wrap").html(treeHtml);
+
+
+
+
+	            treeHtml = '<li><label><input type="checkbox" name="dept2_all_chk" id="dept2_all_chk" value="ALL" checked onclick="allChk2();" />전체선택</label></li>';
+
+	            // 1차 부서
+	            for( i = 0; i < resultData.data.length; i++ ){
+	            	var dept1Index = resultData.data[i]['fullpathindex'];
+	            	var dept1Nm = resultData.data[i]['name'];
+	            	if( dept1Index.length == 4 ){
+	            		treeHtml += '<li><label><input type="checkbox" name="dept2_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
+	            		treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+'" ';
+	            		treeHtml += 'data-item="dept2_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label></li>';
+
+ 			            // 2차 부서
+			            for( j = 0; j < resultData.data.length; j++ ){
+			            	var dept2Index = resultData.data[j]['fullpathindex'];
+			            	var dept2Nm = resultData.data[j]['name'];
+			            	if( dept2Index.length == 6 ){
+			            		var chk = dept2Index.indexOf(dept1Index, 0);
+		            			if( chk != -1 ){
+		            				//console.log(dept2Index.length+" "+dept2Index+" "+dept2Nm+" / "+dept1Index+" "+dept1Nm);
+			            			treeHtml += '<li class="dept2"><label><input type="checkbox" name="dept2_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
+			            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+'" ';
+	            					treeHtml += 'data-item="dept2_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label></li>';
+
+			 			            // 3차 부서
+						            for( k = 0; k < resultData.data.length; k++ ){
+						            	var dept3Index = resultData.data[k]['fullpathindex'];
+						            	var dept3Nm = resultData.data[k]['name'];
+						            	if( dept3Index.length == 8 ){
+						            		var chk = dept3Index.indexOf(dept2Index, 0);
+					            			if( chk != -1 ){
+					            				//console.log(dept3Index.length+" "+dept3Index+" "+dept3Nm+" / "+dept2Index+" "+dept2Nm);
+						            			treeHtml += '<li class="dept3"><label><input type="checkbox" name="dept2_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
+						            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+'" ';
+	            								treeHtml += 'data-item="dept2_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label></li>';
+
+						 			            // 4차 부서
+									            for( m = 0; m < resultData.data.length; m++ ){
+									            	var dept4Index = resultData.data[m]['fullpathindex'];
+									            	var dept4Nm = resultData.data[m]['name'];
+									            	if( dept4Index.length == 10 ){
+									            		var chk = dept4Index.indexOf(dept3Index, 0);
+								            			if( chk != -1 ){
+								            				//console.log(dept4Index.length+" "+dept4Index+" "+dept4Nm+" / "+dept3Index+" "+dept3Nm);
+									            			treeHtml += '<li class="dept4"><label><input type="checkbox" name="dept2_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
+									            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+' dept2_'+(dept4Index.replace("#",""))+'" ';
+	            											treeHtml += 'data-item="dept2_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label></li>';
+
+									 			            // 5차 부서
+												            for( n = 0; n < resultData.data.length; n++ ){
+												            	var dept5Index = resultData.data[n]['fullpathindex'];
+												            	var dept5Nm = resultData.data[n]['name'];
+												            	if( dept5Index.length == 12 ){
+												            		var chk = dept5Index.indexOf(dept4Index, 0);
+											            			if( chk != -1 ){
+											            				//console.log(dept5Index.length+" "+dept5Index+" "+dept5Nm+" / "+dept4Index+" "+dept4Nm);
+												            			treeHtml += '<li class="dept5"><label><input type="checkbox" name="dept2_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
+												            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+' dept2_'+(dept4Index.replace("#",""))+' dept2_'+(dept5Index.replace("#",""))+'" ';
+	            														treeHtml += 'data-item="dept2_'+(dept5Index.replace("#",""))+'" />'+dept5Nm+'</label></li>';
+											            			}
+												            	}
+												            }
+								            			}
+									            	}
+									            }
+					            			}
+						            	}
+						            }
+		            			}
+			            	}
+			            }
+	            	}
+	            }
+	            $("#tree2-wrap").html(treeHtml);
+
 	        }).fail(function(xhr, status, errorThrown) {
 	            console.log("API FILE DATA ERROR");
 	        });
@@ -182,7 +341,8 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
+                //var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
                 //console.log(theURL);
@@ -193,7 +353,8 @@
         function documentOpen(oid) // 파일 속성보기
         {
             if( oid != "" ){
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
+                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=A";
                 //console.log(theURL);
@@ -283,8 +444,24 @@
                 paramData.sortColumnIndex = "FILENAME";
                 paramData.sortDirection = "ASC";
             }
-            //console.log("paramData => sensitive");
-            //console.log(paramData);
+            // groupName : 부서명 처리
+            var dept_nm_arr = new Array();
+            var dept_nm_chk = "Y";
+            $(".dept_nm").each(function(){
+            	if( $(this).prop("checked") == true ){
+					dept_nm_arr.push($(this).val());
+            	}else{
+            		dept_nm_chk = "N";
+            	}
+            })
+            //console.log(dept_nm_chk);
+            //console.log(dept_nm_arr.length);
+            //console.log(dept_nm_arr.join());
+            if( dept_nm_chk != "Y" ){
+            	paramData.groupName = dept_nm_arr.join();
+            }
+            console.log("paramData => sensitive");
+            console.log(paramData);
 
             $.ajax({
                 url : '/search/sensitive',
@@ -478,8 +655,24 @@
             if( group_name2 != "" && group_name2 != "ALL" ){
             	paramData.alias = group_name2; // 개인정부 구분(오늘쪽 트리 선택)
             }
-            //console.log("paramData => Personal");
-            //console.log(paramData);
+            // groupName : 부서명 처리
+            var dept_nm_arr = new Array();
+            var dept_nm_chk = "Y";
+            $(".dept2_nm").each(function(){
+            	if( $(this).prop("checked") == true ){
+					dept_nm_arr.push($(this).val());
+            	}else{
+            		dept_nm_chk = "N";
+            	}
+            })
+            //console.log(dept_nm_chk);
+            //console.log(dept_nm_arr.length);
+            //console.log(dept_nm_arr.join());
+            if( dept_nm_chk != "Y" ){
+            	paramData.groupName = dept_nm_arr.join();
+            }
+            console.log("paramData => personal");
+            console.log(paramData);
 
             $.ajax({
                 url : '/search/personal',
@@ -489,7 +682,7 @@
                 contentType: 'application/json; charset=utf-8'
             }).done(function(resultData) {
                 //console.log("FAIL => ");
-                console.log(resultData);
+                //console.log(resultData);
                 // 건수 처리
                 var juminCnt	= parseInt(resultData.customCategoryMap.JUMIN);
                 var foreignCnt	= parseInt(resultData.customCategoryMap.FOREIGN);
@@ -660,7 +853,7 @@
         			location.href = xlsUrl;
         		}
         	}
-        	console.log("xlsUrl => "+xlsUrl);
+        	//console.log("xlsUrl => "+xlsUrl);
         }
 	</script>
 </head>
@@ -751,11 +944,7 @@
 					<!-- 부서별 S -->
 					<div class="department">
 						<h3 id="tree_label">부서별</h3>
-						<ul class="tree label01">
-							<li><input type="checkbox" id="root" checked> <label for="root">전체선택</label>
-								<ul class="label02" id="tree1-wrap"></ul>
-							</li>
-						</ul>
+						<ul class="tree label01" id="tree1-wrap"></ul>
 					</div>
 					<!-- 부서별 E -->
 				</div>
@@ -857,6 +1046,13 @@
 
 			  <!-- 부서 및 정보내용 S -->
 			  <div class="treeWrap">
+
+				<!-- 부서별 S -->
+				<div class="department">
+					<h3 id="tree_label">부서별</h3>
+					<ul class="tree label01" id="tree2-wrap"></ul>
+				</div>
+				<!-- 부서별 E -->
 
 			    <!-- 개인정보 S -->
 			    <div class="department">

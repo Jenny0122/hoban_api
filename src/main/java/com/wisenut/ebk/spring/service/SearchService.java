@@ -85,24 +85,39 @@ public class SearchService {
         final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
 
         List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
+
+        DOCUMENT_FIELD_LIST.add( "DOCID" );
+        DOCUMENT_FIELD_LIST.add( "DATE" );
+        DOCUMENT_FIELD_LIST.add( "TARGETOID" );
+        DOCUMENT_FIELD_LIST.add( "OID" );
+        DOCUMENT_FIELD_LIST.add( "STORAGEFILEID" );
         DOCUMENT_FIELD_LIST.add( "FILENAME" );
         DOCUMENT_FIELD_LIST.add( "DOCUMENTNAME" );
         DOCUMENT_FIELD_LIST.add( "TAGLIST" );
         DOCUMENT_FIELD_LIST.add( "CREATOROID" );
         DOCUMENT_FIELD_LIST.add( "CREATORNAME" );
+        DOCUMENT_FIELD_LIST.add( "CREATORGROUPNAME" );
+        DOCUMENT_FIELD_LIST.add( "CREATEDAT" );
         DOCUMENT_FIELD_LIST.add( "LASTMODIFIEROID" );
         DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDAT" );
         DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDATN" );
         DOCUMENT_FIELD_LIST.add( "FILETYPE" );
         DOCUMENT_FIELD_LIST.add( "FILESIZE" );
+        DOCUMENT_FIELD_LIST.add( "FILESIZEM" );
+        DOCUMENT_FIELD_LIST.add( "FOLDEROID" );
         DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHOID" );
         DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
         DOCUMENT_FIELD_LIST.add( "MANAGERGROUPOID" );
         DOCUMENT_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
         DOCUMENT_FIELD_LIST.add( "DOCTYPEOID" );
         DOCUMENT_FIELD_LIST.add( "CHECKOUT" );
-        DOCUMENT_FIELD_LIST.add( "CONTENT" );
         DOCUMENT_FIELD_LIST.add( "ACLKEYCODE" );
+        DOCUMENT_FIELD_LIST.add( "NO_ACLKEYCODE" );
+        DOCUMENT_FIELD_LIST.add( "CONTENT" );
+        DOCUMENT_FIELD_LIST.add( "CUSTOM_CATEGORY" );
+        DOCUMENT_FIELD_LIST.add( "CATEGORY_YN" );
+        DOCUMENT_FIELD_LIST.add( "ALIAS" );
+
         final String DOCUMENT_FIELD = String.join( "," , DOCUMENT_FIELD_LIST );
 
 
@@ -325,7 +340,9 @@ public class SearchService {
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i )
+                                       .replaceAll( "<!HS>" , "<b>" )
+                                       .replaceAll( "<!HE>" , "</b>" );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
@@ -376,9 +393,9 @@ public class SearchService {
 
             list.add( vo );
 
-        }
+            log.debug( vo.toString( ) );
 
-        log.debug( "list  : " + list );
+        }
 
         return FileSearch.builder( )
                          .Collection( COLLECTION )
@@ -388,7 +405,6 @@ public class SearchService {
                          .build( );
 
     }
-
 
     /**
      * 폴더 통합 검색
@@ -644,10 +660,9 @@ public class SearchService {
                                               .build( );
 
             list.add( vo );
-
+            log.debug( vo.toString( ) );
         }
 
-        log.debug( "list  : " + list );
 
         return FolderSearch.builder( )
                            .Collection( COLLECTION )
@@ -751,7 +766,8 @@ public class SearchService {
 
             collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
                                   .append( doctype )
-                                  .append( "> " );
+                                  .append( ">" )
+                                  .append( " " );
         }
 
         //group
@@ -774,7 +790,7 @@ public class SearchService {
             collectionQueryBuilder.append( sb.toString( )
                                              .subSequence( 0 , sb.toString( )
                                                                  .length( ) - 1 ) )
-                                  .append( ") " );
+                                  .append( ")" );
         }
 
         final String collectionQuery = collectionQueryBuilder.toString( )
@@ -824,7 +840,9 @@ public class SearchService {
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i )
+                                       .replaceAll( "<!HS>" , "<b>" )
+                                       .replaceAll( "<!HE>" , "</b>" );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
@@ -908,6 +926,7 @@ public class SearchService {
                                           .security( security )
                                           .build( );
             list.add( vo );
+            log.debug( vo.toString( ) );
 
         }
 
@@ -951,7 +970,7 @@ public class SearchService {
         int EXTEND_OR = 1; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 //        String SORT_FIELD = ""; // 정렬필드
 //        if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -983,21 +1002,29 @@ public class SearchService {
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
+        StringBuilder filterQueryBuilder = new StringBuilder( );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            String filterQuery = "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">";
-            log.debug( "[filterQuery]: {}" , filterQuery );
-            ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
+            filterQueryBuilder.append( "<DATE:gte:" )
+                              .append( params.get( "modifyFrom" ) )
+                              .append( "> <DATE:lte:" )
+                              .append( params.get( "modifyTo" ) )
+                              .append( "> " );
+//            String filterQuery = "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">";
+//            log.debug( "[filterQuery]: {}" , filterQuery );
+//            ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
         }
 
         //dodtype
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
-            doctype = params.get( "doctype" );
+            String collectionQuery = "<DOCTYPEOID:contains:" + params.get( "doctype" ) + ">";
+            log.debug( "[collectionQuery]: {}" , collectionQuery );
+            ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
-                                  .append( doctype )
-                                  .append( "> " );
+//            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+//                                  .append( doctype )
+//                                  .append( "> " );
         }
 
         //group
@@ -1012,21 +1039,21 @@ public class SearchService {
 
             for ( String group : groupNameArray ) {
                 group = group.trim( );
-                sb.append( "<CREATORGROUPNAME:contains:" )
+                sb.append( "<CREATORGROUPNAME:substring:" )
                   .append( group )
                   .append( ">" )
                   .append( "|" );
             }
-            collectionQueryBuilder.append( sb.toString( )
+            filterQueryBuilder.append( sb.toString( )
                                              .subSequence( 0 , sb.toString( )
                                                                  .length( ) - 1 ) )
                                   .append( ") " );
         }
 
-        final String collectionQuery = collectionQueryBuilder.toString( )
+        final String filterQuery = filterQueryBuilder.toString( )
                                                              .trim( );
-        log.debug( "[collectionQuery]: {}" , collectionQuery );
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
+        log.debug( "[filterQuery]: {}" , filterQuery );
+        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -1056,7 +1083,9 @@ public class SearchService {
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i )
+                                       .replaceAll( "<!HS>" , "<b>" )
+                                       .replaceAll( "<!HE>" , "</b>" );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
@@ -1106,10 +1135,10 @@ public class SearchService {
                                           .build( );
 
             list.add( vo );
+            log.debug( vo.toString( ) );
 
         }
 
-        log.debug( "list  : " + list );
 
         return FileSearch.builder( )
                          .Collection( COLLECTION )

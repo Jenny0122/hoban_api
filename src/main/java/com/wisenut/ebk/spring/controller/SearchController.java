@@ -33,6 +33,10 @@ public class SearchController {
     @Value( "${key.personal}" )
     String personalKey;
 
+
+    @Value( "${limit.excel.rows}" )
+    int rowsLimit;
+
     @Autowired
     private SearchService service;
 
@@ -50,11 +54,13 @@ public class SearchController {
             return ResponseEntity.badRequest( )
                                  .body( mae.toString( ) );
         }
-        
-        
+
+
         HttpSession session = request.getSession( );
-        session.setAttribute( personalKey, dto);
-        
+        params.put( "count" , String.valueOf( rowsLimit ) );
+        params.put( "pageStart" , "0" );
+        session.setAttribute( personalKey , service.searchPersonalDataTotalListByCategory( params ) );
+
         return ResponseEntity.ok( dto );
     }
 
@@ -87,9 +93,15 @@ public class SearchController {
         TotalSearchDTO dto = dtoBuilder.data( data )
                                        .query( query )
                                        .build( );
-
         HttpSession session = request.getSession( );
-        session.setAttribute( sensitiveKey, dto);
+        params.put( "count" , String.valueOf( rowsLimit ) );
+        params.put( "pageStart" , "0" );
+        List< Object > temp = new ArrayList<>( );
+        temp.add( service.searchSensitiveFileTotalListByCategory( params ) );
+        session.setAttribute( sensitiveKey , TotalSearchDTO.builder( )
+                                                           .data( temp )
+                                                           .query( query )
+                                                           .build( ) );
 
         return ResponseEntity.ok( dto );
     }
