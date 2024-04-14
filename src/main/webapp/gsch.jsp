@@ -6,7 +6,7 @@
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
 	String aclFilterInfos = "";
-	// aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
+	aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
 
     // 그룹웨어에서 넘어오는 값
     ObjectMapper mapper = new ObjectMapper();
@@ -147,8 +147,8 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                // https://ecmdev.e-hoban.co.kr/url/?documentOID={documentOID}&urlType={urlType}
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
+                var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                // var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
                 //console.log(theURL);
@@ -159,15 +159,14 @@
         function documentOpen(oid) // 파일 속성보기
         {
             if( oid != "" ){
-                // https://ecmdev.e-hoban.co.kr/url/?documentOID={documentOID}&urlType={urlType}
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
+                var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                // var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=A";
                 //console.log(theURL);
                 window.open(theURL);
             }
         }
-
 
         function fileJson(clickPageNum='') // 파일
         {

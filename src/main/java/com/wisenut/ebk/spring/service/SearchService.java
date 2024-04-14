@@ -1,5 +1,6 @@
 package com.wisenut.ebk.spring.service;
 
+import QueryAPI530.Search;
 import com.wisenut.ebk.spring.MissingArgumentException;
 import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
 import com.wisenut.ebk.spring.dto.SearchPersonalDTO.SearchPersonalDTOBuilder;
@@ -59,8 +60,66 @@ public class SearchService {
         int EXTEND_OR = 0;
         int RESULT_COUNT = Integer.parseInt( params.getOrDefault( "count" , String.valueOf( 10 ) ) ); // 한번에 출력되는 검색 건수
         int PAGE_START = Integer.parseInt( params.getOrDefault( "pageStart" , String.valueOf( 0 ) ) ); // 검색결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,CATEGORY_YN,ALIAS"; // 출력필드
+//        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
+//        String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,CATEGORY_YN,ALIAS"; // 출력필드
+
+        List< String > SEARCH_FIELD_LIST = new ArrayList<>( );
+        SEARCH_FIELD_LIST.add( "FILENAME" );
+        SEARCH_FIELD_LIST.add( "DOCUMENTNAME" );
+        SEARCH_FIELD_LIST.add( "TAGLIST" );
+        SEARCH_FIELD_LIST.add( "CREATOROID" );
+        SEARCH_FIELD_LIST.add( "CREATORNAME" );
+        SEARCH_FIELD_LIST.add( "LASTMODIFIEROID" );
+        SEARCH_FIELD_LIST.add( "LASTMODIFIEDAT" );
+        SEARCH_FIELD_LIST.add( "LASTMODIFIEDATN" );
+        SEARCH_FIELD_LIST.add( "FILETYPE" );
+        SEARCH_FIELD_LIST.add( "FILESIZE" );
+        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHOID" );
+        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
+        SEARCH_FIELD_LIST.add( "MANAGERGROUPOID" );
+        SEARCH_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
+        SEARCH_FIELD_LIST.add( "DOCTYPEOID" );
+        SEARCH_FIELD_LIST.add( "CHECKOUT" );
+        SEARCH_FIELD_LIST.add( "CONTENT" );
+        SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
+        final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
+
+        List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
+
+        DOCUMENT_FIELD_LIST.add( "DOCID" );
+        DOCUMENT_FIELD_LIST.add( "DATE" );
+        DOCUMENT_FIELD_LIST.add( "TARGETOID" );
+        DOCUMENT_FIELD_LIST.add( "OID" );
+        DOCUMENT_FIELD_LIST.add( "STORAGEFILEID" );
+        DOCUMENT_FIELD_LIST.add( "FILENAME" );
+        DOCUMENT_FIELD_LIST.add( "DOCUMENTNAME" );
+        DOCUMENT_FIELD_LIST.add( "TAGLIST" );
+        DOCUMENT_FIELD_LIST.add( "CREATOROID" );
+        DOCUMENT_FIELD_LIST.add( "CREATORNAME" );
+        DOCUMENT_FIELD_LIST.add( "CREATORGROUPNAME" );
+        DOCUMENT_FIELD_LIST.add( "CREATEDAT" );
+        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEROID" );
+        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDAT" );
+        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDATN" );
+        DOCUMENT_FIELD_LIST.add( "FILETYPE" );
+        DOCUMENT_FIELD_LIST.add( "FILESIZE" );
+        DOCUMENT_FIELD_LIST.add( "FILESIZEM" );
+        DOCUMENT_FIELD_LIST.add( "FOLDEROID" );
+        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHOID" );
+        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
+        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPOID" );
+        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
+        DOCUMENT_FIELD_LIST.add( "DOCTYPEOID" );
+        DOCUMENT_FIELD_LIST.add( "CHECKOUT" );
+        DOCUMENT_FIELD_LIST.add( "ACLKEYCODE" );
+        DOCUMENT_FIELD_LIST.add( "NO_ACLKEYCODE" );
+        DOCUMENT_FIELD_LIST.add( "CONTENT" );
+        DOCUMENT_FIELD_LIST.add( "CUSTOM_CATEGORY" );
+        DOCUMENT_FIELD_LIST.add( "CATEGORY_YN" );
+        DOCUMENT_FIELD_LIST.add( "ALIAS" );
+
+        final String DOCUMENT_FIELD = String.join( "," , DOCUMENT_FIELD_LIST );
+
 
         String SORT_FIELD = ""; // 정렬필드
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -69,18 +128,14 @@ public class SearchService {
             SORT_FIELD = "RANK/DESC";
 
         // create object
-        QueryAPI530.Search search = new QueryAPI530.Search( );
+        Search search = new Search( );
         int ret = 0;
 
+        String query = params.getOrDefault( "query" , "" );
         // common query 설정
         ret = search.w3SetCodePage( ENCODE_VALUE );
         ret = search.w3SetQueryLog( QUERY_LOG );
-
-        String query = "";
-        if ( params.containsKey( "query" ) ) {
-            query = params.get( "query" );
-            ret = search.w3SetCommonQuery( query , EXTEND_OR );
-        }
+        ret = search.w3SetCommonQuery( query , EXTEND_OR );
 
         // collection, 검색 필드, 출력 필드 설정
         ret = search.w3AddCollection( COLLECTION );
@@ -89,41 +144,46 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
-
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
-        //dodtype
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" + doctype + ">" );
-            collectionQueryBuilder.append( " " );
+            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+                                  .append( doctype )
+                                  .append( ">" )
+                                  .append( " " );
         }
 
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
-            filterQueryBuilder.append( "<FILENAME:substring:" + name + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<FILENAME:substring:" )
+                              .append( name )
+                              .append( ">" )
+                              .append( " " );
         }
 
         String contents = "";
         if ( params.containsKey( "contents" ) ) {
             contents = params.get( "contents" );
-//			ret = search.w3SetCollectionQuery(COLLECTION, "<CONTENT:contains:" + contents + ">");
-            collectionQueryBuilder.append( "<CONTENT:contains:" + contents + ">" );
-            collectionQueryBuilder.append( " " );
+            collectionQueryBuilder.append( "<CONTENT:contains:" )
+                                  .append( contents )
+                                  .append( ">" )
+                                  .append( " " );
         }
 
         String creatorOID = "";
         if ( params.containsKey( "creatorOID" ) ) {
             creatorOID = params.get( "creatorOID" );
-//			ret = search.w3SetCollectionQuery(COLLECTION, "<CREATOROID:contains:" + creatorOID + ">");
-            collectionQueryBuilder.append( "<CREATOROID:contains:" + creatorOID + ">" );
-            collectionQueryBuilder.append( " " );
+            collectionQueryBuilder.append( "<CREATOROID:contains:" )
+                                  .append( creatorOID )
+                                  .append( ">" )
+                                  .append( " " );
         }
 
         String managerGroupOID = "";
@@ -135,13 +195,15 @@ public class SearchService {
                 includeFolderChildren = params.get( "includeFolderChildren" );
 
                 if ( includeFolderChildren.contentEquals( "true" ) ) {
-//					ret = search.w3SetFilterQuery(COLLECTION, "<MANAGERGROUPFULLPATHOID:substring:" + managerGroupOID + ">");
-                    filterQueryBuilder.append( "<MANAGERGROUPFULLPATHOID:substring:" + managerGroupOID + ">" );
-                    filterQueryBuilder.append( " " );
+                    filterQueryBuilder.append( "<MANAGERGROUPFULLPATHOID:substring:" )
+                                      .append( managerGroupOID )
+                                      .append( ">" )
+                                      .append( " " );
                 } else {
-//					ret = search.w3SetCollectionQuery(COLLECTION, "<MANAGERGROUPOID:contains:" + managerGroupOID + ">");
-                    collectionQueryBuilder.append( "<MANAGERGROUPOID:contains:" + managerGroupOID + ">" );
-                    collectionQueryBuilder.append( " " );
+                    collectionQueryBuilder.append( "<MANAGERGROUPOID:contains:" )
+                                          .append( managerGroupOID )
+                                          .append( ">" )
+                                          .append( " " );
                 }
             }
         }
@@ -149,14 +211,14 @@ public class SearchService {
         String fileType = "";
         if ( params.containsKey( "fileType" ) ) {
             fileType = params.get( "fileType" );
-//			ret = search.w3SetCollectionQuery(COLLECTION, "<FILETYPE:contains:"+ fileType + ">");
-            collectionQueryBuilder.append( "<FILETYPE:contains:" + fileType + ">" );
-            collectionQueryBuilder.append( " " );
+            collectionQueryBuilder.append( "<FILETYPE:contains:" )
+                                  .append( fileType )
+                                  .append( ">" )
+                                  .append( " " );
         }
 
         String aclFilterInfos = "";
         String aclfilterInfoOidType = "";
-        // String aclfilterInfoAccessGrade = "";
 
         if ( params.containsKey( "aclFilterInfos" ) ) {
             aclFilterInfos = params.get( "aclFilterInfos" );
@@ -168,40 +230,34 @@ public class SearchService {
                 String[] aclfilterInfoDetails = item.trim( )
                                                     .split( "\\|" );
                 aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
-                // aclfilterInfoAccessGrade = aclfilterInfoDetails[1];
                 sb.append( "<ACLKEYCODE:substring:" )
                   .append( aclfilterInfoOidType )
-                  .append( ">" );
-                sb.append( "|" );
+                  .append( ">" )
+                  .append( "|" );
 
-                /*
-                 * for(char c = aclfilterInfoAccessGrade.charAt(0); c <= 'z'; c++) {
-                 * sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append("|").
-                 * append(c).append(">"); sb.append("|"); }
-                 */
             }
-//			ret = search.w3SetFilterQuery(COLLECTION, sb.toString());
             filterQueryBuilder.append( sb.toString( )
                                          .subSequence( 0 , sb.toString( )
-                                                             .length( ) - 1 ) );
-            filterQueryBuilder.append( ")" );
-            filterQueryBuilder.append( " " );
+                                                             .length( ) - 1 ) )
+                              .append( ") " );
         } else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-//			ret = search.w3SetFilterQuery(COLLECTION, "<DATE:gte:" + params.get("modifyFrom") +"> <DATE:lte:"+ params.get("modifyTo") + ">");
-            filterQueryBuilder
-                    .append( "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<DATE:gte:" )
+                              .append( params.get( "modifyFrom" ) )
+                              .append( "> <DATE:lte:" )
+                              .append( params.get( "modifyTo" ) )
+                              .append( "> " );
         }
 
         if ( params.containsKey( "fileSizeFrom" ) && params.containsKey( "fileSizeTo" ) ) {
-//			ret = search.w3SetFilterQuery(COLLECTION, "<FILESIZEM:gt:" + params.get("fileSizeFrom") +"> <FILESIZEM:lt:"+ params.get("fileSizeTo") + ">");
-            filterQueryBuilder.append( "<FILESIZEM:gt:" + params.get( "fileSizeFrom" ) + "> <FILESIZEM:lt:"
-                    + params.get( "fileSizeTo" ) + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<FILESIZEM:gt:" )
+                              .append( params.get( "fileSizeFrom" ) )
+                              .append( "> <FILESIZEM:lt:" )
+                              .append( params.get( "fileSizeTo" ) )
+                              .append( "> " );
         }
 
         String folderOids = "";
@@ -211,9 +267,7 @@ public class SearchService {
             StringBuilder sb = new StringBuilder( );
             sb.append( "(" );
 
-            String[] folderOidArray = folderOids.split( "," );
-
-            for ( String folderOid : folderOidArray ) {
+            for ( String folderOid : folderOids.split( "," ) ) {
                 folderOid = folderOid.trim( );
                 sb.append( "<FOLDERFULLPATHOID:substring:" )
                   .append( folderOid )
@@ -223,8 +277,7 @@ public class SearchService {
             filterQueryBuilder.append( sb.toString( )
                                          .subSequence( 0 , sb.toString( )
                                                              .length( ) - 1 ) );
-            filterQueryBuilder.append( ")" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( ") " );
         }
 
         String lastmodifierOids = "";
@@ -234,9 +287,7 @@ public class SearchService {
             StringBuilder sb = new StringBuilder( );
             sb.append( "(" );
 
-            String[] lastmodifieroidArray = lastmodifierOids.split( "," );
-
-            for ( String lastmodifieroid : lastmodifieroidArray ) {
+            for ( String lastmodifieroid : lastmodifierOids.split( "," ) ) {
                 lastmodifieroid = lastmodifieroid.trim( );
                 sb.append( "<LASTMODIFIEROID:substring:" )
                   .append( lastmodifieroid )
@@ -245,19 +296,21 @@ public class SearchService {
             }
             filterQueryBuilder.append( sb.toString( )
                                          .subSequence( 0 , sb.toString( )
-                                                             .length( ) - 1 ) );
-            filterQueryBuilder.append( ")" );
-            filterQueryBuilder.append( " " );
+                                                             .length( ) - 1 ) )
+                              .append( ") " );
         }
 
-        log.debug( "filterQuery: {}" , filterQueryBuilder.toString( )
-                                                         .trim( ) );
-        log.debug( "collectionQuery: {}" , collectionQueryBuilder.toString( )
-                                                                 .trim( ) );
-        ret = search.w3SetFilterQuery( COLLECTION , filterQueryBuilder.toString( )
-                                                                      .trim( ) );
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQueryBuilder.toString( )
-                                                                              .trim( ) );
+        String filterQuery = filterQueryBuilder.toString( )
+                                               .trim( );
+        log.debug( "[filterQuery]: {}" , filterQuery );
+        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
+
+
+        String collectionQuery = collectionQueryBuilder.toString( )
+                                                       .trim( );
+        log.debug( "[collectionQuery]: {}" , collectionQuery );
+        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
+
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -273,7 +326,7 @@ public class SearchService {
         int totalCount = search.w3GetResultTotalCount( COLLECTION );
         int resultCount = search.w3GetResultCount( COLLECTION );
 
-        log.debug( "검색 결과 : " + resultCount + "건 / 전체 건수 : " + totalCount + "건" );
+        log.debug( "검색 결과 : {}건 / 전체 건수 : {}건" , resultCount , totalCount );
 
         for ( int i = 0 ; i < resultCount ; i++ ) {
 
@@ -281,13 +334,15 @@ public class SearchService {
             String oid = search.w3GetField( COLLECTION , "OID" , i );
             String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
             String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
-            String filename = search.w3GetField( COLLECTION , "FILENAME" , i );
-            filename = filename.replaceAll( "<!HS>" , "<b>" );
-            filename = filename.replaceAll( "<!HE>" , "</b>" );
+            String filename = search.w3GetField( COLLECTION , "FILENAME" , i )
+                                    .replaceAll( "<!HS>" , "<b>" )
+                                    .replaceAll( "<!HE>" , "</b>" );
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i )
+                                       .replaceAll( "<!HS>" , "<b>" )
+                                       .replaceAll( "<!HE>" , "</b>" );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
@@ -296,22 +351,18 @@ public class SearchService {
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
-            folderfullpathname = folderfullpathname.replaceAll( "<!HS>" , "<b>" );
-            folderfullpathname = folderfullpathname.replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
+                                              .replaceAll( "<!HS>" , "<b>" )
+                                              .replaceAll( "<!HE>" , "</b>" );
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
             String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
-            String content = search.w3GetField( COLLECTION , "CONTENT" , i );
-            content = content.replaceAll( "<!HS>" , "<b>" );
-            content = content.replaceAll( "<!HE>" , "</b>" );
+            String content = search.w3GetField( COLLECTION , "CONTENT" , i )
+                                   .replaceAll( "<!HS>" , "<b>" )
+                                   .replaceAll( "<!HE>" , "</b>" );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
-
-            // String managergroupfullpathoid = search.w3GetField(COLLECTION,
-            // "MANAGERGROUPFULLPATHOID", i);
-            // String doctypeoid = search.w3GetField(COLLECTION, "DOCTYPEOID", i);
 
             FileSearchVo vo = FileSearchVo.builder( )
                                           .oid( oid )
@@ -342,9 +393,9 @@ public class SearchService {
 
             list.add( vo );
 
-        }
+            log.debug( vo.toString( ) );
 
-        log.debug( "list  : " + list );
+        }
 
         return FileSearch.builder( )
                          .Collection( COLLECTION )
@@ -354,7 +405,6 @@ public class SearchService {
                          .build( );
 
     }
-
 
     /**
      * 폴더 통합 검색
@@ -384,22 +434,60 @@ public class SearchService {
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
         else
             SORT_FIELD = "RANK/DESC";
-        String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,FULLPATHINDEX,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE"; // 검색필드
-        String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,CREATOROID,CREATORGROUPNAME,CREATEDAT,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,MANAGERGROUPOID,FULLPATHINDEX,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
+//        String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,FULLPATHINDEX,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE"; // 검색필드
+//        String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,CREATOROID,CREATORGROUPNAME,CREATEDAT,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,MANAGERGROUPOID,FULLPATHINDEX,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
+
+        List< String > SEARCH_FIELD_LIST = new ArrayList<>( );
+        SEARCH_FIELD_LIST.add( "NAME" );
+        SEARCH_FIELD_LIST.add( "DESCRIPTION" );
+        SEARCH_FIELD_LIST.add( "CREATOROID" );
+        SEARCH_FIELD_LIST.add( "CREATEDATE" );
+        SEARCH_FIELD_LIST.add( "CREATEDATN" );
+        SEARCH_FIELD_LIST.add( "LASTMODIFIEDAT" );
+        SEARCH_FIELD_LIST.add( "LASTMODIFIEDATN" );
+        SEARCH_FIELD_LIST.add( "FULLPATHINDEX" );
+        SEARCH_FIELD_LIST.add( "MANAGERGROUPOID" );
+        SEARCH_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
+        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHOID" );
+        SEARCH_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
+        SEARCH_FIELD_LIST.add( "DOCTYPEFOLDER" );
+        SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
+        final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
+
+        List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
+        DOCUMENT_FIELD_LIST.add( "DOCID" );
+        DOCUMENT_FIELD_LIST.add( "DATE" );
+        DOCUMENT_FIELD_LIST.add( "OID" );
+        DOCUMENT_FIELD_LIST.add( "NAME" );
+        DOCUMENT_FIELD_LIST.add( "DESCRIPTION" );
+        DOCUMENT_FIELD_LIST.add( "CREATOROID" );
+        DOCUMENT_FIELD_LIST.add( "CREATORGROUPNAME" );
+        DOCUMENT_FIELD_LIST.add( "CREATEDAT" );
+        DOCUMENT_FIELD_LIST.add( "CREATEDATE" );
+        DOCUMENT_FIELD_LIST.add( "CREATEDATN" );
+        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDAT" );
+        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDATN" );
+        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPOID" );
+        DOCUMENT_FIELD_LIST.add( "FULLPATHINDEX" );
+        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
+        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHOID" );
+        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
+        DOCUMENT_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
+        DOCUMENT_FIELD_LIST.add( "DOCTYPEFOLDER" );
+        DOCUMENT_FIELD_LIST.add( "ACLKEYCODE" );
+        DOCUMENT_FIELD_LIST.add( "NO_ACLKEYCODE" );
+        final String DOCUMENT_FIELD = String.join( "," , DOCUMENT_FIELD_LIST );
 
         // create object
-        QueryAPI530.Search search = new QueryAPI530.Search( );
+        Search search = new Search( );
         int ret = 0;
 
-        String query = "";
-        if ( params.containsKey( "query" ) ) {
-            query = params.get( "query" );
-            ret = search.w3SetCommonQuery( query , EXTEND_OR );
-        }
+        String query = params.getOrDefault( "query" , "" );
 
         // common query 설정
         ret = search.w3SetCodePage( ENCODE_VALUE );
         ret = search.w3SetQueryLog( QUERY_LOG );
+        ret = search.w3SetCommonQuery( query , EXTEND_OR );
 
         // collection, 검색 필드, 출력 필드 설정
         ret = search.w3AddCollection( COLLECTION );
@@ -418,24 +506,25 @@ public class SearchService {
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            collectionQueryBuilder.append( "<DOCTYPEFOLDER:contains:" + doctype + ">" );
-            collectionQueryBuilder.append( " " );
+            collectionQueryBuilder.append( "<DOCTYPEFOLDER:contains:" )
+                                  .append( doctype )
+                                  .append( "> " );
         }
 
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
-//			ret = search.w3SetFilterQuery(COLLECTION, "<NAME:substring:" + name + ">");
-            filterQueryBuilder.append( "<NAME:substring:" + name + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<NAME:substring:" )
+                              .append( name )
+                              .append( "> " );
         }
 
         String creatorOID = "";
         if ( params.containsKey( "creatorOID" ) ) {
             creatorOID = params.get( "creatorOID" );
-//			ret = search.w3SetCollectionQuery(COLLECTION, "<CREATOROID:contains:" + creatorOID + ">");
-            collectionQueryBuilder.append( "<CREATOROID:contains:" + creatorOID + ">" );
-            collectionQueryBuilder.append( " " );
+            collectionQueryBuilder.append( "<CREATOROID:contains:" )
+                                  .append( creatorOID )
+                                  .append( "> " );
         }
 
         String managerGroupOID = "";
@@ -445,13 +534,13 @@ public class SearchService {
                 managerGroupOID = params.get( "managerGroupOID" );
                 includeFolderChildren = params.get( "includeFolderChildren" );
                 if ( includeFolderChildren == "true" ) {
-//					ret = search.w3SetFilterQuery(COLLECTION, "<MANAGERGROUPFULLPATHOID:substring:" + managerGroupOID + ">");
-                    filterQueryBuilder.append( "<MANAGERGROUPFULLPATHOID:substring:" + managerGroupOID + ">" );
-                    filterQueryBuilder.append( " " );
+                    filterQueryBuilder.append( "<MANAGERGROUPFULLPATHOID:substring:" )
+                                      .append( managerGroupOID )
+                                      .append( "> " );
                 } else {
-//					ret = search.w3SetCollectionQuery(COLLECTION, "<MANAGERGROUPOID:contains:" + managerGroupOID + ">");
-                    collectionQueryBuilder.append( "<MANAGERGROUPOID:contains:" + managerGroupOID + ">" );
-                    collectionQueryBuilder.append( " " );
+                    collectionQueryBuilder.append( "<MANAGERGROUPOID:contains:" )
+                                          .append( managerGroupOID )
+                                          .append( "> " );
                 }
             }
         }
@@ -468,58 +557,52 @@ public class SearchService {
                 String[] aclfilterInfoDetails = item.trim( )
                                                     .split( "\\|" );
                 aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
-                // aclfilterInfoAccessGrade = aclfilterInfoDetails[1];
                 sb.append( "<ACLKEYCODE:substring:" )
                   .append( aclfilterInfoOidType )
-                  .append( ">" );
-                sb.append( "|" );
-
-                /*
-                 * for(char c = aclfilterInfoAccessGrade.charAt(0); c <= 'z'; c++) {
-                 * sb.append("<ACLKEYCODE:substring:").append(aclfilterInfoOidType).append("|").
-                 * append(c).append(">"); sb.append("|"); }
-                 */
+                  .append( ">" )
+                  .append( "|" );
             }
-//			ret = search.w3SetFilterQuery(COLLECTION, sb.toString());
             filterQueryBuilder.append( sb , 0 , sb.toString( )
-                                                  .length( ) - 1 );
-
-            filterQueryBuilder.append( ")" );
-            filterQueryBuilder.append( " " );
+                                                  .length( ) - 1 )
+                              .append( ") " );
         } else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
 
         if ( params.containsKey( "createFrom" ) && params.containsKey( "createTo" ) ) {
-//			ret = search.w3SetFilterQuery(COLLECTION, "<CREATEDATE:gte:" + params.get("createFrom") +"> <CREATEDATE:lte:"+ params.get("createTo") + ">");
-            filterQueryBuilder.append( "<CREATEDATE:gte:" + params.get( "createFrom" ) + "> <CREATEDATE:lte:"
-                    + params.get( "createTo" ) + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<CREATEDATE:gte:" )
+                              .append( params.get( "createFrom" ) )
+                              .append( "> <CREATEDATE:lte:" )
+                              .append( params.get( "createTo" ) )
+                              .append( "> " );
         }
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-//			ret = search.w3SetFilterQuery(COLLECTION, "<DATE:gte:" + params.get("modifyFrom") +"> <DATE:lte:"+ params.get("modifyTo") + ">");
-            filterQueryBuilder
-                    .append( "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<DATE:gte:" )
+                              .append( params.get( "modifyFrom" ) )
+                              .append( "> <DATE:lte:" )
+                              .append( params.get( "modifyTo" ) )
+                              .append( "> " );
         }
 
         String folderOid = "";
         if ( params.containsKey( "folderOid" ) ) {
             folderOid = params.get( "folderOid" );
-//			ret = search.w3SetCollectionQuery(COLLECTION, "<FOLDERFULLPATHOID:contains:"+ folderOid + ">");
-            filterQueryBuilder.append( "<FOLDERFULLPATHOID:substring:" + folderOid + ">" );
-            filterQueryBuilder.append( " " );
+            filterQueryBuilder.append( "<FOLDERFULLPATHOID:substring:" )
+                              .append( folderOid )
+                              .append( "> " );
         }
 
-        log.debug( "filterQuery: {}" , filterQueryBuilder.toString( )
-                                                         .trim( ) );
-        log.debug( "collectionQuery: {}" , collectionQueryBuilder.toString( )
-                                                                 .trim( ) );
-        ret = search.w3SetFilterQuery( COLLECTION , filterQueryBuilder.toString( )
-                                                                      .trim( ) );
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQueryBuilder.toString( )
-                                                                              .trim( ) );
+        String filterQuery = filterQueryBuilder.toString( )
+                                               .trim( );
+        log.debug( "[filterQuery]: {}" , filterQuery );
+        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
+
+
+        String collectionQuery = collectionQueryBuilder.toString( )
+                                                       .trim( );
+        log.debug( "[collectionQuery]: {}" , collectionQuery );
+        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -577,10 +660,9 @@ public class SearchService {
                                               .build( );
 
             list.add( vo );
-
+            log.debug( vo.toString( ) );
         }
 
-        log.debug( "list  : " + list );
 
         return FolderSearch.builder( )
                            .Collection( COLLECTION )
@@ -599,9 +681,7 @@ public class SearchService {
      */
     public SearchPersonalDTO searchPersonalDataTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
-        String query = "";
-        if ( params.containsKey( "query" ) )
-            query = params.get( "query" );
+        String query = params.getOrDefault( "query" , "" );
 
         List< FileSearchVo > list = new ArrayList<>( );
 
@@ -611,12 +691,11 @@ public class SearchService {
             COLLECTION = params.get( "searchTargetOID" );
 
         int EXTEND_OR = 0;
-        String startDate = "1970/01/01";
+        final String startDate = "1970/01/01";
 
         LocalDate currentDate = LocalDate.now( );
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern( "yyyy/MM/dd" );
-        String formattedDate = currentDate.format( formatter );
-        String endDate = formattedDate;
+        String endDate = currentDate.format( formatter );
 
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
@@ -630,14 +709,14 @@ public class SearchService {
 
 
         // create object
-        QueryAPI530.Search search = new QueryAPI530.Search( );
+        Search search = new Search( );
         int ret = 0;
 
         // common query 설정
         ret = search.w3SetCodePage( ENCODE_VALUE );
         ret = search.w3SetQueryLog( QUERY_LOG );
         ret = search.w3SetCommonQuery( query , EXTEND_OR );
-        log.debug( "query : " + query );
+
         ret = search.w3SetTraceLog( 0 );
 
         // collection, 검색 필드, 출력 필드 설정
@@ -664,17 +743,20 @@ public class SearchService {
 
             prefixQueryBuilder.append( "<ALIAS:contains:" )
                               .append( securityfilter )
-                              .append( ">" );
-            prefixQueryBuilder.append( " " );
+                              .append( "> " );
 
         }
 
         prefixQueryBuilder.append( "<CATEGORY_YN:contains:Y>" );
+        final String prefixQuery = prefixQueryBuilder.toString( )
+                                                     .trim( );
+        log.debug( "[prefixQuery]: {}" , prefixQuery );
+        ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery , 1 );
 
-        ret = search.w3SetPrefixQuery( COLLECTION , prefixQueryBuilder.toString( )
-                                                                      .trim( ) , 1 );
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            ret = search.w3SetFilterQuery( COLLECTION , "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">" );
+            String filterQuery = "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">";
+            log.debug( "[filterQuery]: {}" , filterQuery );
+            ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
         }
 
         //dodtype
@@ -684,8 +766,8 @@ public class SearchService {
 
             collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
                                   .append( doctype )
-                                  .append( ">" );
-            collectionQueryBuilder.append( " " );
+                                  .append( ">" )
+                                  .append( " " );
         }
 
         //group
@@ -707,12 +789,14 @@ public class SearchService {
             }
             collectionQueryBuilder.append( sb.toString( )
                                              .subSequence( 0 , sb.toString( )
-                                                                 .length( ) - 1 ) );
-            collectionQueryBuilder.append( ")" );
-            collectionQueryBuilder.append( " " );
+                                                                 .length( ) - 1 ) )
+                                  .append( ")" );
         }
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQueryBuilder.toString( )
-                                                                              .trim( ) );
+
+        final String collectionQuery = collectionQueryBuilder.toString( )
+                                                             .trim( );
+        log.debug( "[collectionQuery]: {}" , collectionQuery );
+        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -744,23 +828,21 @@ public class SearchService {
         int totalCount = search.w3GetResultTotalCount( COLLECTION );
         int resultCount = search.w3GetResultCount( COLLECTION );
 
-        //int totalCount = 0;
-        //int count = 0;
-        //boolean check = true;
-        //for ( int i = 0 ; check ; i++ ) {
         for ( int i = 0 ; i < resultCount ; i++ ) {
 
             // 기본 검색결과 객체 생성
             String oid = search.w3GetField( COLLECTION , "OID" , i );
             String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
             String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
-            String filename = search.w3GetField( COLLECTION , "FILENAME" , i );
-            filename = filename.replaceAll( "<!HS>" , "<b>" );
-            filename = filename.replaceAll( "<!HE>" , "</b>" );
+            String filename = search.w3GetField( COLLECTION , "FILENAME" , i )
+                                    .replaceAll( "<!HS>" , "<b>" )
+                                    .replaceAll( "<!HE>" , "</b>" );
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i )
+                                       .replaceAll( "<!HS>" , "<b>" )
+                                       .replaceAll( "<!HE>" , "</b>" );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
@@ -769,17 +851,17 @@ public class SearchService {
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
-            folderfullpathname = folderfullpathname.replaceAll( "<!HS>" , "<b>" );
-            folderfullpathname = folderfullpathname.replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
+                                              .replaceAll( "<!HS>" , "<b>" )
+                                              .replaceAll( "<!HE>" , "</b>" );
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
             String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
-            String content = search.w3GetField( COLLECTION , "CONTENT" , i );
-            content = content.replaceAll( "<!HS>" , "<b>" );
-            content = content.replaceAll( "<!HE>" , "</b>" );
+            String content = search.w3GetField( COLLECTION , "CONTENT" , i )
+                                   .replaceAll( "<!HS>" , "<b>" )
+                                   .replaceAll( "<!HE>" , "</b>" );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
             String customcategory = search.w3GetField( COLLECTION , "CUSTOM_CATEGORY" , i );
             String alias = search.w3GetField( COLLECTION , "ALIAS" , i );
@@ -844,11 +926,9 @@ public class SearchService {
                                           .security( security )
                                           .build( );
             list.add( vo );
+            log.debug( vo.toString( ) );
 
         }
-        // String oid = search.w3GetField( COLLECTION , "OID" , i );
-
-        //check = !( oid == null || oid.contentEquals( "" ) );
 
         FileSearch file = FileSearch.builder( )
                                     .Collection( COLLECTION )
@@ -890,23 +970,26 @@ public class SearchService {
         int EXTEND_OR = 1; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT,CUSTOM_CATEGORY,ALIAS"; // 출력필드
-        String SORT_FIELD = ""; // 정렬필드
-        if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
-            SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
-        else
-            SORT_FIELD = "RANK/DESC";
+//        String SORT_FIELD = ""; // 정렬필드
+//        if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
+//            SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
+//        else
+//            SORT_FIELD = "RANK/DESC";
+        String SORT_FIELD = params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) ?
+                params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" ) :
+                "RANK/DESC";
 
         // create object
-        QueryAPI530.Search search = new QueryAPI530.Search( );
+        Search search = new Search( );
         int ret = 0;
 
         // common query 설정
         ret = search.w3SetCodePage( ENCODE_VALUE );
         ret = search.w3SetQueryLog( QUERY_LOG );
         ret = search.w3SetCommonQuery( query , EXTEND_OR );
-        log.debug( "query : " + query );
+
 
         // collection, 검색 필드, 출력 필드 설정
         ret = search.w3AddCollection( COLLECTION );
@@ -919,18 +1002,29 @@ public class SearchService {
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
+        StringBuilder filterQueryBuilder = new StringBuilder( );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            ret = search.w3SetFilterQuery( COLLECTION , "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">" );
+            filterQueryBuilder.append( "<DATE:gte:" )
+                              .append( params.get( "modifyFrom" ) )
+                              .append( "> <DATE:lte:" )
+                              .append( params.get( "modifyTo" ) )
+                              .append( "> " );
+//            String filterQuery = "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">";
+//            log.debug( "[filterQuery]: {}" , filterQuery );
+//            ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
         }
 
         //dodtype
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
-            doctype = params.get( "doctype" );
+            String collectionQuery = "<DOCTYPEOID:contains:" + params.get( "doctype" ) + ">";
+            log.debug( "[collectionQuery]: {}" , collectionQuery );
+            ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" + doctype + ">" );
-            collectionQueryBuilder.append( " " );
+//            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+//                                  .append( doctype )
+//                                  .append( "> " );
         }
 
         //group
@@ -945,19 +1039,21 @@ public class SearchService {
 
             for ( String group : groupNameArray ) {
                 group = group.trim( );
-                sb.append( "<CREATORGROUPNAME:contains:" )
+                sb.append( "<CREATORGROUPNAME:substring:" )
                   .append( group )
                   .append( ">" )
                   .append( "|" );
             }
-            collectionQueryBuilder.append( sb.toString( )
+            filterQueryBuilder.append( sb.toString( )
                                              .subSequence( 0 , sb.toString( )
-                                                                 .length( ) - 1 ) );
-            collectionQueryBuilder.append( ")" );
-            collectionQueryBuilder.append( " " );
+                                                                 .length( ) - 1 ) )
+                                  .append( ") " );
         }
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQueryBuilder.toString( )
-                                                                              .trim( ) );
+
+        final String filterQuery = filterQueryBuilder.toString( )
+                                                             .trim( );
+        log.debug( "[filterQuery]: {}" , filterQuery );
+        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -981,13 +1077,15 @@ public class SearchService {
             String oid = search.w3GetField( COLLECTION , "OID" , i );
             String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
             String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
-            String filename = search.w3GetField( COLLECTION , "FILENAME" , i );
-            filename = filename.replaceAll( "<!HS>" , "<b>" );
-            filename = filename.replaceAll( "<!HE>" , "</b>" );
+            String filename = search.w3GetField( COLLECTION , "FILENAME" , i )
+                                    .replaceAll( "<!HS>" , "<b>" )
+                                    .replaceAll( "<!HE>" , "</b>" );
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
-            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i );
+            String creatorname = search.w3GetField( COLLECTION , "CREATORNAME" , i )
+                                       .replaceAll( "<!HS>" , "<b>" )
+                                       .replaceAll( "<!HE>" , "</b>" );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifieroid = search.w3GetField( COLLECTION , "LASTMODIFIEROID" , i );
@@ -996,17 +1094,17 @@ public class SearchService {
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
-            folderfullpathname = folderfullpathname.replaceAll( "<!HS>" , "<b>" );
-            folderfullpathname = folderfullpathname.replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
+                                              .replaceAll( "<!HS>" , "<b>" )
+                                              .replaceAll( "<!HE>" , "</b>" );
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
             String doctypeoid = search.w3GetField( COLLECTION , "DOCTYPEOID" , i );
             String checkout = search.w3GetField( COLLECTION , "CHECKOUT" , i );
-            String content = search.w3GetField( COLLECTION , "CONTENT" , i );
-            content = content.replaceAll( "<!HS>" , "<b>" );
-            content = content.replaceAll( "<!HE>" , "</b>" );
+            String content = search.w3GetField( COLLECTION , "CONTENT" , i )
+                                   .replaceAll( "<!HS>" , "<b>" )
+                                   .replaceAll( "<!HE>" , "</b>" );
             String aclKeyCode = search.w3GetField( COLLECTION , "ACLKEYCODE" , i );
 
             FileSearchVo vo = FileSearchVo.builder( )
@@ -1037,10 +1135,10 @@ public class SearchService {
                                           .build( );
 
             list.add( vo );
+            log.debug( vo.toString( ) );
 
         }
 
-        log.debug( "list  : " + list );
 
         return FileSearch.builder( )
                          .Collection( COLLECTION )

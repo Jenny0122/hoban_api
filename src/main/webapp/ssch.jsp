@@ -6,7 +6,7 @@
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
 	String aclFilterInfos = "";
-	aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
+	//aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
 
     // 그룹웨어에서 넘어오는 값
     ObjectMapper mapper = new ObjectMapper();
@@ -23,7 +23,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>호반건설 - 특수검색</title>
+	<title>호반건설 - 보안검색</title>
 	<link rel="stylesheet" href="css/font/pretendard.css">
 	<link rel="stylesheet" href="css/common.css">
 	<script src="js/jquery-1.12.3.js"></script>
@@ -70,10 +70,40 @@
             })
             // 정렬 선택 시
             $("input[name=list_sort]").click(function(){
-                sensJson(); // 민감
+                sensJson(); // 보안
                 personJson(); // 개인
             })
         })
+
+        function allChk()
+        {
+        	if( $("#dept_all_chk").prop("checked") == true ){
+        		$(".dept_nm").prop("checked", true);
+        	}else{
+        		$(".dept_nm").prop("checked", false);
+        	}
+        }
+
+        function deptChk(thisData)
+        {
+        	var dataItem = thisData.getAttribute('data-item');
+        	var chk = thisData.checked;
+        	//console.log("dataItem => "+dataItem+" / "+chk);
+        	if( thisData.checked == true ){
+        		$("."+dataItem).prop("checked", true);
+        	}else{
+        		$("."+dataItem).prop("checked", false);
+        	}
+        }
+
+        function allChk2()
+        {
+        	if( $("#dept2_all_chk").prop("checked") == true ){
+        		$(".dept2_nm").prop("checked", true);
+        	}else{
+        		$(".dept2_nm").prop("checked", false);
+        	}
+        }
 
 		$(window).load(function(){ // 페이지 로딩 후
 			// 부서정보 가져오기 API
@@ -87,16 +117,157 @@
 	            //console.log(resultData.count);
 	            //console.log(resultData.data.length);
 	            //console.log(resultData);
-	            var treeHtml = "";
-	            for( i = 0; i < resultData.data.length; i++ ) // 1차 부서
-	            {
-	            	var list_data = resultData.data[i];
-	            	if( list_data['fullpathindex'].length == 4 ){
-	            		//console.log(list_data['groupcode']+"___"+list_data['name']+"___"+list_data['oid']+"___"+list_data['parentoid']+"___"+list_data['fullpathindex']);
-	            		treeHtml += '<li><input type="checkbox" id="group'+i+'" name="group_name[]" value="'+list_data['name']+'" checked /> <label for="group'+i+'" class="lastTree">'+list_data['name']+'</label></li>';
+	            var treeHtml = '<li><label><input type="checkbox" name="dept_all_chk" id="dept_all_chk" value="ALL" checked onclick="allChk();" />전체선택</label></li>';
+
+	            // 1차 부서
+	            for( i = 0; i < resultData.data.length; i++ ){
+	            	var dept1Index = resultData.data[i]['fullpathindex'];
+	            	var dept1Nm = resultData.data[i]['name'];
+	            	if( dept1Index.length == 4 ){
+	            		treeHtml += '<li><label><input type="checkbox" name="dept_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
+	            		treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+'" ';
+	            		treeHtml += 'data-item="dept_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label></li>';
+
+ 			            // 2차 부서
+			            for( j = 0; j < resultData.data.length; j++ ){
+			            	var dept2Index = resultData.data[j]['fullpathindex'];
+			            	var dept2Nm = resultData.data[j]['name'];
+			            	if( dept2Index.length == 6 ){
+			            		var chk = dept2Index.indexOf(dept1Index, 0);
+		            			if( chk != -1 ){
+		            				//console.log(dept2Index.length+" "+dept2Index+" "+dept2Nm+" / "+dept1Index+" "+dept1Nm);
+				            		treeHtml += '<li class="dept2"><label><input type="checkbox" name="dept_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
+				            		treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+'" ';
+				            		treeHtml += 'data-item="dept_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label></li>';
+
+			 			            // 3차 부서
+						            for( k = 0; k < resultData.data.length; k++ ){
+						            	var dept3Index = resultData.data[k]['fullpathindex'];
+						            	var dept3Nm = resultData.data[k]['name'];
+						            	if( dept3Index.length == 8 ){
+						            		var chk = dept3Index.indexOf(dept2Index, 0);
+					            			if( chk != -1 ){
+					            				//console.log(dept3Index.length+" "+dept3Index+" "+dept3Nm+" / "+dept2Index+" "+dept2Nm);
+						            			treeHtml += '<li class="dept3"><label><input type="checkbox" name="dept_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
+						            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+'" ';
+						            			treeHtml += 'data-item="dept_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label></li>';
+
+						 			            // 4차 부서
+									            for( m = 0; m < resultData.data.length; m++ ){
+									            	var dept4Index = resultData.data[m]['fullpathindex'];
+									            	var dept4Nm = resultData.data[m]['name'];
+									            	if( dept4Index.length == 10 ){
+									            		var chk = dept4Index.indexOf(dept3Index, 0);
+								            			if( chk != -1 ){
+								            				//console.log(dept4Index.length+" "+dept4Index+" "+dept4Nm+" / "+dept3Index+" "+dept3Nm);
+									            			treeHtml += '<li class="dept4"><label><input type="checkbox" name="dept_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
+									            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+' dept_'+(dept4Index.replace("#",""))+'" ';
+									            			treeHtml += 'data-item="dept_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label></li>';
+
+									 			            // 5차 부서
+												            for( n = 0; n < resultData.data.length; n++ ){
+												            	var dept5Index = resultData.data[n]['fullpathindex'];
+												            	var dept5Nm = resultData.data[n]['name'];
+												            	if( dept5Index.length == 12 ){
+												            		var chk = dept5Index.indexOf(dept4Index, 0);
+											            			if( chk != -1 ){
+											            				//console.log(dept5Index.length+" "+dept5Index+" "+dept5Nm+" / "+dept4Index+" "+dept4Nm);
+												            			treeHtml += '<li class="dept5"><label><input type="checkbox" name="dept_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
+												            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+' dept_'+(dept4Index.replace("#",""))+' dept_'+(dept5Index.replace("#",""))+'" ';
+												            			treeHtml += 'data-item="dept_'+(dept5Index.replace("#",""))+'" />'+dept5Nm+'</label></li>';
+											            			}
+												            	}
+												            }
+								            			}
+									            	}
+									            }
+					            			}
+						            	}
+						            }
+		            			}
+			            	}
+			            }
 	            	}
 	            }
 	            $("#tree1-wrap").html(treeHtml);
+
+
+
+
+	            treeHtml = '<li><label><input type="checkbox" name="dept2_all_chk" id="dept2_all_chk" value="ALL" checked onclick="allChk2();" />전체선택</label></li>';
+
+	            // 1차 부서
+	            for( i = 0; i < resultData.data.length; i++ ){
+	            	var dept1Index = resultData.data[i]['fullpathindex'];
+	            	var dept1Nm = resultData.data[i]['name'];
+	            	if( dept1Index.length == 4 ){
+	            		treeHtml += '<li><label><input type="checkbox" name="dept2_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
+	            		treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+'" ';
+	            		treeHtml += 'data-item="dept2_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label></li>';
+
+ 			            // 2차 부서
+			            for( j = 0; j < resultData.data.length; j++ ){
+			            	var dept2Index = resultData.data[j]['fullpathindex'];
+			            	var dept2Nm = resultData.data[j]['name'];
+			            	if( dept2Index.length == 6 ){
+			            		var chk = dept2Index.indexOf(dept1Index, 0);
+		            			if( chk != -1 ){
+		            				//console.log(dept2Index.length+" "+dept2Index+" "+dept2Nm+" / "+dept1Index+" "+dept1Nm);
+			            			treeHtml += '<li class="dept2"><label><input type="checkbox" name="dept2_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
+			            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+'" ';
+	            					treeHtml += 'data-item="dept2_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label></li>';
+
+			 			            // 3차 부서
+						            for( k = 0; k < resultData.data.length; k++ ){
+						            	var dept3Index = resultData.data[k]['fullpathindex'];
+						            	var dept3Nm = resultData.data[k]['name'];
+						            	if( dept3Index.length == 8 ){
+						            		var chk = dept3Index.indexOf(dept2Index, 0);
+					            			if( chk != -1 ){
+					            				//console.log(dept3Index.length+" "+dept3Index+" "+dept3Nm+" / "+dept2Index+" "+dept2Nm);
+						            			treeHtml += '<li class="dept3"><label><input type="checkbox" name="dept2_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
+						            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+'" ';
+	            								treeHtml += 'data-item="dept2_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label></li>';
+
+						 			            // 4차 부서
+									            for( m = 0; m < resultData.data.length; m++ ){
+									            	var dept4Index = resultData.data[m]['fullpathindex'];
+									            	var dept4Nm = resultData.data[m]['name'];
+									            	if( dept4Index.length == 10 ){
+									            		var chk = dept4Index.indexOf(dept3Index, 0);
+								            			if( chk != -1 ){
+								            				//console.log(dept4Index.length+" "+dept4Index+" "+dept4Nm+" / "+dept3Index+" "+dept3Nm);
+									            			treeHtml += '<li class="dept4"><label><input type="checkbox" name="dept2_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
+									            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+' dept2_'+(dept4Index.replace("#",""))+'" ';
+	            											treeHtml += 'data-item="dept2_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label></li>';
+
+									 			            // 5차 부서
+												            for( n = 0; n < resultData.data.length; n++ ){
+												            	var dept5Index = resultData.data[n]['fullpathindex'];
+												            	var dept5Nm = resultData.data[n]['name'];
+												            	if( dept5Index.length == 12 ){
+												            		var chk = dept5Index.indexOf(dept4Index, 0);
+											            			if( chk != -1 ){
+											            				//console.log(dept5Index.length+" "+dept5Index+" "+dept5Nm+" / "+dept4Index+" "+dept4Nm);
+												            			treeHtml += '<li class="dept5"><label><input type="checkbox" name="dept2_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
+												            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+' dept2_'+(dept4Index.replace("#",""))+' dept2_'+(dept5Index.replace("#",""))+'" ';
+	            														treeHtml += 'data-item="dept2_'+(dept5Index.replace("#",""))+'" />'+dept5Nm+'</label></li>';
+											            			}
+												            	}
+												            }
+								            			}
+									            	}
+									            }
+					            			}
+						            	}
+						            }
+		            			}
+			            	}
+			            }
+	            	}
+	            }
+	            $("#tree2-wrap").html(treeHtml);
+
 	        }).fail(function(xhr, status, errorThrown) {
 	            console.log("API FILE DATA ERROR");
 	        });
@@ -119,11 +290,11 @@
 	            	if( i == 0 ) active = "selected";
 	            	dovTypeRadinHtml += '<option value="'+resultData[i].oid+'" '+active+'>'+resultData[i].name+'</option>';
 	            }
-				$("#radio-doc-type-wrap").html(dovTypeRadinHtml); // 민감 상세검색
+				$("#radio-doc-type-wrap").html(dovTypeRadinHtml); // 보안 상세검색
 				$("#radio-doc-type-wrap2").html(dovTypeRadinHtml); // 개인 상세검색
 
-	            sensJson(); // 민감
-				personJson(); // 개인
+	            sensJson(); // 보안
+	            personJson(); // 개인
 
 	        }).fail(function(xhr, status, errorThrown) {
 	            console.log("API FILE DATA ERROR");
@@ -170,8 +341,8 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                // https://ecmdev.e-hoban.co.kr/url/?documentOID={documentOID}&urlType={urlType}
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
+                //var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
                 //console.log(theURL);
@@ -182,8 +353,8 @@
         function documentOpen(oid) // 파일 속성보기
         {
             if( oid != "" ){
-                // https://ecmdev.e-hoban.co.kr/url/?documentOID={documentOID}&urlType={urlType}
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
+                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=A";
                 //console.log(theURL);
@@ -191,14 +362,22 @@
             }
         }
 
-        function chkFm(f) // 민감 검색
+        function chkFm(f) // 보안 검색
         {
         	sensJson();
         	return false;
         }
 
-		function sensJson(clickPageNum='') // 파일
+		function sensJson(clickPageNum='') // 보안(보안)정보 - 검색어가 없으면 실행안됨
 		{
+			var schKws = $("#sch_kwd").val().trim(); // 검색어
+			if( schKws == "" ){
+				// 검색 데이터가 없으면
+				var fileHtml = '<div class="no-data">검색된 정보가 없습니다.</div>';
+				$("#file-content-wrap").html(fileHtml);
+				return false;
+			}
+
             // 상세검색 정의
             var term_dvs = $("input[name=term_dvs]:checked").val();
             var doctype_dvs = $("#radio-doc-type-wrap option:selected").val();
@@ -265,6 +444,23 @@
                 paramData.sortColumnIndex = "FILENAME";
                 paramData.sortDirection = "ASC";
             }
+            // groupName : 부서명 처리
+            var dept_nm_arr = new Array();
+            var dept_nm_chk = "Y";
+            $(".dept_nm").each(function(){
+            	if( $(this).prop("checked") == true ){
+					dept_nm_arr.push($(this).val());
+            	}else{
+            		dept_nm_chk = "N";
+            	}
+            })
+            //console.log(dept_nm_chk);
+            //console.log(dept_nm_arr.length);
+            //console.log(dept_nm_arr.join());
+            if( dept_nm_chk != "Y" ){
+            	paramData.groupName = dept_nm_arr.join();
+            }
+            console.log("paramData => sensitive");
             console.log(paramData);
 
             $.ajax({
@@ -281,7 +477,7 @@
                 pageFile(); // 페이징 정의
 
                 //schFileTotal = parseInt(apiDataArr.totalCount); // 파일 count
-                //$("#sch-file-total").html(schFileTotal);
+                $("#sensitive_cnt").val(parseInt(apiDataArr.totalCount)); // 보안 count
 
                 // 파일
                 var fileHtml = "";
@@ -421,7 +617,7 @@
             // 개인정보
             var group_name2 = $("input[name=group_name2]:checked").val();
             if( group_name2 == "undefined" || group_name2 == null ) group_name2 = "";
-            console.log("group_name2 => "+group_name2);
+            //console.log("group_name2 => "+group_name2);
 
 
             if( clickPageNum != "" ){
@@ -456,7 +652,26 @@
                 paramData.sortColumnIndex = "FILENAME";
                 paramData.sortDirection = "ASC";
             }
-            paramData.alias = group_name2; // 개인정부 구분(오늘쪽 트리 선택)
+            if( group_name2 != "" && group_name2 != "ALL" ){
+            	paramData.alias = group_name2; // 개인정부 구분(오늘쪽 트리 선택)
+            }
+            // groupName : 부서명 처리
+            var dept_nm_arr = new Array();
+            var dept_nm_chk = "Y";
+            $(".dept2_nm").each(function(){
+            	if( $(this).prop("checked") == true ){
+					dept_nm_arr.push($(this).val());
+            	}else{
+            		dept_nm_chk = "N";
+            	}
+            })
+            //console.log(dept_nm_chk);
+            //console.log(dept_nm_arr.length);
+            //console.log(dept_nm_arr.join());
+            if( dept_nm_chk != "Y" ){
+            	paramData.groupName = dept_nm_arr.join();
+            }
+            console.log("paramData => personal");
             console.log(paramData);
 
             $.ajax({
@@ -467,12 +682,18 @@
                 contentType: 'application/json; charset=utf-8'
             }).done(function(resultData) {
                 //console.log("FAIL => ");
-                console.log(resultData);
+                //console.log(resultData);
                 // 건수 처리
                 var juminCnt	= parseInt(resultData.customCategoryMap.JUMIN);
                 var foreignCnt	= parseInt(resultData.customCategoryMap.FOREIGN);
                 var passPortCnt	= parseInt(resultData.customCategoryMap.PASS_PORT);
                 var driveCnt	= parseInt(resultData.customCategoryMap.DRIVE);
+
+                if( isNaN(juminCnt) || juminCnt == "" ) juminCnt = 0;
+                if( isNaN(foreignCnt) || foreignCnt == "" ) foreignCnt = 0;
+                if( isNaN(passPortCnt) || passPortCnt == "" ) passPortCnt = 0;
+                if( isNaN(driveCnt) || driveCnt == "" ) driveCnt = 0;
+
                 $("#juminCnt").html(juminCnt);
                 $("#foreignCnt").html(foreignCnt);
                 $("#passPortCnt").html(passPortCnt);
@@ -483,6 +704,7 @@
 
                 //schFileTotal = parseInt(apiDataArr.totalCount); // 파일 count
                 //$("#sch-file-total").html(schFileTotal);
+                $("#personal_cnt").val(parseInt(apiDataArr.totalCount)); // 개인 count
 
                 // 파일
                 var fileHtml = "";
@@ -525,11 +747,22 @@
                     fileHtml += '</dl>';
                     fileHtml += '</div>';
                     fileHtml += '</div>';
-                    fileHtml += '<div class="summary" onclick="">'+list_data['content']+'</div>';
+                    fileHtml += '<div class="summary" onclick="">'+list_data['content']+'';
+                    fileHtml += '</div>';
                     fileHtml += '<div class="location">';
                     fileHtml += list_data['folderfullpathname'];
                     //fileHtml += '<button><img src="img/folder.png" alt="폴더경로복사" onclick="copyToClipBoard(\''+list_data['folderfullpathname']+'\');"></button>';
                     fileHtml += '<button><img src="img/copy.png" alt="파일경로복사" onclick="copyToClipBoard(\''+list_data['folderfullpathname']+'\');"></button>';
+                    fileHtml += '</div>';
+                    fileHtml += '<div style="display: block;margin: 0;padding: 5px 7px;font-size: 15px;color: #777;background-color: #f0f0f0;">문서 내 개인정보 : ';
+                    for( j = 0; j < list_data['security']['length']; j++ )
+                    {
+                    	fileHtml += list_data['security'][j]['securityInfo']+list_data['security'][j]['securityCount'];
+                    	if( list_data['security']['length'] != (j+1) ) fileHtml += ', ';
+                    }
+
+                    //fileHtml += '<div>'+count(list_data['security'])+' '+list_data['security'][0]['securityInfo']+' '+list_data['security'][0]['securityCount']+'</div>';
+                    //if( count(list_data['security'][1]) > 0 ) fileHtml += '<div>'+list_data['security'][1]['securityInfo']+' '+list_data['security'][1]['securityCount']+'</div>';
                     fileHtml += '</div>';
                     fileHtml += '</div>';
                     fileNo++;
@@ -577,9 +810,56 @@
             }
             $("#page-folder-wrap").html(pageHtml);
         }
+
+        // 엑셀 다운로드
+        function xlsDown(gubun)
+        {
+        	var limitCnt = 30000; // 3만건
+        	var sensitiveCnt = parseInt($("#sensitive_cnt").val()); // 보안정보 총 건수
+        	var personalCnt = parseInt($("#personal_cnt").val()); // 개인정보 총 건수
+
+        	if( gubun == "sensitive" ){ //  // 보안정보
+        		var xlsUrl = "/sensitive/excel"; // 보안정보 엑셀 다운로드 URL
+
+        		if( sensitiveCnt >= limitCnt ){
+					Swal.fire({
+						title: "",
+						text: "2만건까지만 다운로드됩니다.",
+						icon: "warning",
+						allowOutsideClick: false
+					}).then((result) => {
+						if (result.isConfirmed) {
+							location.href = xlsUrl;
+						}
+					});
+        		}else{
+        			location.href = xlsUrl;
+        		}
+        	}else if( gubun == "personal" ){ // 개인정보
+        		var xlsUrl = "/personal/excel"; // 보안정보 엑셀 다운로드 URL
+
+        		if( personalCnt >= limitCnt ){
+					Swal.fire({
+						title: "",
+						text: "2만건까지만 다운로드됩니다.",
+						icon: "warning",
+						allowOutsideClick: false
+					}).then((result) => {
+						if (result.isConfirmed) {
+							location.href = xlsUrl;
+						}
+					});
+        		}else{
+        			location.href = xlsUrl;
+        		}
+        	}
+        	//console.log("xlsUrl => "+xlsUrl);
+        }
 	</script>
 </head>
 <body>
+<input type="hidden" name="sensitive_cnt" id="sensitive_cnt" value="0" />
+<input type="hidden" name="personal_cnt" id="personal_cnt" value="0" />
 <div style="height:0;position:absolute;z-index: -1;"><textarea id="copy_txt"></textarea></div>
 
   <div class="hobanS">
@@ -596,7 +876,7 @@
 	<div class="hobanS_search02">
 		<nav>
 			<ul class="tabMenu01">
-				<li><a href="javascript:;" class="active">민감정보</a></li>
+				<li><a href="javascript:;" class="active">보안정보</a></li>
 				<li><a href="javascript:;">개인정보</a></li>
 			</ul>
 			<p><!-- '홍길동' 에 대한 검색결과는 <b>총27건</b> 입니다. --></p>
@@ -613,7 +893,7 @@
 	<!-- 검색결과 S -->
 	<div class="hobanS_contents">
 
-		<!-- 특수검색_민감 S -->
+		<!-- 특수검색_보안 S -->
 		<div class="on">
             <!-- 상세검색 S -->
             <div class="detailSearch">
@@ -640,12 +920,12 @@
             </div>
             <!-- 상세검색 E -->
 
-	        <div class="special"><!-- 특수검색에만 추가됨 -->
+	        <div class="special"><!-- 보안검색에만 추가됨 -->
 				<div class="contentsWrap">
 					<!-- 검색결과 상단 S -->
 					<form name="fm" method="post" action="" onsubmit="return chkFm(this);">
 						<div class="header">
-							<h2>민감정보 검색</h2>
+							<h2>보안정보 검색</h2>
 							<div class="searchBar small">
 		                    	<input type="text" name="sch_kwd" id="sch_kwd" required value="" />
 		                    	<button type="submit"><img src="img/search.png" alt="검색"></button>
@@ -664,11 +944,7 @@
 					<!-- 부서별 S -->
 					<div class="department">
 						<h3 id="tree_label">부서별</h3>
-						<ul class="tree label01">
-							<li><input type="checkbox" id="root" checked> <label for="root">전체선택</label>
-								<ul class="label02" id="tree1-wrap"></ul>
-							</li>
-						</ul>
+						<ul class="tree label01" id="tree1-wrap"></ul>
 					</div>
 					<!-- 부서별 E -->
 				</div>
@@ -684,14 +960,14 @@
 
 				<!-- 버튼R S -->
 				<div class="btn">
-					<button>Excel 다운로드</button>
+					<button type="button" onclick="xlsDown('sensitive');">Excel 다운로드</button>
 				</div>
 				<!-- 버튼R E -->
 	        </div>
 	        <!-- 검색결과 하단 E -->
 
 		</div>
-		<!-- 특수검색_민감 E -->
+		<!-- 특수검색_보안 E -->
 
 		<!-- 특수검색_개인 S -->
 		<div>
@@ -721,7 +997,7 @@
             </div>
             <!-- 상세검색 E -->
 
-			<div class="special"><!-- 특수검색에만 추가됨 -->
+			<div class="special"><!-- 보안검색에만 추가됨 -->
 				<div class="contentsWrap">
 					<!-- 검색결과 상단 S -->
 					<form name="fm" method="post" action="" onsubmit="return chkFm2(this);">
@@ -771,35 +1047,39 @@
 			  <!-- 부서 및 정보내용 S -->
 			  <div class="treeWrap">
 
+				<!-- 부서별 S -->
+				<div class="department">
+					<h3 id="tree_label">부서별</h3>
+					<ul class="tree label01" id="tree2-wrap"></ul>
+				</div>
+				<!-- 부서별 E -->
+
 			    <!-- 개인정보 S -->
 			    <div class="department">
-			      <h3 id="tree_label">개인정보</h3>
+					<h3 id="tree_label">개인정보</h3>
 
-			      <ul class="tree label01">
-			        <li>
-			          <input type="checkbox" id="root02_1" checked>
-			          <label for="root02_1">전체선택</label>
-			          <ul class="label02">
-			            <li>
-			              <input type="radio" id="node02_21" name="group_name2" value="JUMIN" onclick="personJson();" />
-			              <label for="node02_21" class="lastTree">주민등록번호</label>
-			            </li>
-			            <li>
-			              <input type="radio" id="node02_22" name="group_name2" value="FOREIGN" onclick="personJson();" />
-			              <label for="node02_22" class="lastTree">외국인등록번호</label>
-			            </li>
-			            <li>
-			              <input type="radio" id="node02_23" name="group_name2" value="PASS_PORT" onclick="personJson();" />
-			              <label for="node02_23" class="lastTree">여권번호</label>
-			            </li>
-			            <li>
-			              <input type="radio" id="node02_24" name="group_name2" value="DRIVE" onclick="personJson();" />
-			              <label for="node02_24" class="lastTree">운전면허번호</label>
-			            </li>
-			          </ul>
-			        </li>
-			      </ul>
-
+					<ul class="tree label01">
+						<li>
+							<input type="radio" id="node02_20" name="group_name2" value="ALL" checked onclick="personJson();" />
+							<label for="node02_20" class="lastTree">전체</label>
+						</li>
+						<li>
+							<input type="radio" id="node02_21" name="group_name2" value="JUMIN" onclick="personJson();" />
+							<label for="node02_21" class="lastTree">주민등록번호</label>
+						</li>
+						<li>
+							<input type="radio" id="node02_22" name="group_name2" value="FOREIGN" onclick="personJson();" />
+							<label for="node02_22" class="lastTree">외국인등록번호</label>
+						</li>
+						<li>
+							<input type="radio" id="node02_23" name="group_name2" value="PASS_PORT" onclick="personJson();" />
+							<label for="node02_23" class="lastTree">여권번호</label>
+						</li>
+						<li>
+							<input type="radio" id="node02_24" name="group_name2" value="DRIVE" onclick="personJson();" />
+							<label for="node02_24" class="lastTree">운전면허번호</label>
+						</li>
+					</ul>
 			    </div>
 			    <!-- 개인정보 E -->
 
@@ -816,7 +1096,7 @@
 
 				<!-- 버튼R S -->
 				<div class="btn">
-					<button>Excel 다운로드</button>
+					<button type="button" onclick="xlsDown('personal');">Excel 다운로드</button>
 				</div>
 				<!-- 버튼R E -->
 

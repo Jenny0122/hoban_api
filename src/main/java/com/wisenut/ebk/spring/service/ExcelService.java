@@ -10,7 +10,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,9 +25,6 @@ import java.util.List;
 @Slf4j
 
 public class ExcelService {
-
-    @Value( "${limit.excel.rows}" )
-    int rowsLimit;
 
     public void getPersonalDataExcel( HttpServletResponse res , SearchPersonalDTO dto) throws Exception {
 
@@ -93,7 +89,7 @@ public class ExcelService {
         Row bodyRow = null;
         Cell bodyCell = null;
 
-        for ( int i = 0 ; i < result.size( ) || i == rowsLimit ; i++ ) {
+        for ( int i = 0 ; i < result.size( ) ; i++ ) {
             bodyRow = sheet.createRow( rowCount++ );
             FileSearchVo vo = result.get( i );
 
@@ -199,7 +195,7 @@ public class ExcelService {
         Row bodyRow = null;
         Cell bodyCell = null;
 
-        for ( int i = 0 ; i < result.size( ) || i == rowsLimit ; i++ ) {
+        for ( int i = 0 ; i < result.size( ) ; i++ ) {
             bodyRow = sheet.createRow( rowCount++ );
             FileSearchVo vo = result.get( i );
 

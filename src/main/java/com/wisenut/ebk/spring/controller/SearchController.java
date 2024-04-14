@@ -33,6 +33,10 @@ public class SearchController {
     @Value( "${key.personal}" )
     String personalKey;
 
+
+    @Value( "${limit.excel.rows}" )
+    int rowsLimit;
+
     @Autowired
     private SearchService service;
 
@@ -40,8 +44,8 @@ public class SearchController {
     @Operation( summary = "개인정보 검색", description = "개인정보 추출검색" )
     public ResponseEntity< ? > retrivePersonalDataSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
 
-        String collection = params.containsKey( "searchTargetOID" ) ? params.get( "searchTargetOID" ) : "";
-        String query = params.containsKey( "query" ) ? params.get( "query" ) : "";
+        String collection = params.getOrDefault( "searchTargetOID" , "" );
+        String query = params.getOrDefault( "query" , "" );
 
         SearchPersonalDTO dto = null;
         try {
@@ -50,11 +54,13 @@ public class SearchController {
             return ResponseEntity.badRequest( )
                                  .body( mae.toString( ) );
         }
-        
-        
+
+
         HttpSession session = request.getSession( );
-        session.setAttribute( personalKey, dto);
-        
+        params.put( "count" , String.valueOf( rowsLimit ) );
+        params.put( "pageStart" , "0" );
+        session.setAttribute( personalKey , service.searchPersonalDataTotalListByCategory( params ) );
+
         return ResponseEntity.ok( dto );
     }
 
@@ -62,8 +68,8 @@ public class SearchController {
     @Operation( summary = "민감정보검색", description = "입력받은 검색어로 민감정보 검색" )
     public ResponseEntity< ? > retriveSensitiveDataSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
 
-        String collection = params.containsKey( "searchTargetOID" ) ? params.get( "searchTargetOID" ) : "";
-        String query = params.containsKey( "query" ) ? params.get( "query" ) : "";
+        String collection = params.getOrDefault( "searchTargetOID" , "" );
+        String query = params.getOrDefault( "query" , "" );
 
         FileSearch file = FileSearch.builder( )
                                     .build( );
@@ -87,9 +93,15 @@ public class SearchController {
         TotalSearchDTO dto = dtoBuilder.data( data )
                                        .query( query )
                                        .build( );
-
         HttpSession session = request.getSession( );
-        session.setAttribute( sensitiveKey, dto);
+        params.put( "count" , String.valueOf( rowsLimit ) );
+        params.put( "pageStart" , "0" );
+        List< Object > temp = new ArrayList<>( );
+        temp.add( service.searchSensitiveFileTotalListByCategory( params ) );
+        session.setAttribute( sensitiveKey , TotalSearchDTO.builder( )
+                                                           .data( temp )
+                                                           .query( query )
+                                                           .build( ) );
 
         return ResponseEntity.ok( dto );
     }
@@ -98,8 +110,8 @@ public class SearchController {
     @Operation( summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색" )
     public ResponseEntity< ? > retriveSearchList( @RequestBody Map< String, String > params ) {
 
-        String collection = params.containsKey( "searchTargetOID" ) ? params.get( "searchTargetOID" ) : "";
-        String query = params.containsKey( "query" ) ? params.get( "query" ) : "";
+        String collection = params.getOrDefault( "searchTargetOID" , "" );
+        String query = params.getOrDefault( "query" , "" );
 
 
         FileSearch file = FileSearch.builder( )
