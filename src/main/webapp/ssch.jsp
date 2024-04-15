@@ -82,18 +82,48 @@
         	}else{
         		$(".dept_nm").prop("checked", false);
         	}
+        	sensJson(); // 보안 검색 실행
         }
 
         function deptChk(thisData)
         {
         	var dataItem = thisData.getAttribute('data-item');
         	var chk = thisData.checked;
-        	//console.log("dataItem => "+dataItem+" / "+chk);
+        	//console.log("dataItem 1 => "+dataItem+" / "+chk);
         	if( thisData.checked == true ){
         		$("."+dataItem).prop("checked", true);
         	}else{
         		$("."+dataItem).prop("checked", false);
         	}
+
+        	// 전체선택 정의
+            var dept_nm_chk = "Y";
+            $(".dept_nm").each(function(){
+            	if( $(this).prop("checked") == false ){
+            		dept_nm_chk = "N";
+            	}
+            })
+            if( dept_nm_chk == "Y" ){
+            	$("#dept_all_chk").prop("checked", true);
+            }else{
+            	$("#dept_all_chk").prop("checked", false);
+            }
+
+<%--             // 펼침/닫힘 정의
+            var liClassNm = $("."+dataItem).parent().parent().attr("class");
+            //console.log("."+dataItem);
+            //console.log( liClassNm );
+            if( liClassNm == "dept1" ){
+				$(".dept2 ."+dataItem).parent().parent().css("display","block");
+            }else if( liClassNm == "dept2" ){
+				$(".dept3 ."+dataItem).parent().parent().css("display","block");
+            }else if( liClassNm == "dept3" ){
+				$(".dept4 ."+dataItem).parent().parent().css("display","block");
+            }else if( liClassNm == "dept4" ){
+				$(".dept5 ."+dataItem).parent().parent().css("display","block");
+			} --%>
+
+        	sensJson(); // 보안 검색 실행
         }
 
         function allChk2()
@@ -102,6 +132,73 @@
         		$(".dept2_nm").prop("checked", true);
         	}else{
         		$(".dept2_nm").prop("checked", false);
+        	}
+        	personJson(); // 개인 검색 실행
+        }
+
+        function deptChk2(thisData)
+        {
+        	var dataItem = thisData.getAttribute('data-item');
+        	var chk = thisData.checked;
+        	console.log("dataItem 2 => "+dataItem+" / "+chk);
+        	if( thisData.checked == true ){
+        		$("."+dataItem).prop("checked", true);
+        	}else{
+        		$("."+dataItem).prop("checked", false);
+        	}
+
+        	// 전체선택 정의
+            var dept_nm_chk = "Y";
+            $(".dept2_nm").each(function(){
+            	if( $(this).prop("checked") == false ){
+            		dept_nm_chk = "N";
+            	}
+            })
+            if( dept_nm_chk == "Y" ){
+            	$("#dept2_all_chk").prop("checked", true);
+            }else{
+            	$("#dept2_all_chk").prop("checked", false);
+            }
+        	personJson(); // 개인 검색 실행
+        }
+
+        function subNavView(thisBtn,val)
+        {
+        	if( val == "" ) return false;
+        	if( thisBtn.className == "btn-arrow" ){ // 펼칭때는 바로 하위 메뉴만
+        		thisBtn.className = "btn-arrow active";
+        		$("."+val).css("display", "block");
+        	}else{ // 닫을 떄는 전체를 닫음
+        		thisBtn.className = "btn-arrow";
+        		$("#tree1-wrap li").each(function(){
+        			if( $(this).attr("class").match(val) == null ){
+        			}else{
+        				$(this).css("display", "none");
+        				if( $(this).children("a").hasClass("active") == true ){
+        					$(this).children("a").removeClass("active");
+        				}
+        			}
+        		})
+        	}
+        }
+
+        function subNavView2(thisBtn,val)
+        {
+        	if( val == "" ) return false;
+        	if( thisBtn.className == "btn-arrow" ){ // 펼칭때는 바로 하위 메뉴만
+        		thisBtn.className = "btn-arrow active";
+        		$("."+val).css("display", "block");
+        	}else{ // 닫을 떄는 전체를 닫음
+        		thisBtn.className = "btn-arrow";
+        		$("#tree2-wrap li").each(function(){
+        			if( $(this).attr("class").match(val) == null ){
+        			}else{
+        				$(this).css("display", "none");
+        				if( $(this).children("a").hasClass("active") == true ){
+        					$(this).children("a").removeClass("active");
+        				}
+        			}
+        		})
         	}
         }
 
@@ -114,19 +211,36 @@
 	            dataType: 'JSON',
 	            contentType: 'application/json; charset=utf-8'
 	        }).done(function(resultData) {
-	            //console.log(resultData.count);
-	            //console.log(resultData.data.length);
 	            //console.log(resultData);
-	            var treeHtml = '<li><label><input type="checkbox" name="dept_all_chk" id="dept_all_chk" value="ALL" checked onclick="allChk();" />전체선택</label></li>';
+	            var treeHtml = '<li class="deptAll"><label><input type="checkbox" name="dept_all_chk" id="dept_all_chk" value="ALL" checked onclick="allChk();" />전체선택</label></li>';
 
 	            // 1차 부서
 	            for( i = 0; i < resultData.data.length; i++ ){
 	            	var dept1Index = resultData.data[i]['fullpathindex'];
 	            	var dept1Nm = resultData.data[i]['name'];
 	            	if( dept1Index.length == 4 ){
-	            		treeHtml += '<li><label><input type="checkbox" name="dept_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
+	            		var li1ClassNm = 'li_'+(dept1Index.replace("#",""));
+	            		treeHtml += '<li class="dept1"><label><input type="checkbox" name="dept_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
 	            		treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+'" ';
-	            		treeHtml += 'data-item="dept_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label></li>';
+	            		treeHtml += 'data-item="dept_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label>';
+
+ 			            // 2차 부서 유무
+ 			            var chk2 = false;
+			            for( n = 0; n < resultData.data.length; n++ ){
+			            	var dept2Index = resultData.data[n]['fullpathindex'];
+			            	var dept2Nm = resultData.data[n]['name'];
+			            	if( dept2Index.length == 6 ){
+			            		var chk = dept2Index.indexOf(dept1Index, 0);
+		            			if( chk != -1 ){
+		            				chk2 = true;
+		            			}
+			            	}
+			            }
+			            if( chk2 == true ){
+			            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView(this, \''+li1ClassNm+'\');"></a></li>';
+			            }else{
+			            	treeHtml += '</li>';
+			            }
 
  			            // 2차 부서
 			            for( j = 0; j < resultData.data.length; j++ ){
@@ -135,10 +249,28 @@
 			            	if( dept2Index.length == 6 ){
 			            		var chk = dept2Index.indexOf(dept1Index, 0);
 		            			if( chk != -1 ){
-		            				//console.log(dept2Index.length+" "+dept2Index+" "+dept2Nm+" / "+dept1Index+" "+dept1Nm);
-				            		treeHtml += '<li class="dept2"><label><input type="checkbox" name="dept_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
+	            					var li2ClassNm = 'li_'+(dept2Index.replace("#",""));
+				            		treeHtml += '<li class="dept2 '+li1ClassNm+'"><label><input type="checkbox" name="dept_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
 				            		treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+'" ';
-				            		treeHtml += 'data-item="dept_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label></li>';
+				            		treeHtml += 'data-item="dept_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label>';
+
+			 			            // 3차 부서 유무
+			 			            var chk3 = false;
+						            for( n = 0; n < resultData.data.length; n++ ){
+						            	var dept3Index = resultData.data[n]['fullpathindex'];
+						            	var dept3Nm = resultData.data[n]['name'];
+						            	if( dept3Index.length == 8 ){
+						            		var chk = dept3Index.indexOf(dept2Index, 0);
+					            			if( chk != -1 ){
+					            				chk3 = true;
+					            			}
+						            	}
+						            }
+						            if( chk3 == true ){
+						            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView(this, \''+li2ClassNm+'\');"></a></li>';
+						            }else{
+						            	treeHtml += '</li>';
+						            }
 
 			 			            // 3차 부서
 						            for( k = 0; k < resultData.data.length; k++ ){
@@ -147,10 +279,28 @@
 						            	if( dept3Index.length == 8 ){
 						            		var chk = dept3Index.indexOf(dept2Index, 0);
 					            			if( chk != -1 ){
-					            				//console.log(dept3Index.length+" "+dept3Index+" "+dept3Nm+" / "+dept2Index+" "+dept2Nm);
-						            			treeHtml += '<li class="dept3"><label><input type="checkbox" name="dept_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
+					            				var li3ClassNm = 'li_'+(dept3Index.replace("#",""));
+						            			treeHtml += '<li class="dept3 '+li2ClassNm+'"><label><input type="checkbox" name="dept_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
 						            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+'" ';
-						            			treeHtml += 'data-item="dept_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label></li>';
+						            			treeHtml += 'data-item="dept_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label>';
+
+						 			            // 4차 부서 유무
+						 			            var chk4 = false;
+									            for( n = 0; n < resultData.data.length; n++ ){
+									            	var dept4Index = resultData.data[n]['fullpathindex'];
+									            	var dept4Nm = resultData.data[n]['name'];
+									            	if( dept4Index.length == 10 ){
+									            		var chk = dept4Index.indexOf(dept3Index, 0);
+								            			if( chk != -1 ){
+								            				chk4 = true;
+								            			}
+									            	}
+									            }
+									            if( chk4 == true ){
+									            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView(this, \''+li3ClassNm+'\');"></a></li>';
+									            }else{
+									            	treeHtml += '</li>';
+									            }
 
 						 			            // 4차 부서
 									            for( m = 0; m < resultData.data.length; m++ ){
@@ -159,10 +309,28 @@
 									            	if( dept4Index.length == 10 ){
 									            		var chk = dept4Index.indexOf(dept3Index, 0);
 								            			if( chk != -1 ){
-								            				//console.log(dept4Index.length+" "+dept4Index+" "+dept4Nm+" / "+dept3Index+" "+dept3Nm);
-									            			treeHtml += '<li class="dept4"><label><input type="checkbox" name="dept_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
+								            				var li4ClassNm = 'li_'+(dept4Index.replace("#",""));
+									            			treeHtml += '<li class="dept4 '+li3ClassNm+'"><label><input type="checkbox" name="dept_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
 									            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+' dept_'+(dept4Index.replace("#",""))+'" ';
-									            			treeHtml += 'data-item="dept_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label></li>';
+									            			treeHtml += 'data-item="dept_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label>';
+
+									 			            // 5차 부서 유무
+									 			            var chk5 = false;
+												            for( n = 0; n < resultData.data.length; n++ ){
+												            	var dept5Index = resultData.data[n]['fullpathindex'];
+												            	var dept5Nm = resultData.data[n]['name'];
+												            	if( dept5Index.length == 12 ){
+												            		var chk = dept5Index.indexOf(dept4Index, 0);
+											            			if( chk != -1 ){
+											            				chk5 = true;
+											            			}
+												            	}
+												            }
+												            if( chk5 == true ){
+												            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView(this, \''+li4ClassNm+'\');"></a></li>';
+												            }else{
+												            	treeHtml += '</li>';
+												            }
 
 									 			            // 5차 부서
 												            for( n = 0; n < resultData.data.length; n++ ){
@@ -172,7 +340,7 @@
 												            		var chk = dept5Index.indexOf(dept4Index, 0);
 											            			if( chk != -1 ){
 											            				//console.log(dept5Index.length+" "+dept5Index+" "+dept5Nm+" / "+dept4Index+" "+dept4Nm);
-												            			treeHtml += '<li class="dept5"><label><input type="checkbox" name="dept_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
+												            			treeHtml += '<li class="dept5 '+li4ClassNm+'"><label><input type="checkbox" name="dept_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
 												            			treeHtml += 'class="dept_nm dept_'+(dept1Index.replace("#",""))+' dept_'+(dept2Index.replace("#",""))+' dept_'+(dept3Index.replace("#",""))+' dept_'+(dept4Index.replace("#",""))+' dept_'+(dept5Index.replace("#",""))+'" ';
 												            			treeHtml += 'data-item="dept_'+(dept5Index.replace("#",""))+'" />'+dept5Nm+'</label></li>';
 											            			}
@@ -194,16 +362,35 @@
 
 
 
-	            treeHtml = '<li><label><input type="checkbox" name="dept2_all_chk" id="dept2_all_chk" value="ALL" checked onclick="allChk2();" />전체선택</label></li>';
+	            treeHtml = '<li class="deptAll"><label><input type="checkbox" name="dept2_all_chk" id="dept2_all_chk" value="ALL" checked onclick="allChk2();" />전체선택</label></li>';
 
 	            // 1차 부서
 	            for( i = 0; i < resultData.data.length; i++ ){
 	            	var dept1Index = resultData.data[i]['fullpathindex'];
 	            	var dept1Nm = resultData.data[i]['name'];
 	            	if( dept1Index.length == 4 ){
-	            		treeHtml += '<li><label><input type="checkbox" name="dept2_nm[]" value="'+dept1Nm+'" checked onclick="deptChk(this);" ';
+	            		var li1ClassNm = 'li_'+(dept1Index.replace("#",""));
+	            		treeHtml += '<li class="dept1"><label><input type="checkbox" name="dept2_nm[]" value="'+dept1Nm+'" checked onclick="deptChk2(this);" ';
 	            		treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+'" ';
-	            		treeHtml += 'data-item="dept2_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label></li>';
+	            		treeHtml += 'data-item="dept2_'+(dept1Index.replace("#",""))+'" />'+dept1Nm+'</label>';
+
+ 			            // 2차 부서 유무
+ 			            var chk2 = false;
+			            for( n = 0; n < resultData.data.length; n++ ){
+			            	var dept2Index = resultData.data[n]['fullpathindex'];
+			            	var dept2Nm = resultData.data[n]['name'];
+			            	if( dept2Index.length == 6 ){
+			            		var chk = dept2Index.indexOf(dept1Index, 0);
+		            			if( chk != -1 ){
+		            				chk2 = true;
+		            			}
+			            	}
+			            }
+			            if( chk2 == true ){
+			            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView2(this, \''+li1ClassNm+'\');"></a></li>';
+			            }else{
+			            	treeHtml += '</li>';
+			            }
 
  			            // 2차 부서
 			            for( j = 0; j < resultData.data.length; j++ ){
@@ -212,10 +399,28 @@
 			            	if( dept2Index.length == 6 ){
 			            		var chk = dept2Index.indexOf(dept1Index, 0);
 		            			if( chk != -1 ){
-		            				//console.log(dept2Index.length+" "+dept2Index+" "+dept2Nm+" / "+dept1Index+" "+dept1Nm);
-			            			treeHtml += '<li class="dept2"><label><input type="checkbox" name="dept2_nm[]" value="'+dept2Nm+'" checked onclick="deptChk(this);" ';
+	            					var li2ClassNm = 'li_'+(dept2Index.replace("#",""));
+			            			treeHtml += '<li class="dept2 '+li1ClassNm+'"><label><input type="checkbox" name="dept2_nm[]" value="'+dept2Nm+'" checked onclick="deptChk2(this);" ';
 			            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+'" ';
-	            					treeHtml += 'data-item="dept2_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label></li>';
+	            					treeHtml += 'data-item="dept2_'+(dept2Index.replace("#",""))+'" />'+dept2Nm+'</label>';
+
+			 			            // 3차 부서 유무
+			 			            var chk3 = false;
+						            for( n = 0; n < resultData.data.length; n++ ){
+						            	var dept3Index = resultData.data[n]['fullpathindex'];
+						            	var dept3Nm = resultData.data[n]['name'];
+						            	if( dept3Index.length == 8 ){
+						            		var chk = dept3Index.indexOf(dept2Index, 0);
+					            			if( chk != -1 ){
+					            				chk3 = true;
+					            			}
+						            	}
+						            }
+						            if( chk3 == true ){
+						            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView2(this, \''+li2ClassNm+'\');"></a></li>';
+						            }else{
+						            	treeHtml += '</li>';
+						            }
 
 			 			            // 3차 부서
 						            for( k = 0; k < resultData.data.length; k++ ){
@@ -224,10 +429,28 @@
 						            	if( dept3Index.length == 8 ){
 						            		var chk = dept3Index.indexOf(dept2Index, 0);
 					            			if( chk != -1 ){
-					            				//console.log(dept3Index.length+" "+dept3Index+" "+dept3Nm+" / "+dept2Index+" "+dept2Nm);
-						            			treeHtml += '<li class="dept3"><label><input type="checkbox" name="dept2_nm[]" value="'+dept3Nm+'" checked onclick="deptChk(this);" ';
+					            				var li3ClassNm = 'li_'+(dept3Index.replace("#",""));
+						            			treeHtml += '<li class="dept3 '+li2ClassNm+'"><label><input type="checkbox" name="dept2_nm[]" value="'+dept3Nm+'" checked onclick="deptChk2(this);" ';
 						            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+'" ';
-	            								treeHtml += 'data-item="dept2_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label></li>';
+	            								treeHtml += 'data-item="dept2_'+(dept3Index.replace("#",""))+'" />'+dept3Nm+'</label>';
+
+						 			            // 4차 부서 유무
+						 			            var chk4 = false;
+									            for( n = 0; n < resultData.data.length; n++ ){
+									            	var dept4Index = resultData.data[n]['fullpathindex'];
+									            	var dept4Nm = resultData.data[n]['name'];
+									            	if( dept4Index.length == 10 ){
+									            		var chk = dept4Index.indexOf(dept3Index, 0);
+								            			if( chk != -1 ){
+								            				chk4 = true;
+								            			}
+									            	}
+									            }
+									            if( chk4 == true ){
+									            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView2(this, \''+li3ClassNm+'\');"></a></li>';
+									            }else{
+									            	treeHtml += '</li>';
+									            }
 
 						 			            // 4차 부서
 									            for( m = 0; m < resultData.data.length; m++ ){
@@ -236,10 +459,28 @@
 									            	if( dept4Index.length == 10 ){
 									            		var chk = dept4Index.indexOf(dept3Index, 0);
 								            			if( chk != -1 ){
-								            				//console.log(dept4Index.length+" "+dept4Index+" "+dept4Nm+" / "+dept3Index+" "+dept3Nm);
-									            			treeHtml += '<li class="dept4"><label><input type="checkbox" name="dept2_nm[]" value="'+dept4Nm+'" checked onclick="deptChk(this);" ';
+								            				var li4ClassNm = 'li_'+(dept4Index.replace("#",""));
+									            			treeHtml += '<li class="dept4 '+li3ClassNm+'"><label><input type="checkbox" name="dept2_nm[]" value="'+dept4Nm+'" checked onclick="deptChk2(this);" ';
 									            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+' dept2_'+(dept4Index.replace("#",""))+'" ';
-	            											treeHtml += 'data-item="dept2_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label></li>';
+	            											treeHtml += 'data-item="dept2_'+(dept4Index.replace("#",""))+'" />'+dept4Nm+'</label>';
+
+									 			            // 5차 부서 유무
+									 			            var chk5 = false;
+												            for( n = 0; n < resultData.data.length; n++ ){
+												            	var dept5Index = resultData.data[n]['fullpathindex'];
+												            	var dept5Nm = resultData.data[n]['name'];
+												            	if( dept5Index.length == 12 ){
+												            		var chk = dept5Index.indexOf(dept4Index, 0);
+											            			if( chk != -1 ){
+											            				chk5 = true;
+											            			}
+												            	}
+												            }
+												            if( chk5 == true ){
+												            	treeHtml += '<a href="javascript:;" class="btn-arrow" onclick="subNavView(this, \''+li4ClassNm+'\');"></a></li>';
+												            }else{
+												            	treeHtml += '</li>';
+												            }
 
 									 			            // 5차 부서
 												            for( n = 0; n < resultData.data.length; n++ ){
@@ -248,8 +489,7 @@
 												            	if( dept5Index.length == 12 ){
 												            		var chk = dept5Index.indexOf(dept4Index, 0);
 											            			if( chk != -1 ){
-											            				//console.log(dept5Index.length+" "+dept5Index+" "+dept5Nm+" / "+dept4Index+" "+dept4Nm);
-												            			treeHtml += '<li class="dept5"><label><input type="checkbox" name="dept2_nm[]" value="'+dept5Nm+'" checked onclick="deptChk(this);" ';
+												            			treeHtml += '<li class="dept5 '+li4ClassNm+'"><label><input type="checkbox" name="dept2_nm[]" value="'+dept5Nm+'" checked onclick="deptChk2(this);" ';
 												            			treeHtml += 'class="dept2_nm dept2_'+(dept1Index.replace("#",""))+' dept2_'+(dept2Index.replace("#",""))+' dept2_'+(dept3Index.replace("#",""))+' dept2_'+(dept4Index.replace("#",""))+' dept2_'+(dept5Index.replace("#",""))+'" ';
 	            														treeHtml += 'data-item="dept2_'+(dept5Index.replace("#",""))+'" />'+dept5Nm+'</label></li>';
 											            			}
@@ -341,8 +581,7 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                //var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
-                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
+                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
                 //console.log(theURL);
@@ -353,8 +592,7 @@
         function documentOpen(oid) // 파일 속성보기
         {
             if( oid != "" ){
-                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
-                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
+                var theURL = "https://ecmdev.e-hoban.co.kr/url/";
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=A";
                 //console.log(theURL);
@@ -478,6 +716,7 @@
 
                 //schFileTotal = parseInt(apiDataArr.totalCount); // 파일 count
                 $("#sensitive_cnt").val(parseInt(apiDataArr.totalCount)); // 보안 count
+                $("#sens-sch-cnt").html(parseInt(apiDataArr.totalCount)); // 보안 count 노출용
 
                 // 파일
                 var fileHtml = "";
@@ -930,6 +1169,8 @@
 		                    	<input type="text" name="sch_kwd" id="sch_kwd" required value="" />
 		                    	<button type="submit"><img src="img/search.png" alt="검색"></button>
 							</div>
+
+							<p>검색결과 <strong id="sens-sch-cnt">0</strong> 건</p>
 						</div>
 					</form>
 					<!-- 검색결과 상단 E -->
@@ -1004,7 +1245,7 @@
 						<div class="header">
 							<h2>개인정보 검색</h2>
 							<div class="searchBar small">
-		                    	<input type="text" name="sch_kwd2" id="sch_kwd2" required value="" />
+		                    	<input type="text" name="sch_kwd2" id="sch_kwd2" value="" />
 		                    	<button type="submit"><img src="img/search.png" alt="검색"></button>
 							</div>
 						</div>
