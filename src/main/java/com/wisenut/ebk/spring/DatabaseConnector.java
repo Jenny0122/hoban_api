@@ -10,9 +10,9 @@ import java.util.List;
 @Component
 public class DatabaseConnector {
 
-    private static final String URL = "jdbc:mariadb://172.17.208.35:13306";
+    private static final String URL = "jdbc:mariadb://10.20.30.75:13306";
     private static final String USERNAME = "wisenut";
-    private static final String PASSWORD = "wisenut";
+    private static final String PASSWORD = "wisenutsearch1!";
 
     public List<GroupVo> getDataFromDB() {
         List<GroupVo> groupNames  = new ArrayList<>();
