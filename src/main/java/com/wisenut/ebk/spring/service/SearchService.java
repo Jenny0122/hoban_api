@@ -59,7 +59,7 @@ public class SearchService {
 
         // collection, 검색필드, 출력필드 정의
 
-        int EXTEND_OR = query.contains(" ") ? 1 : 0; // and 검색결과가 없을 시 or로 확장검색
+        int EXTEND_OR = 1; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = Integer.parseInt( params.getOrDefault( "count" , String.valueOf( 10 ) ) ); // 한번에 출력되는 검색 건수
         int PAGE_START = Integer.parseInt( params.getOrDefault( "pageStart" , String.valueOf( 0 ) ) ); // 검색결과를 받아오는 시작 위치
 //        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
@@ -152,7 +152,7 @@ public class SearchService {
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+            filterQueryBuilder.append( "<DOCTYPEOID:substring:" )
                                   .append( doctype )
                                   .append( ">" )
                                   .append( " " );
@@ -349,9 +349,7 @@ public class SearchService {
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
-                                              .replaceAll( "<!HS>" , "<b>" )
-                                              .replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
@@ -630,9 +628,7 @@ public class SearchService {
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
             String lastmodifiedat = search.w3GetField( COLLECTION , "LASTMODIFIEDAT" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
-                                              .replaceAll( "<!HS>" , "<b>" )
-                                              .replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i);
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
@@ -727,8 +723,9 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
-
-        //ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+        if ( !query.contentEquals( null )) {
+            ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+        }
 
         // category
         ret = search.w3AddCategoryGroupBy( COLLECTION , "CUSTOM_CATEGORY" , "1/SC" );
@@ -736,6 +733,7 @@ public class SearchService {
 
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
+        StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder prefixQueryBuilder = new StringBuilder( );
 
         String securityfilter = "";
@@ -755,9 +753,11 @@ public class SearchService {
         ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery , 1 );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            String filterQuery = "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">";
-            log.debug( "[filterQuery]: {}" , filterQuery );
-            ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
+            filterQueryBuilder.append( "<DATE:gte:" )
+                              .append( params.get( "modifyFrom" ) )
+                              .append( "> <DATE:lte:" )
+                              .append( params.get( "modifyTo" ) )
+                              .append( "> " );
         }
 
         //dodtype
@@ -765,11 +765,15 @@ public class SearchService {
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
 
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+            filterQueryBuilder.append( "<DOCTYPEOID:substring:" )
                                   .append( doctype )
-                                  .append( ">" )
-                                  .append( " " );
+                                  .append( "> " );
         }
+
+        String filterQuery = filterQueryBuilder.toString( )
+                                               .trim( );
+        log.debug( "[filterQuery]: {}" , filterQuery );
+        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
         //group
         String groupNames = "";
@@ -852,9 +856,7 @@ public class SearchService {
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
-                                              .replaceAll( "<!HS>" , "<b>" )
-                                              .replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );
@@ -968,7 +970,7 @@ public class SearchService {
             throw new MissingArgumentException( "searchTargetOID는 '필수'값 입니다." );
         }
 
-        int EXTEND_OR = query.contains(" ") ? 1 : 0; // and 검색결과가 없을 시 or로 확장검색
+        int EXTEND_OR = 1; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
@@ -1002,7 +1004,6 @@ public class SearchService {
 
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
-        StringBuilder collectionQueryBuilder = new StringBuilder( );
         StringBuilder filterQueryBuilder = new StringBuilder( );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
@@ -1011,21 +1012,13 @@ public class SearchService {
                               .append( "> <DATE:lte:" )
                               .append( params.get( "modifyTo" ) )
                               .append( "> " );
-//            String filterQuery = "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + ">";
-//            log.debug( "[filterQuery]: {}" , filterQuery );
-//            ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
         }
 
         //dodtype
-        String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
-            String collectionQuery = "<DOCTYPEOID:contains:" + params.get( "doctype" ) + ">";
-            log.debug( "[collectionQuery]: {}" , collectionQuery );
-            ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
-
-//            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
-//                                  .append( doctype )
-//                                  .append( "> " );
+            filterQueryBuilder.append( "<DOCTYPEOID:substring:" )
+                                  .append( params.get( "doctype" ) )
+                                  .append( "> " );
         }
 
         //group
@@ -1095,9 +1088,7 @@ public class SearchService {
             String filesize = search.w3GetField( COLLECTION , "FILESIZE" , i );
             String filesizem = search.w3GetField( COLLECTION , "FILESIZEM" , i );
             String folderoid = search.w3GetField( COLLECTION , "FOLDEROID" , i );
-            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i )
-                                              .replaceAll( "<!HS>" , "<b>" )
-                                              .replaceAll( "<!HE>" , "</b>" );
+            String folderfullpathname = search.w3GetField( COLLECTION , "FOLDERFULLPATHNAME" , i );
             String folderfullpathoid = search.w3GetField( COLLECTION , "FOLDERFULLPATHOID" , i );
             String managergroupoid = search.w3GetField( COLLECTION , "MANAGERGROUPOID" , i );
             String managergroupfullpathoid = search.w3GetField( COLLECTION , "MANAGERGROUPFULLPATHOID" , i );

@@ -147,8 +147,8 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
-                // var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
+                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
                 //console.log(theURL);
@@ -159,8 +159,8 @@
         function documentOpen(oid) // 파일 속성보기
         {
             if( oid != "" ){
-                var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
-                // var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
+                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=A";
                 //console.log(theURL);
