@@ -4,19 +4,26 @@
 <%@ page import="java.util.Map" %>
 <%
     String schKwd = request.getParameter("sch_kwd"); // 검색어
-    String jsonString = request.getParameter("jsonString");
-	String aclFilterInfos = "";
-	aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
+    String aclFilterInfos = "";
+    aclFilterInfos = "admin@UR|k, S000@PR|k, 0OxadYAA1t5@UR|z"; // 개발 테스트용, 운영반영시 주석 처리
 
-    // 그룹웨어에서 넘어오는 값
-    ObjectMapper mapper = new ObjectMapper();
+    // 문서중앙화, 그룹웨어에서 넘어오는 값 모두 jsonString 형태로 받기
+    String jsonString = request.getParameter("jsonString");
     if(jsonString != null) {
+        ObjectMapper mapper = new ObjectMapper();
         Map<String, String> jsonStringMap = mapper.readValue(jsonString, Map.class);
-        schKwd = jsonStringMap.get("query");
+
+        // 문서중앙화에서 넘어오는 검색어 처리
+        if(schKwd == null)
+            schKwd = jsonStringMap.get("query");
+
+        // 그룹웨어, 문서중앙화에서 넘어오는 권한값 동시 처리
         aclFilterInfos = jsonStringMap.get("aclFilterInfos");
     }
+
     if( schKwd == null )			schKwd = "";
     if( aclFilterInfos == null )	aclFilterInfos = "";
+
 %>
 <!DOCTYPE html>
 <html lang="ko">

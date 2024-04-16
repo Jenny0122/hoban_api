@@ -723,7 +723,7 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
-        if ( !query.contentEquals( null )) {
+        if ( params.containsKey( "query") ) {
             ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
         }
 

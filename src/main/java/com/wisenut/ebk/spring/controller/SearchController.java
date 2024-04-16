@@ -108,7 +108,7 @@ public class SearchController {
 
     @RequestMapping( value = "/search", method = RequestMethod.POST, produces = "application/json" )
     @Operation( summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색" )
-    public ResponseEntity< ? > retriveSearchList( @RequestBody Map< String, String > params ) {
+    public ResponseEntity< ? > retriveSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
 
         String collection = params.getOrDefault( "searchTargetOID" , "" );
         String query = params.getOrDefault( "query" , "" );
@@ -146,7 +146,7 @@ public class SearchController {
 
     @RequestMapping( value = "/search/file", method = RequestMethod.POST, produces = "application/json" )
     @Operation( summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색" )
-    public ResponseEntity< ? > retriveFileSearchList( @RequestBody Map< String, String > params ) {
+    public ResponseEntity< ? > retriveFileSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
 
         String query = params.containsKey( "query" ) ? params.get( "query" ) : "";
 
@@ -172,7 +172,7 @@ public class SearchController {
 
     @RequestMapping( value = "/search/folder", method = RequestMethod.POST, produces = "application/json" )
     @Operation( summary = "통합검색", description = "입력받은 검색어, 보안 정보로 통합검색" )
-    public ResponseEntity< ? > retriveFolderSearchList( @RequestBody Map< String, String > params ) {
+    public ResponseEntity< ? > retriveFolderSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
 
         String query = params.containsKey( "query" ) ? params.get( "query" ) : "";
 
