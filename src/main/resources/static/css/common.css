@@ -442,10 +442,10 @@ table td{
   /*width: 700px;*/
   width: auto;
   line-height: 24px;
-  word-break: break-all;
+/*  word-break: break-all;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
+  display: -webkit-box;*/
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }

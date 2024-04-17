@@ -1,5 +1,24 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
+<%@ page import="com.fasterxml.jackson.databind.ObjectMapper" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.HashMap" %>
+
+<%
+    String jsonString = request.getParameter("jsonString");
+    String aclFilterInfos = "";
+    // aclFilterInfos = "admin@UR|k, S000@PR|k"; // 개발 테스트용, 운영반영시 주석 처리
+
+    // 그룹웨어에서 넘어오는 값
+    ObjectMapper mapper = new ObjectMapper();
+    if(jsonString != null) {
+        Map<String, String> jsonStringMap = mapper.readValue(jsonString, Map.class);
+        // schKwd = jsonStringMap.get("query");
+        aclFilterInfos = jsonStringMap.get("aclFilterInfos");
+    }
+    // if( schKwd == null )            schKwd = "";
+    if( aclFilterInfos == null )    aclFilterInfos = "";
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -15,7 +34,7 @@
             <h1><img src="img/logo.png" alt=""></h1>
             <div class="searchBar">
                 <input type="text" name="sch_kwd" required />
-                <input type="hidden" name="jsonString" value="<%= request.getParameter("jsonString") %>" />
+                <input type="hidden" name="aclFilterInfos" value="<%= aclFilterInfos %>" />
                 <button type="submit"><img src="img/search.png" alt="검색"></button>
             </div>
         </div>
