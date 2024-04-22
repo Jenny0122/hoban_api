@@ -4,11 +4,6 @@
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.HashMap" %>
 <%
-
-	String referer = request.getHeader("referer");
-	if (referer == null )
-      return;
-  
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String aclFilterInfos = request.getParameter("aclFilterInfos");;
 	
@@ -33,8 +28,6 @@
 
         try {
             jsonStringMap = mapper.readValue(jsonString, Map.class);
-        } catch(Exception e) {                
-            errorMessage = e.getMessage();
 
             // 문서중앙화에서 넘어오는 검색어 처리
             if(schKwd == null)
@@ -42,6 +35,9 @@
 
             // 그룹웨어, 문서중앙화에서 넘어오는 권한값 동시 처리
             aclFilterInfos = jsonStringMap.getOrDefault("aclFilterInfos", "");
+
+        } catch(Exception e) {                
+            errorMessage = e.getMessage();
         }
     }
 
@@ -64,8 +60,6 @@
     <script src="js/sweetalert2.all.min.js"></script>
     <script>
         var jsonString = <%=jsonString %>
-	console.log(<%=errorMessage %>)
-	console.log(jsonString)
         var pageFileTot = 0; // 파일 전체페이지
         var pageFileNum = 0; // 파일 현재페이지
         var pageFolderTot = 0; // 폴더 전체페이지
