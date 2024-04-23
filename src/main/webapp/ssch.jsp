@@ -4,7 +4,8 @@
 <%@ page import="java.util.Map" %>
 <%
 	String referer = request.getHeader("referer");
-	if (referer == null || !referer.contains("ecm.ihoban.co.kr"))
+	//if (referer == null || !referer.contains("ecmdev.e-hoban.co.kr")) // 개발
+	if (referer == null || !referer.contains("ecm.ihoban.co.kr")) // 운영
       return;
 
     String schKwd = request.getParameter("sch_kwd"); // 검색어
@@ -585,7 +586,7 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+				// var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
                 var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";

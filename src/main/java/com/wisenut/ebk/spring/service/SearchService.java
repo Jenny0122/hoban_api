@@ -432,50 +432,51 @@ public class SearchService {
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
         else
             SORT_FIELD = "RANK/DESC";
-//        String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,FULLPATHINDEX,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE"; // 검색필드
-//        String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,CREATOROID,CREATORGROUPNAME,CREATEDAT,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,MANAGERGROUPOID,FULLPATHINDEX,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
+        String SEARCH_FIELD = "NAME,DESCRIPTION,CREATOROID,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,FULLPATHINDEX,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE"; // 검색필드
+        String DOCUMENT_FIELD = "DOCID,DATE,OID,NAME,DESCRIPTION,CODE,CREATOROID,CREATORGROUPNAME,CREATEDAT,CREATEDATE,CREATEDATN,LASTMODIFIEDAT,LASTMODIFIEDATN,MANAGERGROUPOID,FULLPATHINDEX,MANAGERGROUPFULLPATHOID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,KNOWLEDGEFOLDERLIST,DOCTYPEFOLDER,ACLKEYCODE,NO_ACLKEYCODE"; // 출력필드
 
-        List< String > SEARCH_FIELD_LIST = new ArrayList<>( );
-        SEARCH_FIELD_LIST.add( "NAME" );
-        SEARCH_FIELD_LIST.add( "DESCRIPTION" );
-        SEARCH_FIELD_LIST.add( "CREATOROID" );
-        SEARCH_FIELD_LIST.add( "CREATEDATE" );
-        SEARCH_FIELD_LIST.add( "CREATEDATN" );
-        SEARCH_FIELD_LIST.add( "LASTMODIFIEDAT" );
-        SEARCH_FIELD_LIST.add( "LASTMODIFIEDATN" );
-        SEARCH_FIELD_LIST.add( "FULLPATHINDEX" );
-        SEARCH_FIELD_LIST.add( "MANAGERGROUPOID" );
-        SEARCH_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
-        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHOID" );
-        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
-        SEARCH_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
-        SEARCH_FIELD_LIST.add( "DOCTYPEFOLDER" );
-        SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
-        final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
+//        List< String > SEARCH_FIELD_LIST = new ArrayList<>( );
+//        SEARCH_FIELD_LIST.add( "NAME" );
+//        SEARCH_FIELD_LIST.add( "DESCRIPTION" );
+//        SEARCH_FIELD_LIST.add( "CREATOROID" );
+//        SEARCH_FIELD_LIST.add( "CREATEDATE" );
+//        SEARCH_FIELD_LIST.add( "CREATEDATN" );
+//        SEARCH_FIELD_LIST.add( "LASTMODIFIEDAT" );
+//        SEARCH_FIELD_LIST.add( "LASTMODIFIEDATN" );
+//        SEARCH_FIELD_LIST.add( "FULLPATHINDEX" );
+//        SEARCH_FIELD_LIST.add( "MANAGERGROUPOID" );
+//        SEARCH_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
+//        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHOID" );
+//        SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
+//        SEARCH_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
+//        SEARCH_FIELD_LIST.add( "DOCTYPEFOLDER" );
+//        SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
+//        final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
 
-        List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
-        DOCUMENT_FIELD_LIST.add( "DOCID" );
-        DOCUMENT_FIELD_LIST.add( "DATE" );
-        DOCUMENT_FIELD_LIST.add( "OID" );
-        DOCUMENT_FIELD_LIST.add( "NAME" );
-        DOCUMENT_FIELD_LIST.add( "DESCRIPTION" );
-        DOCUMENT_FIELD_LIST.add( "CREATOROID" );
-        DOCUMENT_FIELD_LIST.add( "CREATORGROUPNAME" );
-        DOCUMENT_FIELD_LIST.add( "CREATEDAT" );
-        DOCUMENT_FIELD_LIST.add( "CREATEDATE" );
-        DOCUMENT_FIELD_LIST.add( "CREATEDATN" );
-        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDAT" );
-        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDATN" );
-        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPOID" );
-        DOCUMENT_FIELD_LIST.add( "FULLPATHINDEX" );
-        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
-        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHOID" );
-        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
-        DOCUMENT_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
-        DOCUMENT_FIELD_LIST.add( "DOCTYPEFOLDER" );
-        DOCUMENT_FIELD_LIST.add( "ACLKEYCODE" );
-        DOCUMENT_FIELD_LIST.add( "NO_ACLKEYCODE" );
-        final String DOCUMENT_FIELD = String.join( "," , DOCUMENT_FIELD_LIST );
+//        List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
+//        DOCUMENT_FIELD_LIST.add( "DOCID" );
+//        DOCUMENT_FIELD_LIST.add( "DATE" );
+//        DOCUMENT_FIELD_LIST.add( "OID" );
+//        DOCUMENT_FIELD_LIST.add( "NAME" );
+//        DOCUMENT_FIELD_LIST.add( "DESCRIPTION" );
+//        DOCUMENT_FIELD_LIST.add( "CODE" );
+//        DOCUMENT_FIELD_LIST.add( "CREATOROID" );
+//        DOCUMENT_FIELD_LIST.add( "CREATORGROUPNAME" );
+//        DOCUMENT_FIELD_LIST.add( "CREATEDAT" );
+//        DOCUMENT_FIELD_LIST.add( "CREATEDATE" );
+//        DOCUMENT_FIELD_LIST.add( "CREATEDATN" );
+//        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDAT" );
+//        DOCUMENT_FIELD_LIST.add( "LASTMODIFIEDATN" );
+//        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPOID" );
+//        DOCUMENT_FIELD_LIST.add( "FULLPATHINDEX" );
+//        DOCUMENT_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
+//        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHOID" );
+//        DOCUMENT_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
+//        DOCUMENT_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
+//        DOCUMENT_FIELD_LIST.add( "DOCTYPEFOLDER" );
+//        DOCUMENT_FIELD_LIST.add( "ACLKEYCODE" );
+//        DOCUMENT_FIELD_LIST.add( "NO_ACLKEYCODE" );
+//        final String DOCUMENT_FIELD = String.join( "," , DOCUMENT_FIELD_LIST );
 
         // create object
         Search search = new Search( );
@@ -624,6 +625,7 @@ public class SearchService {
             foldername = foldername.replaceAll( "<!HS>" , "<b>" );
             foldername = foldername.replaceAll( "<!HE>" , "</b>" );
             String description = search.w3GetField( COLLECTION , "DESCRIPTION" , i );
+            String code = search.w3GetField( COLLECTION , "CODE" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
             String creatorgroupname = search.w3GetField( COLLECTION , "CREATORGROUPNAME" , i );
             String createdat = search.w3GetField( COLLECTION , "CREATEDAT" , i );
@@ -641,6 +643,7 @@ public class SearchService {
                                               .oid( oid )
                                               .foldername( foldername )
                                               .description( description )
+                                              .code( code )
                                               .creatoroid( creatoroid )
                                               .creatorgroupname( creatorgroupname )
                                               .createdat( createdat )

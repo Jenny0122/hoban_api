@@ -28,6 +28,9 @@ public class FolderSearchVo {
 	
 	@Schema(description = "설명")
 	private String description;
+
+	@Schema(description = "폴더 코드")
+	private String code;
 	
 	@Schema(description = "등록자 OID")
 	private String creatoroid;
