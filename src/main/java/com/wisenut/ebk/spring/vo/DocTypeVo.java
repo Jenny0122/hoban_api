@@ -16,7 +16,7 @@ import javax.persistence.Id;
 @Builder
 @AllArgsConstructor
 //@JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema( description = "부서명 필드 정보" )
+@Schema( description = "문서 유형 필드 정보" )
 @Entity( name = "vftrdoctype" )
 public class DocTypeVo {
 
