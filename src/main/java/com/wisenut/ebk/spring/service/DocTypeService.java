@@ -18,10 +18,7 @@ public class DocTypeService {
     public List< DocTypeVo > getDocTypes( ) {
 
         List< DocTypeVo > dataList = docTypeRepository.findAll( );
-//        dataList.forEach(v -> log.info(v.toString()));
-//        System.out.println(dataList.size());
-
-//        return databaseConnector.getDataFromDB();
+        dataList.forEach(v -> log.debug(v.toString()));
 
         return dataList;
     }
