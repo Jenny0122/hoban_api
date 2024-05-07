@@ -1060,7 +1060,7 @@
         // 엑셀 다운로드
         function xlsDown(gubun)
         {
-        	var limitCnt = 30000; // 3만건
+        	var limitCnt = 20000; // 2만건
         	var sensitiveCnt = parseInt($("#sensitive_cnt").val()); // 보안정보 총 건수
         	var personalCnt = parseInt($("#personal_cnt").val()); // 개인정보 총 건수
 

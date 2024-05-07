@@ -99,9 +99,15 @@ public class SearchController {
         List< Object > temp = new ArrayList<>( );
         temp.add( service.searchSensitiveFileTotalListByCategory( params ) );
         session.setAttribute( sensitiveKey , TotalSearchDTO.builder( )
-                                                           .data( temp )
+                                                           .data( data )
                                                            .query( query )
                                                            .build( ) );
+
+        if(session.getAttribute(sensitiveKey) == null) {
+            log.error("Fail to save data...");
+        } else {
+            log.info("data: {}", session.getAttribute(sensitiveKey));
+        }
 
         return ResponseEntity.ok( dto );
     }

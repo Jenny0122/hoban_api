@@ -37,7 +37,6 @@ public class ExcelController {
     public void getSensitiveDataExcel( HttpServletRequest request , HttpServletResponse res ) throws Exception {
         HttpSession session = request.getSession( );
         TotalSearchDTO dto = ( TotalSearchDTO ) session.getAttribute( sensitiveKey );
-        System.out.println(dto.getData().get( 0 ) );
         service.getSensitiveDataExcel( res , dto );
     }
 }
