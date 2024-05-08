@@ -4,9 +4,8 @@
 <%@ page import="java.util.Map" %>
 <%
 	String referer = request.getHeader("referer");
-	//if (referer == null || !referer.contains("ecmdev.e-hoban.co.kr")) // 개발
-	if (referer == null || !referer.contains("ecm.ihoban.co.kr")) // 운영
-      return;
+	//if (referer == null || !referer.contains("ecm.ihoban.co.kr"))
+    //  return;
 
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
@@ -586,7 +585,7 @@
         function fileOpen(oid) // 파일보기
         {
             if( oid != "" ){
-				// var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
+                // var theURL = "https://ecmdev.e-hoban.co.kr/url/"; // 개발
                 var theURL = "https://ecm.ihoban.co.kr/url/"; // 운영
                 theURL += "?fileOID="+oid;
                 theURL += "&urlType=B";
@@ -1057,10 +1056,93 @@
             $("#page-folder-wrap").html(pageHtml);
         }
 
+        function downloadExcel (type) {
+            const limit = 20000;
+            let url = "";
+            let dataSize = 0;
+
+            if(type == 'sensitive' ){
+                url = "/sensitive/excel"; // 보안정보 엑셀 다운로드 URL
+                dataSize = parseInt($("#sensitive_cnt").val()); // 보안정보 총 건수
+            }
+            else if(type == 'psersonal'){
+                url = "/personal/excel"; // 보안정보 엑셀 다운로드 URL
+                dataSize = parseInt($("#personal_cnt").val()); // 개인정보 총 건수
+            }
+
+            if(dataSize > limit) {
+                Swal.fire({
+                    title: "",
+                    text: "2만건까지만 다운로드됩니다.",
+                    icon: "warning",
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        //callDownload(url)
+                        location.href = url;
+                    }
+                });
+            } else {
+                location.href = url;
+                //callDownload(url)
+            }
+        }
+
+        function callDownload(url) {
+            console.log(url);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                cache: false,
+                xhrFields: {
+                    responseType: "blob",
+                },
+            })
+            .done(function (blob, status, xhr) {
+                // check for a filename
+                var fileName = "";
+                var disposition = xhr.getResponseHeader("Content-Disposition");
+
+                if (disposition && disposition.indexOf("attachment") !== -1) {
+                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    var matches = filenameRegex.exec(disposition);
+
+                    if (matches != null && matches[1]) {
+                        fileName = decodeURI(matches[1].replace(/['"]/g, ""));
+                    }
+                }
+
+                // for IE
+                if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+                    window.navigator.msSaveOrOpenBlob(blob, fileName);
+                } else {
+                    var URL = window.URL || window.webkitURL;
+                    var downloadUrl = URL.createObjectURL(blob);
+
+                    if (fileName) {
+                        var a = document.createElement("a");
+
+                        // for safari
+                        if (a.download === undefined) {
+                            window.location.href = downloadUrl;
+                        } else {
+                            a.href = downloadUrl;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    } else {
+                        window.location.href = downloadUrl;
+                    }
+                }
+            });
+        }
+
         // 엑셀 다운로드
         function xlsDown(gubun)
         {
-        	var limitCnt = 20000; // 2만건
+        	var limitCnt = 30000; // 3만건
         	var sensitiveCnt = parseInt($("#sensitive_cnt").val()); // 보안정보 총 건수
         	var personalCnt = parseInt($("#personal_cnt").val()); // 개인정보 총 건수
 
@@ -1208,7 +1290,10 @@
 
 				<!-- 버튼R S -->
 				<div class="btn">
+					<!--
 					<button type="button" onclick="xlsDown('sensitive');">Excel 다운로드</button>
+					-->
+					<button type="button" onclick="downloadExcel('sensitive');">Excel 다운로드</button>
 				</div>
 				<!-- 버튼R E -->
 	        </div>
@@ -1344,7 +1429,10 @@
 
 				<!-- 버튼R S -->
 				<div class="btn">
+				<!--
 					<button type="button" onclick="xlsDown('personal');">Excel 다운로드</button>
+				-->
+					<button type="button" onclick="downloadExcel('personal');">Excel 다운로드</button>
 				</div>
 				<!-- 버튼R E -->
 

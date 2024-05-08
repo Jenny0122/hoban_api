@@ -44,6 +44,9 @@ public class SearchController {
     @Operation( summary = "개인정보 검색", description = "개인정보 추출검색" )
     public ResponseEntity< ? > retrivePersonalDataSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
 
+        HttpSession session = request.getSession( );
+        session.setAttribute( personalKey , params );
+
         String collection = params.getOrDefault( "searchTargetOID" , "" );
         String query = params.getOrDefault( "query" , "" );
 
@@ -56,10 +59,9 @@ public class SearchController {
         }
 
 
-        HttpSession session = request.getSession( );
-        params.put( "count" , String.valueOf( rowsLimit ) );
-        params.put( "pageStart" , "0" );
-        session.setAttribute( personalKey , service.searchPersonalDataTotalListByCategory( params ) );
+//        params.put( "count" , String.valueOf( rowsLimit ) );
+//        params.put( "pageStart" , "0" );
+//        session.setAttribute( personalKey , service.searchPersonalDataTotalListByCategory( params ) );
 
         return ResponseEntity.ok( dto );
     }
@@ -67,6 +69,9 @@ public class SearchController {
     @RequestMapping( value = "/search/sensitive", method = RequestMethod.POST, produces = "application/json" )
     @Operation( summary = "민감정보검색", description = "입력받은 검색어로 민감정보 검색" )
     public ResponseEntity< ? > retriveSensitiveDataSearchList( HttpServletRequest request , @RequestBody Map< String, String > params ) {
+
+        HttpSession session = request.getSession( );
+        session.setAttribute( sensitiveKey , params );
 
         String collection = params.getOrDefault( "searchTargetOID" , "" );
         String query = params.getOrDefault( "query" , "" );
@@ -93,21 +98,14 @@ public class SearchController {
         TotalSearchDTO dto = dtoBuilder.data( data )
                                        .query( query )
                                        .build( );
-        HttpSession session = request.getSession( );
-        params.put( "count" , String.valueOf( rowsLimit ) );
-        params.put( "pageStart" , "0" );
-        List< Object > temp = new ArrayList<>( );
-        temp.add( service.searchSensitiveFileTotalListByCategory( params ) );
-        session.setAttribute( sensitiveKey , TotalSearchDTO.builder( )
-                                                           .data( data )
-                                                           .query( query )
-                                                           .build( ) );
-
-        if(session.getAttribute(sensitiveKey) == null) {
-            log.error("Fail to save data...");
-        } else {
-            log.info("data: {}", session.getAttribute(sensitiveKey));
-        }
+//        params.put( "count" , String.valueOf( rowsLimit ) );
+//        params.put( "pageStart" , "0" );
+//        List< Object > temp = new ArrayList<>( );
+//        temp.add( service.searchSensitiveFileTotalListByCategory( params ) );
+//        session.setAttribute( sensitiveKey , TotalSearchDTO.builder( )
+//                                                           .data( temp )
+//                                                           .query( query )
+//                                                           .build( ) );
 
         return ResponseEntity.ok( dto );
     }
