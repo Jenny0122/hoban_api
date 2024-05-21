@@ -4,8 +4,8 @@
 <%@ page import="java.util.Map" %>
 <%
 	String referer = request.getHeader("referer");
-	//if (referer == null || !referer.contains("ecm.ihoban.co.kr"))
-    //  return;
+	if (referer == null || !referer.contains("ecm.ihoban.co.kr"))
+    	return;
 
     String schKwd = request.getParameter("sch_kwd"); // 검색어
     String jsonString = request.getParameter("jsonString");
@@ -1065,7 +1065,7 @@
                 url = "/sensitive/excel"; // 보안정보 엑셀 다운로드 URL
                 dataSize = parseInt($("#sensitive_cnt").val()); // 보안정보 총 건수
             }
-            else if(type == 'psersonal'){
+            else if(type == 'personal'){
                 url = "/personal/excel"; // 보안정보 엑셀 다운로드 URL
                 dataSize = parseInt($("#personal_cnt").val()); // 개인정보 총 건수
             }
