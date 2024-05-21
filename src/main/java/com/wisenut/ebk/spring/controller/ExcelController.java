@@ -25,74 +25,88 @@ import java.util.Map;
 @Slf4j
 public class ExcelController {
 
+    final int OFFSET = 100;
     private final ExcelService service;
     private final SearchService searchService;
-    @Value("${key.sensitive}")
+    @Value( "${key.sensitive}" )
     String sensitiveKey;
-    @Value("${key.personal}")
+    @Value( "${key.personal}" )
     String personalKey;
-    @Value("${limit.excel.rows}")
+    @Value( "${limit.excel.rows}" )
     int rowsLimit;
 
-    final int OFFSET = 100;
-
     @Deprecated
-    @PostMapping("/personal/excel")
-    public void getPersonalDataExcelOld(HttpServletRequest request, HttpServletResponse res) throws Exception {
+    @PostMapping( "/personal/excel" )
+    public void getPersonalDataExcelOld( HttpServletRequest request , HttpServletResponse res ) throws Exception {
 
-        HttpSession session = request.getSession();
-        SearchPersonalDTO dto = (SearchPersonalDTO) session.getAttribute(personalKey);
+        HttpSession session = request.getSession( );
+        SearchPersonalDTO dto = ( SearchPersonalDTO ) session.getAttribute( personalKey );
 //        service.getPersonalDataExcel(res, dto);
     }
 
     @Deprecated
-    @PostMapping("/sensitive/excel")
-    public void getSensitiveDataExcelOld(HttpServletRequest request, HttpServletResponse res) throws Exception {
-        HttpSession session = request.getSession();
-        TotalSearchDTO dto = (TotalSearchDTO) session.getAttribute(sensitiveKey);
+    @PostMapping( "/sensitive/excel" )
+    public void getSensitiveDataExcelOld( HttpServletRequest request , HttpServletResponse res ) throws Exception {
+        HttpSession session = request.getSession( );
+        TotalSearchDTO dto = ( TotalSearchDTO ) session.getAttribute( sensitiveKey );
 //        service.getSensitiveDataExcel(res, dto, query);
     }
 
-    @GetMapping("/personal/excel")
-    public void getPersonalDataExcel(HttpServletRequest request, HttpServletResponse res) throws Exception {
+    @GetMapping( "/personal/excel" )
+    public void getPersonalDataExcel( HttpServletRequest request , HttpServletResponse res ) throws Exception {
 
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession( );
 
-        Map<String, String> params = (Map<String, String>) session.getAttribute(personalKey);
+        Map< String, String > params = ( Map< String, String > ) session.getAttribute( personalKey );
 
-        List<FileSearchVo> all = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
-            params.put("count", String.valueOf(OFFSET));
-            params.put("pageStart", String.valueOf(i));
+        List< FileSearchVo > all = new ArrayList<>( );
+        boolean checkResultSize = true;
+        for ( int i = 0 ; i < 200 && checkResultSize ; i++ ) {
+            params.put( "count" , String.valueOf( OFFSET ) );
+            params.put( "pageStart" , String.valueOf( i ) );
 
-            SearchPersonalDTO dto = searchService.searchPersonalDataTotalListByCategory(params);
-            FileSearch fileSearch = (FileSearch) dto.getData()
-                                                    .get(0);
+            SearchPersonalDTO dto = searchService.searchPersonalDataTotalListByCategory( params );
+            FileSearch fileSearch = ( FileSearch ) dto.getData( )
+                                                      .get( 0 );
+            List< FileSearchVo > result = fileSearch.getResult( );
 
-            all.addAll(fileSearch.getResult());
+            if ( result == null ) {
+                log.warn( "{}번째 실행 중 null 발생" , i );
+                break;
+            }
+            all.addAll( fileSearch.getResult( ) );
+            checkResultSize = result.size( ) == OFFSET;
 
         }
 
-        service.getPersonalDataExcel(res, all);
+        service.getPersonalDataExcel( res , all );
     }
 
-    @GetMapping("/sensitive/excel")
-    public void getSensitiveDataExcel(HttpServletRequest request, HttpServletResponse res) throws Exception {
-        HttpSession session = request.getSession();
+    @GetMapping( "/sensitive/excel" )
+    public void getSensitiveDataExcel( HttpServletRequest request , HttpServletResponse res ) throws Exception {
+        HttpSession session = request.getSession( );
 
-        Map<String, String> params = (Map<String, String>) session.getAttribute(sensitiveKey);
+        Map< String, String > params = ( Map< String, String > ) session.getAttribute( sensitiveKey );
+        String query = params.getOrDefault( "query" , "" );
 
-        String query = params.getOrDefault("query", "");
+        List< FileSearchVo > all = new ArrayList<>( );
+        boolean checkResultSize = true;
+        for ( int i = 0 ; i < 200 && checkResultSize ; i++ ) {
+            params.put( "count" , String.valueOf( OFFSET ) );
+            params.put( "pageStart" , String.valueOf( i ) );
 
-        List<FileSearchVo> all = new ArrayList<>();
-        for (int i = 0; i < 200; i++) {
-            params.put("count", String.valueOf(OFFSET));
-            params.put("pageStart", String.valueOf(i));
+            FileSearch data = searchService.searchSensitiveFileTotalListByCategory( params );
+            List< FileSearchVo > result = data.getResult( );
 
-            FileSearch data = searchService.searchSensitiveFileTotalListByCategory(params);
-            all.addAll(data.getResult());
+            if ( result == null ) {
+                log.warn( "{}번째 실행 중 null 발생" , i );
+                break;
+            }
 
+
+            all.addAll( data.getResult( ) );
+            checkResultSize = result.size( ) == OFFSET;
         }
-        service.getSensitiveDataExcel(res, all, query);
+        service.getSensitiveDataExcel( res , all , query );
     }
 }
