@@ -26,6 +26,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>호반건설 - 검색화면</title>
     <link rel="stylesheet" href="css/common.css">
+    <link rel="icon" href="img/favicon.ico">
 </head>
 <body>
     <form name="fm" method="post" action="./gsch.jsp">

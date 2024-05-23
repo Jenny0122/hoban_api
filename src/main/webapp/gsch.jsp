@@ -53,6 +53,7 @@
     <title>호반건설 - 일반검색</title>
     <link rel="stylesheet" href="css/font/pretendard.css">
     <link rel="stylesheet" href="css/common.css">
+    <link rel="icon" href="img/favicon.ico">
     <script src="js/jquery-1.12.3.js"></script>
     <script src="js/common.js"></script>
     <!--sweetalert-->
