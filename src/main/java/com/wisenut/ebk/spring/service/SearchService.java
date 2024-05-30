@@ -438,6 +438,7 @@ public class SearchService {
         List< String > SEARCH_FIELD_LIST = new ArrayList<>( );
         SEARCH_FIELD_LIST.add( "NAME" );
         SEARCH_FIELD_LIST.add( "DESCRIPTION" );
+        SEARCH_FIELD_LIST.add( "CODE" );
         SEARCH_FIELD_LIST.add( "CREATOROID" );
         SEARCH_FIELD_LIST.add( "CREATEDATE" );
         SEARCH_FIELD_LIST.add( "CREATEDATN" );
