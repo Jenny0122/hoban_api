@@ -4,6 +4,7 @@
 <%@ page import="java.util.Map" %>
 <%
 	String referer = request.getHeader("referer");
+	// if (referer == null || !referer.contains("ecmdev.e-hoban.co.kr"))
 	if (referer == null || !referer.contains("ecm.ihoban.co.kr"))
     	return;
 

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -145,6 +146,7 @@ public class SearchService {
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
+        ret = search.w3SetTraceLog(0);
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -152,10 +154,10 @@ public class SearchService {
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            filterQueryBuilder.append( "<DOCTYPEOID:substring:" )
-                                  .append( doctype )
-                                  .append( ">" )
-                                  .append( " " );
+            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+                              .append( doctype )
+                              .append( ">" )
+                              .append( " " );
         }
 
         String name = "";
@@ -229,13 +231,13 @@ public class SearchService {
                 String[] aclfilterInfoDetails = item.trim( )
                                                     .split( "\\|" );
                 aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
-                sb.append( "<ACLKEYCODE:substring:" )
+                sb.append( "<ACLKEYCODE:contains:" )
                   .append( aclfilterInfoOidType )
                   .append( ">" )
                   .append( "|" );
 
             }
-            filterQueryBuilder.append( sb.toString( )
+            collectionQueryBuilder.append( sb.toString( )
                                          .subSequence( 0 , sb.toString( )
                                                              .length( ) - 1 ) )
                               .append( ") " );
@@ -244,11 +246,14 @@ public class SearchService {
         }
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            filterQueryBuilder.append( "<DATE:gte:" )
-                              .append( params.get( "modifyFrom" ) )
-                              .append( "> <DATE:lte:" )
-                              .append( params.get( "modifyTo" ) )
-                              .append( "> " );
+            ret = search.w3SetDateRange(COLLECTION,
+                    params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
+                    params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
+//            filterQueryBuilder.append( "<DATE:gte:" )
+//                              .append( params.get( "modifyFrom" ) )
+//                              .append( "> <DATE:lte:" )
+//                              .append( params.get( "modifyTo" ) )
+//                              .append( "> " );
         }
 
         if ( params.containsKey( "fileSizeFrom" ) && params.containsKey( "fileSizeTo" ) ) {
@@ -301,13 +306,13 @@ public class SearchService {
 
         String filterQuery = filterQueryBuilder.toString( )
                                                .trim( );
-        log.debug( "[filterQuery]: {}" , filterQuery );
+        log.debug( "[file filterQuery]: {}" , filterQuery );
         ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
 
         String collectionQuery = collectionQueryBuilder.toString( )
                                                        .trim( );
-        log.debug( "[collectionQuery]: {}" , collectionQuery );
+        log.debug( "[file collectionQuery]: {}" , collectionQuery );
         ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
         // request
@@ -555,12 +560,12 @@ public class SearchService {
                 String[] aclfilterInfoDetails = item.trim( )
                                                     .split( "\\|" );
                 aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
-                sb.append( "<ACLKEYCODE:substring:" )
+                sb.append( "<ACLKEYCODE:contains:" )
                   .append( aclfilterInfoOidType )
                   .append( ">" )
                   .append( "|" );
             }
-            filterQueryBuilder.append( sb , 0 , sb.toString( )
+            collectionQueryBuilder.append( sb , 0 , sb.toString( )
                                                   .length( ) - 1 )
                               .append( ") " );
         } else {
@@ -576,11 +581,14 @@ public class SearchService {
         }
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            filterQueryBuilder.append( "<DATE:gte:" )
-                              .append( params.get( "modifyFrom" ) )
-                              .append( "> <DATE:lte:" )
-                              .append( params.get( "modifyTo" ) )
-                              .append( "> " );
+            ret = search.w3SetDateRange(COLLECTION,
+                    params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
+                    params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
+//            filterQueryBuilder.append( "<DATE:gte:" )
+//                              .append( params.get( "modifyFrom" ) )
+//                              .append( "> <DATE:lte:" )
+//                              .append( params.get( "modifyTo" ) )
+//                              .append( "> " );
         }
 
         String folderOid = "";
@@ -593,13 +601,13 @@ public class SearchService {
 
         String filterQuery = filterQueryBuilder.toString( )
                                                .trim( );
-        log.debug( "[filterQuery]: {}" , filterQuery );
+        log.debug( "[folder filterQuery]: {}" , filterQuery );
         ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
 
         String collectionQuery = collectionQueryBuilder.toString( )
                                                        .trim( );
-        log.debug( "[collectionQuery]: {}" , collectionQuery );
+        log.debug( "[folder collectionQuery]: {}" , collectionQuery );
         ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
         // request
@@ -718,8 +726,6 @@ public class SearchService {
         ret = search.w3SetQueryLog( QUERY_LOG );
         ret = search.w3SetCommonQuery( query , EXTEND_OR );
 
-        ret = search.w3SetTraceLog( 0 );
-
         // collection, 검색 필드, 출력 필드 설정
         ret = search.w3AddCollection( COLLECTION );
         ret = search.w3SetPageInfo( COLLECTION , PAGE_START , RESULT_COUNT );
@@ -737,7 +743,6 @@ public class SearchService {
 
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
-        StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder prefixQueryBuilder = new StringBuilder( );
 
         String securityfilter = "";
@@ -757,11 +762,7 @@ public class SearchService {
         ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery , 1 );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            filterQueryBuilder.append( "<DATE:gte:" )
-                              .append( params.get( "modifyFrom" ) )
-                              .append( "> <DATE:lte:" )
-                              .append( params.get( "modifyTo" ) )
-                              .append( "> " );
+            ret = search.w3SetFilterQuery(COLLECTION, "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + "> " );
         }
 
         //dodtype
@@ -769,15 +770,10 @@ public class SearchService {
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
 
-            filterQueryBuilder.append( "<DOCTYPEOID:substring:" )
-                                  .append( doctype )
-                                  .append( "> " );
+            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+                              .append( doctype )
+                              .append( "> " );
         }
-
-        String filterQuery = filterQueryBuilder.toString( )
-                                               .trim( );
-        log.debug( "[filterQuery]: {}" , filterQuery );
-        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
         //group
         String groupNames = "";
@@ -1008,21 +1004,23 @@ public class SearchService {
 
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
-        StringBuilder filterQueryBuilder = new StringBuilder( );
+        StringBuilder collectionQueryBuilder = new StringBuilder( );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            filterQueryBuilder.append( "<DATE:gte:" )
-                              .append( params.get( "modifyFrom" ) )
-                              .append( "> <DATE:lte:" )
-                              .append( params.get( "modifyTo" ) )
-                              .append( "> " );
+            ret = search.w3SetDateRange(COLLECTION,
+                    params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
+                    params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
+//            ret = search.w3SetFilterQuery(COLLECTION, "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + "> " );
         }
 
         //dodtype
+        String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
-            filterQueryBuilder.append( "<DOCTYPEOID:substring:" )
-                                  .append( params.get( "doctype" ) )
-                                  .append( "> " );
+            doctype = params.get( "doctype" );
+            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+                              .append( doctype )
+                              .append( ">" )
+                              .append( " " );
         }
 
         //group
@@ -1037,21 +1035,21 @@ public class SearchService {
 
             for ( String group : groupNameArray ) {
                 group = group.trim( );
-                sb.append( "<CREATORGROUPNAME:substring:" )
+                sb.append( "<CREATORGROUPNAME:contains:" )
                   .append( group )
                   .append( ">" )
                   .append( "|" );
             }
-            filterQueryBuilder.append( sb.toString( )
-                                             .subSequence( 0 , sb.toString( )
-                                                                 .length( ) - 1 ) )
-                                  .append( ") " );
+            collectionQueryBuilder.append( sb.toString( )
+                                         .subSequence( 0 , sb.toString( )
+                                                             .length( ) - 1 ) )
+                              .append( ") " );
         }
 
-        final String filterQuery = filterQueryBuilder.toString( )
-                                                             .trim( );
-        log.debug( "[filterQuery]: {}" , filterQuery );
-        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
+        final String collectionQuery = collectionQueryBuilder.toString( )
+                                                     .trim( );
+        log.debug( "[collectionQuery]: {}" , collectionQuery );
+        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
