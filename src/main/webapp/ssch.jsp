@@ -714,7 +714,14 @@
                 data : JSON.stringify(paramData),
                 type : 'POST',
                 dataType: 'JSON',
-                contentType: 'application/json; charset=utf-8'
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function(xhr){
+                    document.body.style.cursor = 'wait';
+                },
+                complete: function(){
+                    document.body.style.cursor = 'auto';
+                }
             }).done(function(resultData) {
                 //console.log("FAIL => ");
                 //console.log(resultData);
@@ -926,7 +933,14 @@
                 data : JSON.stringify(paramData),
                 type : 'POST',
                 dataType: 'JSON',
-                contentType: 'application/json; charset=utf-8'
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function(xhr){
+                    document.body.style.cursor = 'wait';
+                },
+                complete: function(){
+                    document.body.style.cursor = 'auto';
+                }
             }).done(function(resultData) {
                 //console.log("FAIL => ");
                 //console.log(resultData);

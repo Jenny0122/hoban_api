@@ -15,7 +15,7 @@
         aclFilterInfos = (String) session.getAttribute("aclFilterInfos");
         if (aclFilterInfos == null) aclFilterInfos = "";
     }
-    //aclFilterInfos = "admin@UR|k, S000@PR|k, 0OxadYAA1t5@UR|z"; // 개발 테스트용, 운영반영시 주석 처리
+    // aclFilterInfos = "admin@UR|k, S000@PR|k, 0OxadYAA1t5@UR|z"; // 개발 테스트용, 운영반영시 주석 처리
 	
     String errorMessage = "";
 	
@@ -271,7 +271,14 @@
                 data : JSON.stringify(paramData),
                 type : 'POST',
                 dataType: 'JSON',
-                contentType: 'application/json; charset=utf-8'
+                async: true,
+                contentType: 'application/json; charset=utf-8',
+                beforeSend: function(xhr){
+                    document.body.style.cursor = 'wait';
+                },
+                complete: function(){
+                    document.body.style.cursor = 'auto';
+                }
             }).done(function(resultData) {
                 //console.log("FAIL => ");
                 //console.log(resultData);
