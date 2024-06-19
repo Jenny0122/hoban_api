@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -146,7 +145,7 @@ public class SearchService {
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
 
-        ret = search.w3SetTraceLog(0);
+        // ret = search.w3SetTraceLog(0);
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -567,7 +566,7 @@ public class SearchService {
             }
             collectionQueryBuilder.append( sb , 0 , sb.toString( )
                                                   .length( ) - 1 )
-                              .append( ") " );
+                              .append( ")" );
         } else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
@@ -602,7 +601,7 @@ public class SearchService {
         String filterQuery = filterQueryBuilder.toString( )
                                                .trim( );
         log.debug( "[folder filterQuery]: {}" , filterQuery );
-        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
+       ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
 
         String collectionQuery = collectionQueryBuilder.toString( )
