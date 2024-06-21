@@ -47,6 +47,9 @@ public class SearchService {
         List< FileSearchVo > list = new ArrayList<>( );
 
         String query = params.getOrDefault( "query" , "" );
+        query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-]", "");
+
+        log.debug( "real query : " + query );
 
         String COLLECTION = "";
         if ( params.containsKey( "searchTargetOID" ) ) {
@@ -83,7 +86,7 @@ public class SearchService {
         SEARCH_FIELD_LIST.add( "DOCTYPEOID" );
         SEARCH_FIELD_LIST.add( "CHECKOUT" );
         SEARCH_FIELD_LIST.add( "CONTENT" );
-        SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
+        // SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
         final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
 
         List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
@@ -144,6 +147,7 @@ public class SearchService {
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+        ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 1, 1, 0 );
 
         // ret = search.w3SetTraceLog(0);
 
@@ -220,11 +224,35 @@ public class SearchService {
         String aclFilterInfos = "";
         String aclfilterInfoOidType = "";
 
+//        if ( params.containsKey( "aclFilterInfos" ) ) {
+//            aclFilterInfos = params.get( "aclFilterInfos" );
+//
+//            StringBuilder sb = new StringBuilder( );
+//            sb.append( "(" );
+//            for ( String item : aclFilterInfos.split( "," ) ) {
+//
+//                String[] aclfilterInfoDetails = item.trim( )
+//                                                    .split( "\\|" );
+//                aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
+//                sb.append( "<ACLKEYCODE:contains:" )
+//                  .append( aclfilterInfoOidType )
+//                  .append( ">" )
+//                  .append( "|" );
+//
+//            }
+//            collectionQueryBuilder.append( sb.toString( )
+//                                         .subSequence( 0 , sb.toString( )
+//                                                             .length( ) - 1 ) )
+//                              .append( ") " );
+//        } else {
+//            throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
+//        }
+
         if ( params.containsKey( "aclFilterInfos" ) ) {
             aclFilterInfos = params.get( "aclFilterInfos" );
 
             StringBuilder sb = new StringBuilder( );
-            sb.append( "(" );
+
             for ( String item : aclFilterInfos.split( "," ) ) {
 
                 String[] aclfilterInfoDetails = item.trim( )
@@ -236,15 +264,29 @@ public class SearchService {
                   .append( "|" );
 
             }
-            collectionQueryBuilder.append( sb.toString( )
-                                         .subSequence( 0 , sb.toString( )
-                                                             .length( ) - 1 ) )
-                              .append( ") " );
-        } else {
+
+            ret = search.w3SetPrefixQuery( COLLECTION , sb.toString( ).trim( )
+                                                          .subSequence( 0 , sb.toString( )
+                                                                              .length( ) - 1 ).toString( )
+                                                          , 1 );
+        }else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
 
-        if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+            if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
             ret = search.w3SetDateRange(COLLECTION,
                     params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
                     params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
@@ -417,6 +459,7 @@ public class SearchService {
         List< FolderSearchVo > list = new ArrayList<>( );
 
         String query = params.getOrDefault( "query" , "" );
+        query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-]", "");
 
         // collection, 검색필드, 출력필드 정의
         String COLLECTION = "";
@@ -455,7 +498,7 @@ public class SearchService {
         SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
         SEARCH_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
         SEARCH_FIELD_LIST.add( "DOCTYPEFOLDER" );
-        SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
+        //SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
         final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
 
         List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
@@ -501,6 +544,8 @@ public class SearchService {
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
 
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+
+        ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 1, 1, 0 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -550,10 +595,32 @@ public class SearchService {
         String aclFilterInfos = "";
         String aclfilterInfoOidType = "";
 
+//        if ( params.containsKey( "aclFilterInfos" ) ) {
+//            aclFilterInfos = params.get( "aclFilterInfos" );
+//            StringBuilder sb = new StringBuilder( );
+//            sb.append( "(" );
+//            for ( String item : aclFilterInfos.split( "," ) ) {
+//
+//                String[] aclfilterInfoDetails = item.trim( )
+//                                                    .split( "\\|" );
+//                aclfilterInfoOidType = aclfilterInfoDetails[ 0 ];
+//                sb.append( "<ACLKEYCODE:contains:" )
+//                  .append( aclfilterInfoOidType )
+//                  .append( ">" )
+//                  .append( "|" );
+//            }
+//            collectionQueryBuilder.append( sb , 0 , sb.toString( )
+//                                                  .length( ) - 1 )
+//                              .append( ")" );
+//        } else {
+//            throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
+//        }
+
         if ( params.containsKey( "aclFilterInfos" ) ) {
             aclFilterInfos = params.get( "aclFilterInfos" );
+
             StringBuilder sb = new StringBuilder( );
-            sb.append( "(" );
+
             for ( String item : aclFilterInfos.split( "," ) ) {
 
                 String[] aclfilterInfoDetails = item.trim( )
@@ -563,13 +630,17 @@ public class SearchService {
                   .append( aclfilterInfoOidType )
                   .append( ">" )
                   .append( "|" );
+
             }
-            collectionQueryBuilder.append( sb , 0 , sb.toString( )
-                                                  .length( ) - 1 )
-                              .append( ")" );
-        } else {
+
+            ret = search.w3SetPrefixQuery( COLLECTION , sb.toString( ).trim( )
+                                                          .subSequence( 0 , sb.toString( )
+                                                                              .length( ) - 1 ).toString( )
+                    , 1 );
+        }else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
+
 
         if ( params.containsKey( "createFrom" ) && params.containsKey( "createTo" ) ) {
             filterQueryBuilder.append( "<CREATEDATE:gte:" )
@@ -689,6 +760,7 @@ public class SearchService {
     public SearchPersonalDTO searchPersonalDataTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
         String query = params.getOrDefault( "query" , "" );
+        query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-]", "");
 
         List< FileSearchVo > list = new ArrayList<>( );
 
@@ -707,7 +779,7 @@ public class SearchService {
 
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT/300,CUSTOM_CATEGORY,CATEGORY_YN,ALIAS"; // 출력필드
         String SORT_FIELD = ""; // 정렬필드
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -735,6 +807,8 @@ public class SearchService {
         if ( params.containsKey( "query") ) {
             ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
         }
+        ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 1, 1, 0 );
+
 
         // category
         ret = search.w3AddCategoryGroupBy( COLLECTION , "CUSTOM_CATEGORY" , "1/SC" );
@@ -953,6 +1027,7 @@ public class SearchService {
         String query = "";
         if ( params.containsKey( "query" ) ) {
             query = params.get( "query" );
+            query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-]", "");
         } else {
             throw new MissingArgumentException( "query는 '필수'값 입니다." );
         }
@@ -972,7 +1047,7 @@ public class SearchService {
         int EXTEND_OR = 1; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT,ACLKEYCODE"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT/300,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 //        String SORT_FIELD = ""; // 정렬필드
 //        if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -1000,8 +1075,9 @@ public class SearchService {
         ret = search.w3SetSearchField( COLLECTION , SEARCH_FIELD );
         ret = search.w3SetDocumentField( COLLECTION , DOCUMENT_FIELD );
         ret = search.w3SetHighlight( COLLECTION , 1 , 1 );
-
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
+        ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 1, 1, 0 );
+
 
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
