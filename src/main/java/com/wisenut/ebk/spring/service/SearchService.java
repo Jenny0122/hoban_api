@@ -83,7 +83,7 @@ public class SearchService {
         SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
         SEARCH_FIELD_LIST.add( "MANAGERGROUPOID" );
         SEARCH_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
-        SEARCH_FIELD_LIST.add( "DOCTYPEOID" );
+        // SEARCH_FIELD_LIST.add( "DOCTYPEOID" );
         SEARCH_FIELD_LIST.add( "CHECKOUT" );
         SEARCH_FIELD_LIST.add( "CONTENT" );
         // SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
@@ -152,12 +152,13 @@ public class SearchService {
         // ret = search.w3SetTraceLog(0);
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
+        StringBuilder prefixQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+            prefixQueryBuilder.append( "<DOCTYPEOID:contains:" )
                               .append( doctype )
                               .append( ">" )
                               .append( " " );
@@ -252,7 +253,7 @@ public class SearchService {
             aclFilterInfos = params.get( "aclFilterInfos" );
 
             StringBuilder sb = new StringBuilder( );
-
+            sb.append( "(" );
             for ( String item : aclFilterInfos.split( "," ) ) {
 
                 String[] aclfilterInfoDetails = item.trim( )
@@ -264,38 +265,24 @@ public class SearchService {
                   .append( "|" );
 
             }
-
-            ret = search.w3SetPrefixQuery( COLLECTION , sb.toString( ).trim( )
-                                                          .subSequence( 0 , sb.toString( )
-                                                                              .length( ) - 1 ).toString( )
-                                                          , 1 );
+            prefixQueryBuilder.append( sb.toString( ).trim( )
+                                         .subSequence( 0 , sb.toString( )
+                                                                              .length( ) - 1 ) )
+                              .append( ") " );
         }else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
-            ret = search.w3SetDateRange(COLLECTION,
-                    params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
-                    params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
+        if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
+        ret = search.w3SetDateRange(COLLECTION,
+            params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
+            params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
 //            filterQueryBuilder.append( "<DATE:gte:" )
 //                              .append( params.get( "modifyFrom" ) )
 //                              .append( "> <DATE:lte:" )
 //                              .append( params.get( "modifyTo" ) )
 //                              .append( "> " );
-        }
+    }
 
         if ( params.containsKey( "fileSizeFrom" ) && params.containsKey( "fileSizeTo" ) ) {
             filterQueryBuilder.append( "<FILESIZEM:gt:" )
@@ -350,11 +337,15 @@ public class SearchService {
         log.debug( "[file filterQuery]: {}" , filterQuery );
         ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
-
         String collectionQuery = collectionQueryBuilder.toString( )
                                                        .trim( );
         log.debug( "[file collectionQuery]: {}" , collectionQuery );
         ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
+
+        String prefixQuery = prefixQueryBuilder.toString( )
+                                                       .trim( );
+        log.debug( "[file prefixQuery]: {}" , prefixQuery );
+        ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery, 1 );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -497,7 +488,7 @@ public class SearchService {
         SEARCH_FIELD_LIST.add( "FOLDERFULLPATHOID" );
         SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
         SEARCH_FIELD_LIST.add( "KNOWLEDGEFOLDERLIST" );
-        SEARCH_FIELD_LIST.add( "DOCTYPEFOLDER" );
+        // SEARCH_FIELD_LIST.add( "DOCTYPEFOLDER" );
         //SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
         final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
 
@@ -548,12 +539,13 @@ public class SearchService {
         ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 1, 1, 0 );
 
         StringBuilder filterQueryBuilder = new StringBuilder( );
+        StringBuilder prefixQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
 
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            collectionQueryBuilder.append( "<DOCTYPEFOLDER:contains:" )
+            prefixQueryBuilder.append( "<DOCTYPEFOLDER:contains:" )
                                   .append( doctype )
                                   .append( "> " );
         }
@@ -620,7 +612,7 @@ public class SearchService {
             aclFilterInfos = params.get( "aclFilterInfos" );
 
             StringBuilder sb = new StringBuilder( );
-
+            sb.append( "(" );
             for ( String item : aclFilterInfos.split( "," ) ) {
 
                 String[] aclfilterInfoDetails = item.trim( )
@@ -632,11 +624,10 @@ public class SearchService {
                   .append( "|" );
 
             }
-
-            ret = search.w3SetPrefixQuery( COLLECTION , sb.toString( ).trim( )
-                                                          .subSequence( 0 , sb.toString( )
-                                                                              .length( ) - 1 ).toString( )
-                    , 1 );
+            prefixQueryBuilder.append( sb.toString( ).trim( )
+                                         .subSequence( 0 , sb.toString( )
+                                                             .length( ) - 1 ) )
+                              .append( ") " );
         }else {
             throw new MissingArgumentException( "aclFilterInfos는 '필수'값 입니다." );
         }
@@ -672,13 +663,17 @@ public class SearchService {
         String filterQuery = filterQueryBuilder.toString( )
                                                .trim( );
         log.debug( "[folder filterQuery]: {}" , filterQuery );
-       ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
-
+        ret = search.w3SetFilterQuery( COLLECTION , filterQuery );
 
         String collectionQuery = collectionQueryBuilder.toString( )
                                                        .trim( );
         log.debug( "[folder collectionQuery]: {}" , collectionQuery );
         ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
+
+        String prefixQuery = prefixQueryBuilder.toString( )
+                                                       .trim( );
+        log.debug( "[folder prefixQuery]: {}" , collectionQuery );
+        ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery, 1 );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -779,7 +774,7 @@ public class SearchService {
 
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,CHECKOUT,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT/300,CUSTOM_CATEGORY,CATEGORY_YN,ALIAS"; // 출력필드
         String SORT_FIELD = ""; // 정렬필드
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -814,8 +809,6 @@ public class SearchService {
         ret = search.w3AddCategoryGroupBy( COLLECTION , "CUSTOM_CATEGORY" , "1/SC" );
         ret = search.w3SetDateRange( COLLECTION , startDate , endDate );
 
-
-        StringBuilder collectionQueryBuilder = new StringBuilder( );
         StringBuilder prefixQueryBuilder = new StringBuilder( );
 
         String securityfilter = "";
@@ -828,11 +821,7 @@ public class SearchService {
 
         }
 
-        prefixQueryBuilder.append( "<CATEGORY_YN:contains:Y>" );
-        final String prefixQuery = prefixQueryBuilder.toString( )
-                                                     .trim( );
-        log.debug( "[prefixQuery]: {}" , prefixQuery );
-        ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery , 1 );
+        prefixQueryBuilder.append( "<CATEGORY_YN:contains:Y> " );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
             ret = search.w3SetFilterQuery(COLLECTION, "<DATE:gte:" + params.get( "modifyFrom" ) + "> <DATE:lte:" + params.get( "modifyTo" ) + "> " );
@@ -843,7 +832,7 @@ public class SearchService {
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
 
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+            prefixQueryBuilder.append( "<DOCTYPEOID:contains:" )
                               .append( doctype )
                               .append( "> " );
         }
@@ -865,16 +854,16 @@ public class SearchService {
                   .append( ">" )
                   .append( "|" );
             }
-            collectionQueryBuilder.append( sb.toString( )
+            prefixQueryBuilder.append( sb.toString( )
                                              .subSequence( 0 , sb.toString( )
                                                                  .length( ) - 1 ) )
                                   .append( ")" );
         }
 
-        final String collectionQuery = collectionQueryBuilder.toString( )
-                                                             .trim( );
-        log.debug( "[collectionQuery]: {}" , collectionQuery );
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
+        final String prefixQuery = prefixQueryBuilder.toString( )
+                                                     .trim( );
+        log.debug( "[personal prefixQuery]: {}" , prefixQuery );
+        ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery , 1 );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -1047,7 +1036,7 @@ public class SearchService {
         int EXTEND_OR = 1; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
-        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,CONTENT"; // 검색필드
+        String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,CHECKOUT,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT/300,CUSTOM_CATEGORY,ALIAS"; // 출력필드
 //        String SORT_FIELD = ""; // 정렬필드
 //        if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
@@ -1078,8 +1067,7 @@ public class SearchService {
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
         ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 1, 1, 0 );
 
-
-        StringBuilder collectionQueryBuilder = new StringBuilder( );
+        StringBuilder prefixQueryBuilder = new StringBuilder( );
 
         if ( params.containsKey( "modifyFrom" ) && params.containsKey( "modifyTo" ) ) {
             ret = search.w3SetDateRange(COLLECTION,
@@ -1092,7 +1080,7 @@ public class SearchService {
         String doctype = "";
         if ( params.containsKey( "doctype" ) ) {
             doctype = params.get( "doctype" );
-            collectionQueryBuilder.append( "<DOCTYPEOID:contains:" )
+            prefixQueryBuilder.append( "<DOCTYPEOID:contains:" )
                               .append( doctype )
                               .append( ">" )
                               .append( " " );
@@ -1115,16 +1103,16 @@ public class SearchService {
                   .append( ">" )
                   .append( "|" );
             }
-            collectionQueryBuilder.append( sb.toString( )
+            prefixQueryBuilder.append( sb.toString( )
                                          .subSequence( 0 , sb.toString( )
                                                              .length( ) - 1 ) )
                               .append( ") " );
         }
 
-        final String collectionQuery = collectionQueryBuilder.toString( )
+        final String prefixQuery = prefixQueryBuilder.toString( )
                                                      .trim( );
-        log.debug( "[collectionQuery]: {}" , collectionQuery );
-        ret = search.w3SetCollectionQuery( COLLECTION , collectionQuery );
+        log.debug( "[sensitive prefixQuery]: {}" , prefixQuery );
+        ret = search.w3SetPrefixQuery( COLLECTION , prefixQuery, 1 );
 
         // request
         ret = search.w3ConnectServer( SERVER_IP , SERVER_PORT , SERVER_TIMEOUT );
@@ -1207,7 +1195,6 @@ public class SearchService {
             log.debug( vo.toString( ) );
 
         }
-
 
         return FileSearch.builder( )
                          .Collection( COLLECTION )
