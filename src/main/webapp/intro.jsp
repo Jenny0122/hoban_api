@@ -38,6 +38,9 @@
                 <input type="hidden" name="aclFilterInfos" value="<%= aclFilterInfos %>" />
                 <button type="submit"><img src="img/search.png" alt="검색"></button>
             </div>
+            <p style="margin: 20px; position: relative; top: 110%; left: 18%; color:#999; font-family: emoji;">
+                띄어쓰기는 and 검색, | 는 or 검색, !는 not 검색 <br><br> 예시 : 홍길동 호반, 홍길동 | 호반, 홍길동 !호반
+            </p>
         </div>
     </div>
     </form>

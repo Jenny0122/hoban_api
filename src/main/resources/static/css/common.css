@@ -439,8 +439,8 @@ table td{
 .contents .title{
   font-size: 20px;
   letter-spacing: -1px;
-  /*width: 700px;*/
-  width: auto;
+  width: 700px;
+  /*width: auto;*/
   line-height: 24px;
 /*  word-break: break-all;
   overflow: hidden;

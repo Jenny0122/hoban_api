@@ -15,7 +15,7 @@
         aclFilterInfos = (String) session.getAttribute("aclFilterInfos");
         if (aclFilterInfos == null) aclFilterInfos = "";
     }
-    // aclFilterInfos = "admin@UR|k, S000@PR|k, 0OxadYAA1t5@UR|z, 0O-RaCyX_Rm@PG|k"; // 개발 테스트용, 운영반영시 주석 처리
+    // aclFilterInfos = "0OxadYAA1t5@UR|z"; // 개발 테스트용, 운영반영시 주석 처리
 	
     String errorMessage = "";
 	
@@ -569,7 +569,7 @@
                     <input type="text" name="sch_kwd" required value="<%=schKwd %>" />
                     <button type="submit"><img src="img/search.png" alt="검색"></button>
                 </div>
-                <p>띄어쓰기는 and 검색, | 는 or 검색입니다.</p>
+                <p>띄어쓰기는 and 검색, | 는 or 검색, !는 not 검색(제외 검색)입니다.</p>
             </header>
         </form>
     </div>
