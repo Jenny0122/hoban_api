@@ -15,7 +15,7 @@
         aclFilterInfos = (String) session.getAttribute("aclFilterInfos");
         if (aclFilterInfos == null) aclFilterInfos = "";
     }
-    // aclFilterInfos = "0OxadYAA1t5@UR|z"; // 개발 테스트용, 운영반영시 주석 처리
+   //aclFilterInfos = "0OxcDYRy15B@UR|z,0OxcDYRy0FS@GR|R,0OxcDYRy0FT@GR|R,0OxcDYRy0FG@GR|R,0OxcDYRy0F9@GR|R,E000@GR|R"; // 개발 테스트용, 운영반영시 주석 처리
 	
     String errorMessage = "";
 	

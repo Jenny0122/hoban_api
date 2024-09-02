@@ -59,6 +59,9 @@ public class SearchService {
         query = filteredQuery.toString();
         // query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "").toLowerCase();
 
+        log.debug("filteredQuery", query);
+
+
         log.debug( "real query : " + query );
 
         String COLLECTION = "";
@@ -91,10 +94,8 @@ public class SearchService {
         SEARCH_FIELD_LIST.add( "FOLDERFULLPATHNAME" );
         SEARCH_FIELD_LIST.add( "MANAGERGROUPOID" );
         SEARCH_FIELD_LIST.add( "MANAGERGROUPFULLPATHOID" );
-        // SEARCH_FIELD_LIST.add( "DOCTYPEOID" );
         SEARCH_FIELD_LIST.add( "CHECKOUT" );
         SEARCH_FIELD_LIST.add( "CONTENT" );
-        // SEARCH_FIELD_LIST.add( "ACLKEYCODE" );
         final String SEARCH_FIELD = String.join( "," , SEARCH_FIELD_LIST );
 
         List< String > DOCUMENT_FIELD_LIST = new ArrayList<>( );
@@ -157,8 +158,6 @@ public class SearchService {
         ret = search.w3SetRanking( COLLECTION , "basic" , "prkmfo" , 1000 );
         ret = search.w3SetQueryAnalyzer( COLLECTION, 1, 0, 1, 0 );
 
-        // ret = search.w3SetTraceLog(0);
-
         StringBuilder filterQueryBuilder = new StringBuilder( );
         StringBuilder prefixQueryBuilder = new StringBuilder( );
         StringBuilder collectionQueryBuilder = new StringBuilder( );
@@ -175,15 +174,18 @@ public class SearchService {
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
-            filterQueryBuilder.append( "<FILENAME:substring:" )
+            // name = name.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9]", " ");
+            collectionQueryBuilder.append( "<FILENAME:contains:" )
                               .append( name )
                               .append( ">" )
                               .append( " " );
+
         }
 
         String contents = "";
         if ( params.containsKey( "contents" ) ) {
             contents = params.get( "contents" );
+            // contents = contents.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9]", " ");
             collectionQueryBuilder.append( "<CONTENT:contains:" )
                                   .append( contents )
                                   .append( ">" )
@@ -262,11 +264,7 @@ public class SearchService {
         ret = search.w3SetDateRange(COLLECTION,
             params.get( "modifyFrom" ).substring(0, 4) + "/" + params.get( "modifyFrom" ).substring(4, 6) + "/" + params.get( "modifyFrom" ).substring(6, 8),
             params.get( "modifyTo" ).substring(0, 4) + "/" + params.get( "modifyTo" ).substring(4, 6) + "/" + params.get( "modifyTo" ).substring(6, 8) );
-//            filterQueryBuilder.append( "<DATE:gte:" )
-//                              .append( params.get( "modifyFrom" ) )
-//                              .append( "> <DATE:lte:" )
-//                              .append( params.get( "modifyTo" ) )
-//                              .append( "> " );
+
     }
 
         if ( params.containsKey( "fileSizeFrom" ) && params.containsKey( "fileSizeTo" ) ) {
@@ -446,6 +444,7 @@ public class SearchService {
         query = filteredQuery.toString();
         //query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "").toLowerCase();
 
+        log.debug("query", query);
 
         // collection, 검색필드, 출력필드 정의
         String COLLECTION = "";
@@ -542,7 +541,7 @@ public class SearchService {
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
-            filterQueryBuilder.append( "<NAME:substring:" )
+            collectionQueryBuilder.append( "<NAME:contains:" )
                               .append( name )
                               .append( "> " );
         }
