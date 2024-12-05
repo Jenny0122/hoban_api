@@ -48,21 +48,9 @@ public class SearchService {
         List< FileSearchVo > list = new ArrayList<>( );
 
         String query = params.getOrDefault( "query" , "" );
-        StringBuilder filteredQuery  = new StringBuilder();
-        for (char c : query.toCharArray()) {
-            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                    (c >= '0' && c <= '9') || (c >= 0xAC00 && c <= 0xD7A3) ||
-                    c == ' ' || c == '|' || c == '-' || c == '!') {
-                filteredQuery.append(Character.toLowerCase(c));
-            }
-        }
-        query = filteredQuery.toString();
-        // query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "").toLowerCase();
+        query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "").toLowerCase();
 
-        log.debug("filteredQuery", query);
-
-
-        log.debug( "real query : " + query );
+        log.debug( "file query : " + query );
 
         String COLLECTION = "";
         if ( params.containsKey( "searchTargetOID" ) ) {
@@ -174,18 +162,15 @@ public class SearchService {
         String name = "";
         if ( params.containsKey( "name" ) ) {
             name = params.get( "name" );
-            // name = name.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9]", " ");
             collectionQueryBuilder.append( "<FILENAME:contains:" )
                               .append( name )
                               .append( ">" )
                               .append( " " );
-
         }
 
         String contents = "";
         if ( params.containsKey( "contents" ) ) {
             contents = params.get( "contents" );
-            // contents = contents.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9]", " ");
             collectionQueryBuilder.append( "<CONTENT:contains:" )
                                   .append( contents )
                                   .append( ">" )
@@ -352,9 +337,16 @@ public class SearchService {
             String oid = search.w3GetField( COLLECTION , "OID" , i );
             String targetoid = search.w3GetField( COLLECTION , "TARGETOID" , i );
             String storagefileid = search.w3GetField( COLLECTION , "STORAGEFILEID" , i );
-            String filename = search.w3GetField( COLLECTION , "FILENAME" , i )
-                                    .replaceAll( "<!HS>" , "<b>" )
-                                    .replaceAll( "<!HE>" , "</b>" );
+            String filename = "";
+            if(params.get("fileYn") != null && ("Y").equals(params.get("fileYn"))){
+                filename = search.w3GetField(COLLECTION, "FILENAME", i)
+                                 .replaceAll("<!HS>", "")
+                                 .replaceAll("<!HE>", "");
+            }else {
+                filename = search.w3GetField(COLLECTION, "FILENAME", i)
+                                 .replaceAll("<!HS>", "<b>")
+                                 .replaceAll("<!HE>", "</b>");
+            }
             String documentname = search.w3GetField( COLLECTION , "DOCUMENTNAME" , i );
             String taglist = search.w3GetField( COLLECTION , "TAGLIST" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
@@ -433,18 +425,9 @@ public class SearchService {
         List< FolderSearchVo > list = new ArrayList<>( );
 
         String query = params.getOrDefault( "query" , "" );
-        StringBuilder filteredQuery  = new StringBuilder();
-        for (char c : query.toCharArray()) {
-            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                    (c >= '0' && c <= '9') || (c >= 0xAC00 && c <= 0xD7A3) ||
-                    c == ' ' || c == '|' || c == '-' || c == '!') {
-                filteredQuery.append(Character.toLowerCase(c));
-            }
-        }
-        query = filteredQuery.toString();
-        //query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "").toLowerCase();
+        query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "").toLowerCase();
 
-        log.debug("query", query);
+        log.debug( "folder query : " + query );
 
         // collection, 검색필드, 출력필드 정의
         String COLLECTION = "";
@@ -459,6 +442,7 @@ public class SearchService {
         int EXTEND_OR = query.contains(" ") ? 1 : 0; // and 검색결과가 없을 시 or로 확장검색
         int RESULT_COUNT = params.containsKey( "count" ) ? Integer.parseInt( params.get( "count" ) ) : 10; // 한번에 출력되는 검색 건수
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색	결과 받아오는 시작위치
+
         String SORT_FIELD = ""; // 정렬필드
         if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
             SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
@@ -657,9 +641,17 @@ public class SearchService {
 
             // 기본 검색결과 객체 생성
             String oid = search.w3GetField( COLLECTION , "OID" , i );
-            String foldername = search.w3GetField( COLLECTION , "NAME" , i );
-            foldername = foldername.replaceAll( "<!HS>" , "<b>" );
-            foldername = foldername.replaceAll( "<!HE>" , "</b>" );
+            String foldername = "";
+            if(params.get("fileYn") != null && ("Y").equals(params.get("fileYn"))){
+                foldername = search.w3GetField( COLLECTION , "NAME" , i )
+                                   .replaceAll( "<!HS>" , "" )
+                                   .replaceAll( "<!HE>" , "" );
+            }else {
+                foldername = search.w3GetField( COLLECTION , "NAME" , i )
+                                   .replaceAll( "<!HS>" , "<b>" )
+                                   .replaceAll( "<!HE>" , "</b>" );
+            }
+
             String description = search.w3GetField( COLLECTION , "DESCRIPTION" , i );
             String code = search.w3GetField( COLLECTION , "CODE" , i );
             String creatoroid = search.w3GetField( COLLECTION , "CREATOROID" , i );
@@ -717,16 +709,7 @@ public class SearchService {
     public SearchPersonalDTO searchPersonalDataTotalListByCategory( Map< String, String > params ) throws MissingArgumentException {
 
         String query = params.getOrDefault( "query" , "" );
-        StringBuilder filteredQuery  = new StringBuilder();
-        for (char c : query.toCharArray()) {
-            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                    (c >= '0' && c <= '9') || (c >= 0xAC00 && c <= 0xD7A3) ||
-                    c == ' ' || c == '|' || c == '-' || c == '!') {
-                filteredQuery.append(Character.toLowerCase(c));
-            }
-        }
-        query = filteredQuery.toString();
-        // query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "");
+        query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "");
 
         List< FileSearchVo > list = new ArrayList<>( );
 
@@ -987,16 +970,7 @@ public class SearchService {
         String query = "";
         if ( params.containsKey( "query" ) ) {
             query = params.get( "query" );
-            StringBuilder filteredQuery  = new StringBuilder();
-            for (char c : query.toCharArray()) {
-                if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                        (c >= '0' && c <= '9') || (c >= 0xAC00 && c <= 0xD7A3) ||
-                        c == ' ' || c == '|' || c == '-' || c == '!') {
-                    filteredQuery.append(Character.toLowerCase(c));
-                }
-            }
-            query = filteredQuery.toString();
-            //query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "");
+            query = query.replaceAll("[^\\uAC00-\\uD7A3a-zA-Z0-9\\s\\|\\-!]", "");
         } else {
             throw new MissingArgumentException( "query는 '필수'값 입니다." );
         }
@@ -1018,11 +992,7 @@ public class SearchService {
         int PAGE_START = params.containsKey( "pageStart" ) ? Integer.parseInt( params.get( "pageStart" ) ) * RESULT_COUNT : 0; // 검색 결과를 받아오는 시작 위치
         String SEARCH_FIELD = "FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,CHECKOUT,CONTENT"; // 검색필드
         String DOCUMENT_FIELD = "DOCID,DATE,TARGETOID,OID,STORAGEFILEID,FILENAME,DOCUMENTNAME,TAGLIST,CREATOROID,CREATORNAME,CREATORGROUPNAME,CREATEDAT,LASTMODIFIEROID,LASTMODIFIEDAT,LASTMODIFIEDATN,FILETYPE,FILESIZE,FILESIZEM,FOLDEROID,FOLDERFULLPATHOID,FOLDERFULLPATHNAME,MANAGERGROUPOID,MANAGERGROUPFULLPATHOID,DOCTYPEOID,CHECKOUT,ACLKEYCODE,NO_ACLKEYCODE,CONTENT/300,CUSTOM_CATEGORY,ALIAS"; // 출력필드
-//        String SORT_FIELD = ""; // 정렬필드
-//        if ( params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) )
-//            SORT_FIELD = params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" );
-//        else
-//            SORT_FIELD = "RANK/DESC";
+
         String SORT_FIELD = params.containsKey( "sortColumnIndex" ) && params.containsKey( "sortDirection" ) ?
                 params.get( "sortColumnIndex" ) + "/" + params.get( "sortDirection" ) :
                 "RANK/DESC";
