@@ -1,6 +1,9 @@
 package com.wisenut.ebk.spring.service;
 
 
+import com.wisenut.ebk.spring.dto.SearchPersonalDTO;
+import com.wisenut.ebk.spring.vo.FileSearch;
+import com.wisenut.ebk.spring.vo.FileSearchVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -11,6 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RestController
 @Service
@@ -18,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ExcelService {
 
-    public void getPersonalDataExcel(HttpServletResponse res) throws Exception {
+    public void getPersonalDataExcel(HttpServletResponse res, List<FileSearchVo> result) throws Exception {
 
         /**
          * excel sheet 생성
@@ -26,88 +33,91 @@ public class ExcelService {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("sheet1"); // 엑셀 sheet 이름
         sheet.setDefaultColumnWidth(28); // 디폴트 너비 설정
+        sheet.setColumnWidth(0, 60 * 250);
+        sheet.setColumnWidth(1, 20 * 250);
+        sheet.setColumnWidth(2, 25 * 250);
+        sheet.setColumnWidth(3, 100 * 250);
 
         /**
          * header font style
          */
         XSSFFont headerXSSFFont = (XSSFFont) workbook.createFont();
-//        headerXSSFFont.setColor(new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255}));
 
         /**
          * header cell style
          */
         XSSFCellStyle headerXssfCellStyle = (XSSFCellStyle) workbook.createCellStyle();
 
-        // 테두리 설정
-        headerXssfCellStyle.setBorderLeft(BorderStyle.THIN);
-        headerXssfCellStyle.setBorderRight(BorderStyle.THIN);
-        headerXssfCellStyle.setBorderTop(BorderStyle.THIN);
-        headerXssfCellStyle.setBorderBottom(BorderStyle.THIN);
-        headerXssfCellStyle.setAlignment(HorizontalAlignment.CENTER);
-
-
-        // 배경 설정
-//        headerXssfCellStyle.setFillForegroundColor(new XSSFColor(new byte[]{(byte) 34, (byte) 37, (byte) 41}));
-//        headerXssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//        headerXssfCellStyle.setFont(headerXSSFFont);
-
         /**
          * body cell style
          */
-        XSSFCellStyle bodyXssfCellStyle = (XSSFCellStyle) workbook.createCellStyle();
+        XSSFCellStyle headerXssfCellStyleCenter = (XSSFCellStyle) workbook.createCellStyle();
+        headerXssfCellStyleCenter.setAlignment(HorizontalAlignment.CENTER);
+        headerXssfCellStyleCenter.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerXssfCellStyleCenter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // 테두리 설정
-//        bodyXssfCellStyle.setBorderLeft(BorderStyle.THIN);
-//        bodyXssfCellStyle.setBorderRight(BorderStyle.THIN);
-//        bodyXssfCellStyle.setBorderTop(BorderStyle.THIN);
-//        bodyXssfCellStyle.setBorderBottom(BorderStyle.THIN);
+        XSSFCellStyle bodyXssfCellStyleLeft = (XSSFCellStyle) workbook.createCellStyle();
+        bodyXssfCellStyleLeft.setAlignment(HorizontalAlignment.LEFT);
+
+        XSSFCellStyle bodyXssfCellStyleCenter = (XSSFCellStyle) workbook.createCellStyle();
+        bodyXssfCellStyleCenter.setAlignment(HorizontalAlignment.CENTER);
+
 
         /**
          * header data
          */
         int rowCount = 0; // 데이터가 저장될 행
-        String[] headerNames = new String[]{"파일이름", "작성자", "최종 수정일"};
+        String[] headerNames = new String[]{"파일이름", "등록자", "최종 수정일", "폴더경로"};
 
-        Row headerRow = null;
+        Row headerRow = sheet.createRow(rowCount++);
         Cell headerCell = null;
 
-        headerRow = sheet.createRow(rowCount++);
         for (int i = 0; i < headerNames.length; i++) {
             headerCell = headerRow.createCell(i);
             headerCell.setCellValue(headerNames[i]); // 데이터 추가
-            headerCell.setCellStyle(headerXssfCellStyle); // 스타일 추가
+            headerCell.setCellStyle(headerXssfCellStyleCenter); // 스타일 추가
         }
 
-        /**
-         * body data
-         */
-        String[][] bodyData = new String[][]{
-                {"A2", "B2", "C2"},
-                {"A3", "B3", "C3"},
-                {"A4", "B4", "C4"},
-                {"A5", "B5", "C5"}
-        };
+        if (result.isEmpty()) throw new RuntimeException("검색결과가 0입니다.");
 
         Row bodyRow = null;
         Cell bodyCell = null;
 
-        for (String[] bodyRowData : bodyData) {
+        for (int i = 0; i < result.size(); i++) {
             bodyRow = sheet.createRow(rowCount++);
+            FileSearchVo vo = result.get(i);
 
-            for (int i = 0; i < bodyRowData.length; i++) {
-                bodyCell = bodyRow.createCell(i);
-                bodyCell.setCellValue(bodyRowData[i]); // 데이터 추가
-                bodyCell.setCellStyle(bodyXssfCellStyle); // 스타일 추가
-            }
+            bodyCell = bodyRow.createCell(0);
+            bodyCell.setCellValue(vo.getFilename().replace("<b>", "").replace("</b>", "" )); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleLeft); // 스타일 추가
+
+
+            bodyCell = bodyRow.createCell(1);
+            bodyCell.setCellValue(vo.getCreatorname().replace("<b>", "").replace("</b>", "" )); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleCenter); // 스타일 추가
+
+            bodyCell = bodyRow.createCell(2);
+            bodyCell.setCellValue(vo.getLastmodifiedat()); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleCenter); // 스타일 추가
+
+
+            bodyCell = bodyRow.createCell(3);
+            bodyCell.setCellValue("S:\\" + vo.getFolderfullpathname()
+                                             .replaceAll(">", "\\\\")); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleLeft); // 스타일 추가
+
         }
 
+        String time = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                                       .format(LocalDateTime.now());
         /**
          * download
          */
-        String fileName = "excel_personalData";
+        String fileName = URLEncoder.encode("개인정보_" + /*query + "_" +*/ time, "UTF-8")
+                                    .replaceAll("\\+", "%20");
 
         res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xlsx");
+        res.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xlsx");
         ServletOutputStream servletOutputStream = res.getOutputStream();
 
         workbook.write(servletOutputStream);
@@ -116,7 +126,7 @@ public class ExcelService {
         servletOutputStream.close();
     }
 
-    public void getSensitiveDataExcel(HttpServletResponse res) throws Exception {
+    public void getSensitiveDataExcel(HttpServletResponse res, List<FileSearchVo> result, String query) throws Exception {
 
         /**
          * excel sheet 생성
@@ -124,86 +134,93 @@ public class ExcelService {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("sheet1"); // 엑셀 sheet 이름
         sheet.setDefaultColumnWidth(28); // 디폴트 너비 설정
+        sheet.setColumnWidth(0, 60 * 250);
+        sheet.setColumnWidth(1, 20 * 250);
+        sheet.setColumnWidth(2, 25 * 250);
+        sheet.setColumnWidth(3, 100 * 250);
 
         /**
          * header font style
          */
         XSSFFont headerXSSFFont = (XSSFFont) workbook.createFont();
-//        headerXSSFFont.setColor(new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255}));
 
         /**
          * header cell style
          */
         XSSFCellStyle headerXssfCellStyle = (XSSFCellStyle) workbook.createCellStyle();
 
-        // 테두리 설정
-        headerXssfCellStyle.setBorderLeft(BorderStyle.THIN);
-        headerXssfCellStyle.setBorderRight(BorderStyle.THIN);
-        headerXssfCellStyle.setBorderTop(BorderStyle.THIN);
-        headerXssfCellStyle.setBorderBottom(BorderStyle.THIN);
-
-        // 배경 설정
-//        headerXssfCellStyle.setFillForegroundColor(new XSSFColor(new byte[]{(byte) 34, (byte) 37, (byte) 41}));
-//        headerXssfCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-//        headerXssfCellStyle.setFont(headerXSSFFont);
-
         /**
          * body cell style
          */
-        XSSFCellStyle bodyXssfCellStyle = (XSSFCellStyle) workbook.createCellStyle();
+        XSSFCellStyle headerXssfCellStyleCenter = (XSSFCellStyle) workbook.createCellStyle();
+        headerXssfCellStyleCenter.setAlignment(HorizontalAlignment.CENTER);
+        headerXssfCellStyleCenter.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerXssfCellStyleCenter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-        // 테두리 설정
-//        bodyXssfCellStyle.setBorderLeft(BorderStyle.THIN);
-//        bodyXssfCellStyle.setBorderRight(BorderStyle.THIN);
-//        bodyXssfCellStyle.setBorderTop(BorderStyle.THIN);
-//        bodyXssfCellStyle.setBorderBottom(BorderStyle.THIN);
+        XSSFCellStyle bodyXssfCellStyleLeft = (XSSFCellStyle) workbook.createCellStyle();
+        bodyXssfCellStyleLeft.setAlignment(HorizontalAlignment.LEFT);
+
+        XSSFCellStyle bodyXssfCellStyleCenter = (XSSFCellStyle) workbook.createCellStyle();
+        bodyXssfCellStyleCenter.setAlignment(HorizontalAlignment.CENTER);
+
 
         /**
          * header data
          */
         int rowCount = 0; // 데이터가 저장될 행
-        String[] headerNames = new String[]{"파일이름", "작성자", "최종 수정일"};
+        String[] headerNames = new String[]{"파일이름", "등록자", "최종 수정일", "폴더경로"};
 
-        Row headerRow = null;
+        Row headerRow = sheet.createRow(rowCount++);
         Cell headerCell = null;
 
-        headerRow = sheet.createRow(rowCount++);
         for (int i = 0; i < headerNames.length; i++) {
             headerCell = headerRow.createCell(i);
             headerCell.setCellValue(headerNames[i]); // 데이터 추가
-            headerCell.setCellStyle(headerXssfCellStyle); // 스타일 추가
+            headerCell.setCellStyle(headerXssfCellStyleCenter); // 스타일 추가
         }
 
-        /**
-         * body data
-         */
-        String[][] bodyData = new String[][]{
-                {"A2", "B2", "C2"},
-                {"A3", "B3", "C3"},
-                {"A4", "B4", "C4"},
-                {"A5", "B5", "C5"}
-        };
+
+        if (result.isEmpty()) throw new RuntimeException("검색결과가 0입니다.");
 
         Row bodyRow = null;
         Cell bodyCell = null;
 
-        for (String[] bodyRowData : bodyData) {
+        for (int i = 0; i < result.size(); i++) {
             bodyRow = sheet.createRow(rowCount++);
+            FileSearchVo vo = result.get(i);
 
-            for (int i = 0; i < bodyRowData.length; i++) {
-                bodyCell = bodyRow.createCell(i);
-                bodyCell.setCellValue(bodyRowData[i]); // 데이터 추가
-                bodyCell.setCellStyle(bodyXssfCellStyle); // 스타일 추가
-            }
+            bodyCell = bodyRow.createCell(0);
+            bodyCell.setCellValue(vo.getFilename().replace("<b>", "").replace("</b>", "" )); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleLeft); // 스타일 추가
+
+
+            bodyCell = bodyRow.createCell(1);
+            bodyCell.setCellValue(vo.getCreatorname().replace("<b>", "").replace("</b>", "" )); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleCenter); // 스타일 추가
+
+            bodyCell = bodyRow.createCell(2);
+            bodyCell.setCellValue(vo.getLastmodifiedat()); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleCenter); // 스타일 추가
+
+
+            bodyCell = bodyRow.createCell(3);
+            bodyCell.setCellValue("S:\\" + vo.getFolderfullpathname()
+                                             .replaceAll(">", "\\\\")); // 데이터 추가
+            bodyCell.setCellStyle(bodyXssfCellStyleLeft); // 스타일 추가
+
         }
-
+        query = query
+                .replaceAll(" ", "_");
+        String time = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                                       .format(LocalDateTime.now());
         /**
          * download
          */
-        String fileName = "excel_sensitiveData";
+        String fileName = URLEncoder.encode("보안정보_" + query + "_" + time, "UTF-8")
+                                    .replaceAll("\\+", "%20");
 
         res.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", "attachment;filename=" + fileName + ".xlsx");
+        res.setHeader("Content-Disposition", "attachment; filename=" + fileName + ".xlsx");
         ServletOutputStream servletOutputStream = res.getOutputStream();
 
         workbook.write(servletOutputStream);

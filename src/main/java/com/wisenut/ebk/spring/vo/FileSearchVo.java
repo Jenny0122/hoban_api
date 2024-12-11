@@ -1,15 +1,9 @@
 package com.wisenut.ebk.spring.vo;
 
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.List;
 
 /**
  * 파일 통합 검색 필드 정보
@@ -54,6 +48,9 @@ public class FileSearchVo {
 
 	@Schema(description = "등록자 부서 이름")
 	private String creatorgroupname;
+
+	@Schema(description = "등록일")
+	private String createdat;
 
 	@Schema(description = "최종 수정자")
 	private String lastmodifieroid;

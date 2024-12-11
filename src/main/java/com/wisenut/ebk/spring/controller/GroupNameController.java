@@ -1,5 +1,6 @@
 package com.wisenut.ebk.spring.controller;
 
+import com.wisenut.ebk.spring.dto.GroupNameDTO;
 import com.wisenut.ebk.spring.service.GroupNameService;
 import com.wisenut.ebk.spring.vo.GroupVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,14 @@ public class GroupNameController {
     private GroupNameService groupNameService;
 
     @PostMapping("/groups")
-    public ResponseEntity<List<GroupVo>> getGroupNames() {
+    public ResponseEntity<GroupNameDTO> getGroupNames() {
         List<GroupVo> groupNames = groupNameService.getGroupNames();
-        return ResponseEntity.ok(groupNames);
+
+        GroupNameDTO dto = GroupNameDTO.builder()
+                                       .data(groupNames)
+                                       .count(groupNames.size())
+                                       .build();
+
+        return ResponseEntity.ok(dto);
     }
 }

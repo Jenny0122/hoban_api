@@ -1,41 +1,42 @@
 package com.wisenut.ebk.spring;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@EntityScan(basePackages = {"com.wisenut.ebk.spring.vo"})
-@EnableJpaRepositories(basePackages = {"com.wisenut.ebk.spring.repository"})
+@EnableAspectJAutoProxy( proxyTargetClass = true )
+@EntityScan( basePackages = { "com.wisenut.ebk.spring.vo" } )
+@EnableJpaRepositories( basePackages = { "com.wisenut.ebk.spring.repository" } )
 @SpringBootApplication
 //@EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
-@EnableAutoConfiguration
 public class HobanSearchApplication extends SpringBootServletInitializer {
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    public static void main( String[] args ) {
+        SpringApplication.run( HobanSearchApplication.class , args );
+    }
 
-		return application.sources(HobanSearchApplication.class);
-	}
+    @Override
+    protected SpringApplicationBuilder configure( SpringApplicationBuilder application ) {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HobanSearchApplication.class, args);
-	}
+        return application.sources( HobanSearchApplication.class );
+    }
 
-	@Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/").allowedOrigins("*");
-			}
-		};
-	}
+    @Bean
+    public WebMvcConfigurer corsConfigurer( ) {
+        return new WebMvcConfigurer( ) {
+            @Override
+            public void addCorsMappings( CorsRegistry registry ) {
+                registry.addMapping( "/" )
+                        .allowedOrigins( "*" );
+            }
+        };
+    }
 
 }

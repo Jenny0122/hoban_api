@@ -1,5 +1,6 @@
 package com.wisenut.ebk.spring.dto;
 
+import com.wisenut.ebk.spring.vo.GroupVo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,5 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class GroupNameDTO {
 
-	List<Object> data;
+	int count;
+
+	List<GroupVo> data;
 }
